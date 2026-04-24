@@ -91,6 +91,12 @@ DocuMink is a Flutter app with a four-tier detection pipeline, a SQLCipher-backe
 | Local KV (settings) | shared_preferences | latest | BSD-3 |
 | Secure key store | flutter_secure_storage | ≥10 | BSD-3 |
 
+**Package entry-points per phase.** Packages enter `pubspec.yaml` when used, not speculatively:
+
+- `flutter_secure_storage`, `sqlite3_flutter_libs` (or `sqlcipher_flutter_libs`) — enter at V1 Phase 1 (vault + key management).
+- `shared_preferences` — enters at V1 Phase 5 (settings persistence).
+- ML / LLM packages (`flutter_onnxruntime`, `flutter_gemma`, `fllama`, `google_mlkit_*`) — enter at the V1 phases that integrate them (Phases 2, 9, 10).
+
 ### 2.2 ML / detection runtimes
 
 | Layer | Choice | License | Notes |
