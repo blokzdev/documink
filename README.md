@@ -39,4 +39,4 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 ## Build status
 
-Pre-V0 Phase 1. Project scaffold not yet initialized.
+V0 Phase 1 complete — Flutter scaffold initialized with three flavors (dev/staging/prod), Riverpod + go_router + drift codegen working, strict linting enforced. Next: V0 Phase 2 (CI/CD guardrails).
