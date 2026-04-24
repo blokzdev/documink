@@ -33,7 +33,7 @@ Before starting any task:
 4. For Tier 4 model work, read models.md — catalog, quantization choices, hosting strategy, and §9 catalog-specific rules.
 5. Flag any proposed deviation from the docs explicitly. Either the implementation should change, or the docs should be updated — but not silently.
 
-See `.agents/rules.md` for workspace-wide conventions. Agent-facing rules also live in the AntiGravity Customizations → Rules → Workspace panel.
+See `.agent/rules` subfolder for workspace-wide conventions (serialized by AntiGravity from its Customizations → Rules → Workspace panel).
 
 ## Build status
 
