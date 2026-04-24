@@ -33,7 +33,7 @@
 
 ### Phase 1 — Project setup
 
-- Initialize Flutter project with stable channel, Dart ≥3.5, Flutter ≥3.24.
+- Initialize Flutter project with stable channel, Dart ≥3.10, Flutter ≥3.38.
 - Configure flavors: `dev`, `staging`, `prod` with separate application IDs.
 - Strict linting (flutter_lints + custom rules).
 - Folder structure:

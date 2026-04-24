@@ -84,8 +84,8 @@ DocuMink is a Flutter app with a four-tier detection pipeline, a SQLCipher-backe
 
 | Layer | Choice | Version | License |
 |---|---|---|---|
-| App framework | Flutter | ≥3.24 | BSD-3 |
-| Language | Dart | ≥3.5 | BSD-3 |
+| App framework | Flutter | ≥3.38 | BSD-3 |
+| Language | Dart | ≥3.10 | BSD-3 |
 | State management | Riverpod | ≥2.5 | MIT |
 | Routing | go_router | ≥14 | BSD-3 |
 | Local KV (settings) | shared_preferences | latest | BSD-3 |

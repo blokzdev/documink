@@ -3,7 +3,7 @@
 Privacy-first, local-first document redactor plus on-device AI assistant.
 
 - **Platforms:** Android V1, Windows V2. iOS/macOS deferred past V4.
-- **Stack:** Flutter ≥3.24, Dart ≥3.5, Riverpod, drift+SQLCipher, sqlite-vec, flutter_gemma, fllama, cr-sqlite.
+- **Stack:** Flutter ≥3.38, Dart ≥3.10, Riverpod, drift+SQLCipher, sqlite-vec, flutter_gemma, fllama, cr-sqlite.
 - **Domain:** documink.ai
 - **Hard rules:** No cloud inference. No user accounts. No third-party analytics. No plaintext sync. No PII/PHI in memory tables.
 
