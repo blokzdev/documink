@@ -1,0 +1,16 @@
+#!/bin/sh
+# Enforce dart formatting and flutter analyze before commit
+
+echo "Running dart format..."
+dart format --set-exit-if-changed lib/ test/ tool/
+if [ $? -ne 0 ]; then
+  echo "Commit failed: Please run 'dart format lib/ test/ tool/'"
+  exit 1
+fi
+
+echo "Running flutter analyze..."
+flutter analyze --fatal-infos --fatal-warnings
+if [ $? -ne 0 ]; then
+  echo "Commit failed: flutter analyze found issues."
+  exit 1
+fi

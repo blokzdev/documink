@@ -1,0 +1,92 @@
+name: documink-ci
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --fatal-infos --fatal-warnings
+
+  test:
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: flutter test
+
+  apk-size-check:
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      # Release build doesn't require signing config, produces app-prod-release.apk
+      - run: flutter build apk --flavor prod --release -t lib/main_prod.dart
+      - name: Enforce Size Limit
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-prod-release.apk"
+          SIZE=$(stat -c%s "$APK_PATH")
+          echo "APK size: $SIZE bytes"
+          if [ "$SIZE" -gt 157286400 ]; then
+            echo "Error: APK size exceeds 150MB limit."
+            exit 1
+          fi
+
+  license-scan:
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/scripts/check_licenses.dart
+
+  analytics-scan:
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/scripts/check_analytics_sdks.dart
+
+  verify-model-hashes:
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/scripts/verify_model_hashes.dart

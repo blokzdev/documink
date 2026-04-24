@@ -40,3 +40,21 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 ## Build status
 
 V0 Phase 1 complete — Flutter scaffold initialized with three flavors (dev/staging/prod), Riverpod + go_router + drift codegen working, strict linting enforced. Next: V0 Phase 2 (CI/CD guardrails).
+
+## Development setup
+
+1. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+
+2. Generate drift schema code:
+   ```bash
+   dart run build_runner build --force-jit --delete-conflicting-outputs
+   ```
+
+3. Enable Git pre-commit hooks:
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+   *Note: For Windows developers, this relies on Git-for-Windows evaluating shell scripts (`sh.exe`), which is the default configuration.*

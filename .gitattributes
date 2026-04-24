@@ -1,0 +1,28 @@
+﻿# Default: let git decide per-file
+* text=auto
+
+# Shell scripts and hooks MUST be LF (break on CRLF on Linux)
+*.sh text eol=lf
+.githooks/* text eol=lf
+
+# CI and config files — LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Dart source — LF
+*.dart text eol=lf
+
+# Markdown — LF
+*.md text eol=lf
+
+# Binary: never normalize
+*.png binary
+*.jpg binary
+*.ico binary
+*.otf binary
+*.ttf binary
+*.apk binary
+*.onnx binary
+*.task binary
+*.gguf binary
