@@ -1,7 +1,9 @@
 # DocuMink — Mink Memory Architecture
 
 **Scope:** authoritative specification for Mink's memory subsystem
+**Status:** active for V1 implementation (Core, Episodic, Knowledge Vault) with V1.2 activation of remaining three types
 **Related:** Blueprint §3.2, §5.6; PRD §5.4; Roadmap V1 Phase 12, V1.2 Phases 4–6
+**Audience:** engineering, AI coding agents implementing Mink's memory layer
 
 This document defines how Mink remembers. It is the source of truth if anything in the PRD, Blueprint, or Roadmap conflicts with statements here about memory behavior.
 

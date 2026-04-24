@@ -1,5 +1,8 @@
 # DocuMink — Technical Blueprint
 
+**Scope:** V1 technical architecture, with forward compatibility notes for V2/V3/V4
+**Audience:** Engineering, AI coding agents
+
 This document is the technical source of truth. If the PRD and Blueprint disagree, the PRD defines what we're building; the Blueprint defines how.
 
 ---
@@ -102,6 +105,8 @@ DocuMink is a Flutter app with a four-tier detection pipeline, a SQLCipher-backe
 | Embedding model (bundled, always) | `all-MiniLM-L6-v2` INT8 ONNX | Apache 2.0 | ~80 MB; powers Mink memory vector search and Resource Memory retrieval; NOT tier-dependent (needed at every tier for memory to function) |
 
 ### 2.3 Detection models (V1)
+
+> **See `docs/models.md` for the authoritative Tier 4 catalog** — source URLs, SHA-256 hashes (filled in at manifest authoring time), quantization choices per model family, hosting strategy (Play Asset Delivery on Android V1, HuggingFace on Windows V2), and licensing bundles. This section summarizes; models.md is the detail source.
 
 **Tier 3 (always-on, bundled in base APK):**
 
@@ -369,7 +374,7 @@ CREATE TABLE chat_messages (
 CREATE INDEX idx_chat_messages_session ON chat_messages(session_id, created_at);
 
 -- Mink memory is split into six typed stores per the MIRIX-derived taxonomy.
--- Full specification in DocuMink-Memory.md.
+-- Full specification in memory.md.
 
 -- Type 1: Core Memory — stable identity and preferences. Active V1.
 CREATE TABLE mink_core_memory (
@@ -483,7 +488,7 @@ CREATE VIRTUAL TABLE mink_embeddings USING vec0(
 - **Minimal plaintext in any column** — `chat_messages.content` may contain structured token references (`<<tok_01HXJ4...>>`) rather than inline plaintext, which get rendered on display with the show/hide-masked toggle. SQLCipher encrypts the entire DB at rest regardless.
 - **`project_id` NULL allowed** on documents, chat_sessions, custom_entity_types, all six Mink memory tables — represents global-scope records outside any Project.
 - **Project isolation enforced at repository layer** — every `ProjectService` and memory repository method takes a `projectId` and filters queries. Cross-project access requires explicit `AuditedCrossProjectAccess` API that writes to `audit_log`.
-- **Memory layer never holds plaintext PII** — see DocuMink-Memory.md for the full PII-safe reference model.
+- **Memory layer never holds plaintext PII** — see memory.md for the full PII-safe reference model.
 
 ---
 
@@ -597,7 +602,7 @@ score = (ram_gb * 10)
       + (form_factor == desktop ? 15 : 0);
 ```
 
-**Signed manifest schema** (nested variants per tier):
+**Signed manifest schema** (nested variants per tier; full catalog detail in `docs/models.md`):
 
 ```jsonc
 {
@@ -825,7 +830,7 @@ Mink has a **typed multi-store memory system** — adapted from the MIRIX taxono
 
 **Critical invariant: PII never enters memory as plaintext.** Semantic Memory stores HMAC-SHA256 fingerprints that reference rows in the Knowledge Vault (`tokens` table). Mink reasons about entities via opaque references; plaintext is only materialized through the existing biometric-gated decode flow. This means Mink's memory database can be inspected, exported, or (hypothetically) exfiltrated without revealing user PII — the vault's security guarantees extend to the memory layer.
 
-**See `DocuMink-Memory.md` for the full specification** — memory-type schemas, retrieval patterns, the deterministic router architecture, PII reference model with fingerprint-based identity, tier-scaled update behavior, Project scope enforcement per memory type, provenance tracking, user controls, sync behavior, and the memory-specific threat model.
+**See `memory.md` for the full specification** — memory-type schemas, retrieval patterns, the deterministic router architecture, PII reference model with fingerprint-based identity, tier-scaled update behavior, Project scope enforcement per memory type, provenance tracking, user controls, sync behavior, and the memory-specific threat model.
 
 ### 5.7 Tier-dependent capability
 
@@ -1104,10 +1109,10 @@ No platform-specific detection model files.
 ### 11.1 Android
 
 - Flavors: `dev`, `staging`, `prod`.
-- Play Asset Delivery for Tier 4 models:
+- Play Asset Delivery for Tier 4 models (see `docs/models.md` §2 for full hosting strategy):
   - Standard-tier Balanced bundled as install-time pack (user can skip).
   - All other tiers/variants as on-demand packs.
-  - Each pack ≤1 GB (Play limit).
+  - Each pack ≤1 GB (Play limit); split packs for larger models (e.g., Qwen 3.5-9B).
 - Base APK ≤150 MB. R8 aggressive shrinking.
 - Play Integrity API optional, degrades gracefully.
 
@@ -1257,10 +1262,12 @@ This list prevents known failure modes. Violating any of these requires explicit
 21. **Don't auto-create background services** for Mink or inference — no foreground service in V1.
 22. **Don't treat AI-scaffolded templates as Verified** — they must be clearly labeled and re-reviewable.
 23. **Don't ship DocuMink with any cloud inference capability** — all inference on-device always. V4 relay is for encrypted-blob transport between the user's own devices or for one-author-many-recipients public templates; it never does inference itself.
-24. **Don't store raw PII/PHI plaintext in Mink memory tables** — Semantic Memory references entities via HMAC-SHA256 fingerprints that point to the `tokens` vault. If a PR tries to write a name, address, MRN, or other sensitive string directly into `mink_semantic_memory`, `mink_episodic_memory`, `mink_core_memory`, or `mink_procedural_memory`, it's a bug. Memory-layer writes must be token-ref-safe. See DocuMink-Memory.md §3.
+24. **Don't store raw PII/PHI plaintext in Mink memory tables** — Semantic Memory references entities via HMAC-SHA256 fingerprints that point to the `tokens` vault. If a PR tries to write a name, address, MRN, or other sensitive string directly into `mink_semantic_memory`, `mink_episodic_memory`, `mink_core_memory`, or `mink_procedural_memory`, it's a bug. Memory-layer writes must be token-ref-safe. See memory.md §3.
 25. **Don't swap SQLite for Postgres or any other server database on-device** — we evaluated this and rejected it; see §2.4 for the full rationale. If a contributor proposes this, point them at §2.4.
 26. **Don't add specialized databases alongside SQLite on-device** (no separate vector DB, no separate time-series DB, no separate document DB, no Redis-equivalent). Every capability we need is available via SQLite extensions (sqlite-vec, FTS5, JSON1, cr-sqlite). One encrypted database, one backup artifact, one sync target.
-27. **Don't run multi-agent Mink architectures** — ADR-012 commits to single-agent scoped-context. MIRIX's multi-agent memory pattern was adapted to a single-agent deterministic router for on-device tractability; see DocuMink-Memory.md §4. If a PR proposes separate agents per memory type, reject with reference to ADR-012.
+27. **Don't run multi-agent Mink architectures** — ADR-012 commits to single-agent scoped-context. MIRIX's multi-agent memory pattern was adapted to a single-agent deterministic router for on-device tractability; see memory.md §4. If a PR proposes separate agents per memory type, reject with reference to ADR-012.
+28. **Don't add or modify Tier 4 models without updating `docs/models.md`** — the catalog, quantization per family, SHA-256 hashes, license bundles, and hosting routes all live there. If you add a new model to the manifest, update models.md in the same PR. See models.md §9 for catalog-specific "don't do" rules.
+29. **Don't host Tier 4 models on documink.ai for Android V1** — Play Asset Delivery is the primary distribution path (cost-free, Play-signed, mobile-native). Our own infrastructure only serves the signed `manifest.json` itself. See models.md §2.
 
 ---
 

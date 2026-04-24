@@ -81,7 +81,8 @@ Commit ADRs under `docs/adr/`:
 - ADR-013: Projects as declarative domain-agnostic harnesses delivered via signed remote manifest.
 - ADR-014: V4 thin relay backend as DocuMink's first and only hosted component, scoped to encrypted transport for three uses (URL sharing, community templates, same-user WAN inference).
 - ADR-015: iOS/macOS deferred until after V4.
-- ADR-016: Mink memory architecture — six typed stores adapted from MIRIX taxonomy with single-agent deterministic router (not multi-agent), PII-safe reference model via vault token fingerprints, SQLite + sqlite-vec on-device (not Postgres or specialized databases). Full spec in DocuMink-Memory.md.
+- ADR-016: Mink memory architecture — six typed stores adapted from MIRIX taxonomy with single-agent deterministic router (not multi-agent), PII-safe reference model via vault token fingerprints, SQLite + sqlite-vec on-device (not Postgres or specialized databases). Full spec in memory.md.
+- ADR-017: Tier 4 model hosting — Play Asset Delivery primary for Android V1 (cost-free, Play-signed), HuggingFace direct for Windows V2, Ed25519-signed `manifest.json` on documink.ai as the only self-hosted artifact. Full spec in models.md.
 
 ---
 
@@ -196,6 +197,8 @@ Commit ADRs under `docs/adr/`:
 
 ### Phase 9 — Device Capability Profiler + signed model manifest
 
+> **Reference:** `docs/models.md` is the authoritative source for the tier catalog, hosting strategy, quantization decisions, and manifest schema specifics.
+
 - **Profiler service** (Blueprint §4.7):
   - `DeviceCapabilities` data class — full signal set.
   - Android platform channel implementations (Java/Kotlin). Windows stubbed for V2.
@@ -213,6 +216,8 @@ Commit ADRs under `docs/adr/`:
   - Uniform `generate(prompt, tools, context) → StreamingResponse` entry point.
 
 ### Phase 10 — Tier 4 model implementations (all auto-recommendable tiers, both variants)
+
+> **Reference:** `docs/models.md` §3 lists every model with HuggingFace source URL, quantization choice per family, required runtime, and license bundle. Phase 10 agents should work from that table directly.
 
 - **Minimum** (single option): SmolLM2-360M-Instruct int4 GGUF via `fllama`.
 - **Ultra-light:** Balanced: Qwen 3.5-0.8B int4 GGUF (`fllama`). Specialized: Qwen 2.5-0.5B int4 GGUF (`fllama`).
@@ -267,10 +272,10 @@ Commit ADRs under `docs/adr/`:
   - `detect_pii`, `anonymize_document`, `decode_token` (biometric-gated), `search_documents`, `list_entities`, `summarize_document`, `rewrite_content`, `expand_content`, `export_document`, `create_custom_entity`, `modify_policy`.
   - Memory tools: `recall_core(key)`, `recall_episodic(time_range, project_id?)`, `remember(type, value, scope)`, `forget(memory_id)`.
   - Each tool declares input/output schema, required permissions, biometric requirement.
-- **`ContextAssembler`** — builds LLM input with system prompt + relevant memory slices + conversation history + tool descriptions + consent-gated document snippets (see DocuMink-Memory.md §5 for the deterministic router logic).
+- **`ContextAssembler`** — builds LLM input with system prompt + relevant memory slices + conversation history + tool descriptions + consent-gated document snippets (see memory.md §5 for the deterministic router logic).
 - **Typed memory stores — V1 active subset:**
   - **Core Memory** — stable preferences and identity; written explicitly via `remember` or inferred from user statements.
-  - **Episodic Memory** — automatic time-stamped summaries after user actions (scan, redaction, chat, export); tier-scaled update behavior per DocuMink-Memory.md §7.
+  - **Episodic Memory** — automatic time-stamped summaries after user actions (scan, redaction, chat, export); tier-scaled update behavior per memory.md §7.
   - **Knowledge Vault** — already implemented as the `tokens` table; memory layer references it via HMAC-SHA256 fingerprints.
   - Semantic, Procedural, and Resource Memory — **schema shipped in V1, active in V1.2**. Tables created and sync-ready so V1 users accumulate no data loss when those stores activate later.
 - **Embedding infrastructure:**
@@ -306,7 +311,7 @@ Commit ADRs under `docs/adr/`:
   - "Mink unavailable" informational screen when below floor.
 - **Show/hide-masked global control:**
   - Settings toggle for default behavior (start masked vs. start revealed when authenticated).
-  - Per-view override with session-scoped state per DocuMink-Memory.md §8.
+  - Per-view override with session-scoped state per memory.md §8.
 
 ### Phase 13 — Proactive suggestions (V1 scoped)
 
@@ -418,7 +423,7 @@ Commit ADRs under `docs/adr/`:
 - Batch processing shipped (Pro-gated).
 - Advanced export formats shipped.
 - Semantic, Procedural, and Resource Memory active and populated from user activity.
-- Memory UI fully exposes all six types with inspect/edit/delete controls per DocuMink-Memory.md §8.
+- Memory UI fully exposes all six types with inspect/edit/delete controls per memory.md §8.
 
 ### Phase 1 — Feedback response
 
@@ -446,7 +451,7 @@ Commit ADRs under `docs/adr/`:
 - Vector embedding for each semantic entity; integrate with `sqlite-vec` for similarity retrieval.
 - `recall_semantic(entity_type?, descriptor?, related_to?)` tool exposed to Mink.
 - Conservative rule: semantic memory only tracks entities with an existing vault token — never builds shadow profiles of un-redacted PII.
-- Memory visualization UI: tree view per DocuMink-Memory.md §8.
+- Memory visualization UI: tree view per memory.md §8.
 
 ### Phase 5 — Procedural Memory activation
 

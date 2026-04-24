@@ -1,5 +1,9 @@
 # DocuMink — Product Requirements Document (PRD)
 
+**Scope:** V1 launch, with V2/V3/V4 vision for context
+**Owner:** Product
+**Audience:** Engineering, design, AI coding agents, stakeholders
+
 ---
 
 ## 1. Product overview
@@ -89,6 +93,8 @@ The app profiles device capability at first use and recommends a tier. Each auto
 Advanced users on high-end hardware can opt into **Professional** (Gemma 4 26B A4B MoE or Phi-4 14B, ~9 GB, 12+ GB RAM) or **Workstation** (Gemma 4 31B or Qwen 3.6-27B, ~18 GB, 32+ GB RAM) tiers — never auto-recommended, require explicit consent with disk-space warnings.
 
 All catalog models are **Apache 2.0 or MIT** licensed. Below the Minimum floor (<2 GB RAM), Tier 4 is gracefully disabled with transparent UX; Tiers 1–3 continue unchanged. Mink still appears but operates in a constrained informational mode.
+
+**Full tier catalog** — source URLs, quantization choices, hosting strategy, and licensing bundles — lives in `docs/models.md`.
 
 ### 4.4 Custom entity types
 
@@ -185,7 +191,7 @@ Mink remembers you across sessions and devices. Memory is structured into typed 
 
 **Show/hide masked data** is a global user control that applies uniformly across documents, chat, and memory views. Default is masked (tokens visible). Tap to reveal decodes ephemerally while you're authenticated; re-masks on session lock or navigation away.
 
-Full memory architecture specification lives in **DocuMink-Memory.md**.
+Full memory architecture specification lives in **memory.md**.
 
 ### 5.5 Tier-dependent capability
 
