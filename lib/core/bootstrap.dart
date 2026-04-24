@@ -7,9 +7,7 @@ import '../ui/theme/app_theme.dart';
 void bootstrap(Flavor flavor) {
   runApp(
     ProviderScope(
-      overrides: [
-        currentFlavorProvider.overrideWithValue(flavor),
-      ],
+      overrides: [currentFlavorProvider.overrideWithValue(flavor)],
       child: const DocuMinkApp(),
     ),
   );

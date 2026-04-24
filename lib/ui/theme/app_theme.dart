@@ -5,14 +5,20 @@ class AppTheme {
 
   static ThemeData get lightTheme {
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.light),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.light,
+      ),
       useMaterial3: true,
     );
   }
 
   static ThemeData get darkTheme {
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
+      ),
       useMaterial3: true,
     );
   }

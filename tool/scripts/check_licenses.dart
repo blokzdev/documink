@@ -157,7 +157,8 @@ Future<bool> checkPackageLicense(HttpClient client, PackageInfo pkg) async {
       if (scorecard == null || scorecard['panaReport'] == null) {
         return checkFallback(pkg);
       }
-      var tags = (scorecard['panaReport']['derivedTags'] as List<dynamic>?) ??
+      var tags =
+          (scorecard['panaReport']['derivedTags'] as List<dynamic>?) ??
           (scorecard['panaReport']['tags'] as List<dynamic>?) ??
           <dynamic>[];
 

@@ -11,7 +11,10 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('DocuMink')),
       body: Center(
-        child: Text('Current Flavor: ${flavor.name}', style: Theme.of(context).textTheme.headlineMedium),
+        child: Text(
+          'Current Flavor: ${flavor.name}',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
       ),
     );
   }
