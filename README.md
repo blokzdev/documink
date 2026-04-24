@@ -11,24 +11,30 @@ Privacy-first, local-first document redactor plus on-device AI assistant.
 
 All architectural decisions live in `docs/`:
 
-- `docs/DocuMink-PRD.md` — product requirements; what we're building and why
-- `docs/DocuMink-Blueprint.md` — technical architecture; how we're building it
-- `docs/DocuMink-Memory.md` — Mink memory subsystem specification
-- `docs/DocuMink-Roadmap.md` — milestones → phases → tasks
+- `docs/PRD.md` — product requirements; what we're building and why
+- `docs/blueprint.md` — technical architecture; how we're building it
+- `docs/memory.md` — Mink memory subsystem specification
+- `docs/models.md` — Tier 4 LLM catalog, sources, quantization, and hosting strategy
+- `docs/roadmap.md` — milestones → phases → tasks
 
-**If the PRD and Blueprint disagree, the PRD defines what, the Blueprint defines how. If anything conflicts with DocuMink-Memory.md about memory behavior, DocuMink-Memory.md wins.**
+**Precedence when specs disagree:**
+- PRD defines *what*; blueprint defines *how*.
+- memory.md is authoritative on memory behavior.
+- models.md is authoritative on Tier 4 model-level detail (sources, quantization, hosting).
+- If blueprint and models.md disagree on a model detail, models.md wins and blueprint is updated to match.
 
 ## For AI agents working in this repo
 
 Before starting any task:
 
-1. Read the relevant Roadmap phase in `docs/DocuMink-Roadmap.md`. V1 has 17 phases in dependency order.
-2. Check Blueprint §15 "Don't do" rules before proposing architectural changes. These encode researched failure modes.
-3. For memory-layer work, read DocuMink-Memory.md §3 (PII-safe reference model) and §12 (memory-specific "don't do" rules).
-4. Flag any proposed deviation from the docs explicitly. Either the implementation should change, or the docs should be updated — but not silently.
+1. Read the relevant Roadmap phase in `docs/roadmap.md`. V1 has 17 phases in dependency order.
+2. Check blueprint.md §15 "Don't do" rules before proposing architectural changes. These encode researched failure modes.
+3. For memory-layer work, read memory.md §3 (PII-safe reference model) and §12 (memory-specific "don't do" rules).
+4. For Tier 4 model work, read models.md — catalog, quantization choices, hosting strategy, and §9 catalog-specific rules.
+5. Flag any proposed deviation from the docs explicitly. Either the implementation should change, or the docs should be updated — but not silently.
 
-See `.agents/rules.md` for workspace-wide agent behavior rules.
+See `.agents/rules.md` for workspace-wide conventions. Agent-facing rules also live in the AntiGravity Customizations → Rules → Workspace panel.
 
 ## Build status
 
-Pre-V0. Project scaffold not yet initialized.
+Pre-V0 Phase 1. Project scaffold not yet initialized.
