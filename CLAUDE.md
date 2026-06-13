@@ -61,25 +61,36 @@ that is intentional. After editing a drift table / annotated source, regenerate 
 `--force-jit` command above and commit the regenerated file in the same change. CI enforces
 currency (codegen-freshness job).
 
-## Autonomy contract (Option B)
+## Autonomy contract (Option C — continuous self-merge loop)
 
-- You MAY run **plan → implement → test → refine → document AUTONOMOUSLY *within* a single
-  roadmap phase.**
-- At every **phase boundary**, STOP for human review: commit the phase to the current
-  **feature branch**, push it, and open (or update) a **PR into `main`** — then wait. Do not
-  start the next phase until the human has reviewed.
-- **Branch / PR flow:** one branch per PR (a branch may carry multiple commits). The agent
-  pushes its **own feature branch** and opens the PR; the agent **never pushes to or merges
-  `main`** — the human reviews and merges. After a merge, sync to the updated `main` and cut a
-  fresh branch for the next phase.
-- Within a phase, if you hit a decision the specs don't determine, a spec conflict, or
-  anything security-sensitive (keys, crypto, signatures, PII handling) → **STOP and surface
-  it.** Never choose silently (`deviation-protocol.md`).
-- **Commit-scope discipline:** one phase per commit. Never bundle unrelated changes
-  (formatting drift, doc-status edits, scratch files) into a phase commit. Incidental cleanup
-  is its own separate commit.
-- **High-stakes V1 phases — extra caution, more frequent stops:** Phase 1 (vault/keys),
-  Phase 9 (device profiler / signed manifests), Phase 12 (Mink memory).
+Supersedes the earlier "Option B" (human-merge, stop-at-every-phase-boundary) contract, by
+explicit standing instruction from the maintainer (2026-06-13). The agent now drives the
+roadmap end-to-end without stopping for human review at phase boundaries.
+
+- You run **plan → implement → test → refine → document → ship AUTONOMOUSLY**, looping phase
+  after phase **to the last phase in the roadmap**.
+- **Per chunk/phase loop:**
+  1. Drive the open PR's CI to **green** (fix failures, push, repeat).
+  2. **Merge it yourself** on green (squash). Head branches auto-delete on GitHub; sync `main`.
+  3. **Plan** the next chunk thoroughly and **output the concrete plan in chat** (in code mode —
+     not plan mode), then **self-approve** it.
+  4. Cut a fresh branch, **execute**, open the next PR. Repeat.
+- **Branch / PR flow:** one branch per PR. The agent pushes its own feature branch, opens the
+  PR **ready for review** (not draft), drives CI green, and **merges to `main` itself**.
+- **Key decisions the specs don't determine:** pick the **recommended** option and proceed —
+  do **not** block. **Log** every such decision (the options considered, the choice, and the
+  rationale) in `docs/DECISIONS.md` for later human review.
+- **Still STOP-and-surface (deviation-protocol):** a genuine **spec conflict**, a spec that
+  looks wrong/incomplete, or anything that would weaken a **security/privacy invariant**
+  (key/crypto/signature/PII handling that the specs don't already bless). Resolve with the
+  recommended reading, log it prominently in `docs/DECISIONS.md`, and call it out in the PR —
+  but never silently work around a constraint.
+- **Commit-scope discipline:** one phase per commit/PR. Never bundle unrelated changes
+  (formatting drift, doc-status edits, scratch files, process/governance edits) into a phase
+  commit. Incidental cleanup or process changes are their own separate commit/PR.
+- **High-stakes V1 phases — extra caution, fuller logging:** Phase 1 (vault/keys), Phase 9
+  (device profiler / signed manifests), Phase 12 (Mink memory). Proceed autonomously, but log
+  the security-relevant decisions in `docs/DECISIONS.md` with extra detail.
 
 ## Definition of done (every phase)
 
