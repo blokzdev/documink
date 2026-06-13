@@ -20,6 +20,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P3b: reversible operators (Token-Random + inline Encrypt)
+
+- **Async-vs-sync seam.** 3a's `Anonymizer.apply` is sync; reversible ops need async crypto/DB. Kept
+  3a's API and added `AnonymizationService` that **precomputes** surrogates (async) into a map, then
+  calls `apply` with a sync resolver. No change to the merged 3a.
+- **Token-Random** mints `<LABEL_6base62>` (CSPRNG) and encrypts plaintext with **AAD = surrogate**
+  via `TokenCrypto`; returns a `TokenRecord` (surrogate, ciphertext, fingerprint) for the pipeline
+  to persist as a `tokens` row. **Intra-document dedup** (same plaintext → same surrogate via
+  fingerprint match) is the pipeline's job at persistence; this layer mints fresh per call.
+- **Encrypt (inline, stateless).** `<ENC:base64(nonce‖ct‖mac)>`, AAD = fixed domain string
+  `documink:inline-encrypt:v1`, **no vault row** (§7.1 "stateless reversal"). Reversible whenever the
+  vault (DEK) is unlocked.
+- **FPE deferred to 3c:** a policy mapping a label to `fpe` throws `UnsupportedError` until FF1 lands
+  (no silent mishandling).
+
 ## 2026-06-13 — V1 P3a: anonymizer framework + operator output formats
 
 - **Phase 3 chunking.** 3a = operator framework + policy engine + irreversible ops

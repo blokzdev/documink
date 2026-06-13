@@ -56,7 +56,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **Tier 3 (GLiNER)** — delivery strategy decided (**ADR-022**): hybrid bundled-baseline + device-tiered downloaded upgrade via the Phase 9 signed manifest, with graceful degradation to Tiers 1–2. The downloaded-upgrade path depends on Phase 9 infra, so **full Tier 3 lands with/after Phase 9**.
 
 **V1 in progress — Phase 3 (anonymizer operators, blueprint §4.6/§7.1), delivered as sequential sub-PRs:**
-- **3a (this PR)** — operator framework + policy engine (default YAML asset + per-workspace/document overrides) + the 3 irreversible operators (Redact/Mask/Replace) with offset-correct (right-to-left) application. Pure Dart. Reversible operators are delegated to an injected resolver (wired in 3b/3c). Next: 3b (vault-backed Token-Random + AES-GCM Encrypt), 3c (hand-rolled FF1 FPE + NIST SP 800-38G vectors).
+- **3a (merged)** — operator framework + policy engine (default YAML asset + per-workspace/document overrides) + the 3 irreversible operators (Redact/Mask/Replace) with offset-correct (right-to-left) application. Pure Dart.
+- **3b (this PR)** — reversible vault-backed operators (§7.1): **Token-Random** (`<LABEL_6base62>` surrogate + AES-256-GCM ciphertext via 1c's `TokenCrypto`, reversible by lookup) and **Encrypt** (stateless inline `<ENC:base64>`). `AnonymizationService` precomputes the async surrogates then delegates to the sync `Anonymizer`, returning persistable `TokenRecord`s. Next: 3c (hand-rolled FF1 FPE + NIST SP 800-38G vectors).
 
 ## Development setup
 
