@@ -20,6 +20,19 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2c: heuristic Tier 1 recognizers; phone split to 2d
+
+- **Keyword-anchoring for MRN & Passport.** Their formats overlap heavily with ordinary
+  numbers/alphanumerics, so they only match when preceded by an `MRN`/`passport` keyword (via
+  lookbehind, so the span is the identifier, not the label). Passport additionally requires ≥1
+  digit (rejects letter-only words like "passport details"). Favors precision; un-prefixed cases
+  are left to Tier 3 (GLiNER) context detection.
+- **Date scored 0.8** and labelled generically `DATE` (DOB disambiguation needs context → Tier 3/4);
+  ambiguous DD/MM vs MM/DD both accepted.
+- **Phone deferred to 2d.** Robust phone detection in free text needs a libphonenumber port +
+  candidate matcher (a dependency + nontrivial logic), so it gets its own PR rather than riding
+  with the pure-regex heuristics here.
+
 ## 2026-06-13 — V1 P2b: split Tier 1 recognizers into two PRs
 
 - **Chunking.** The original plan put all of §4.2's Tier 1 recognizers in one PR. Split into
