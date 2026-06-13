@@ -20,6 +20,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2e: Tier 2 ML Kit integration
+
+- **Plugin-agnostic seam.** `MlKitEntityRecognizer` consumes an injectable
+  `TextAnnotator` over a local `TextAnnotation` type (not the plugin's `EntityAnnotation`), so the
+  type→label mapping is fully unit-tested without platform channels. The plugin-coupled adapter
+  (`mlkit_annotator.dart`) is device-only and not exercised in headless CI (like the gated
+  SQLCipher test).
+- **Not added to the default `piiRecognizersProvider`.** Tier 2/3 need native runtimes / a
+  downloaded model, so they are composed into the pipeline at **Phase 5 bootstrap** on capable
+  devices; the default provider stays pure-Dart and headless-testable. ML Kit model
+  download/lifecycle is a bootstrap concern.
+- **Type mapping.** email→EMAIL, phone→PHONE, iban→IBAN, paymentCard→CREDIT_CARD, url→URL,
+  address→LOCATION, dateTime→DATE; isbn/money/flightNumber/trackingNumber/unknown dropped (not PII).
+  Tier 2 priority (20) > Tier 1 (10) so context-aware detections win overlap ties.
+
 ## 2026-06-13 — V1 P2d: phone recognizer
 
 - **Package.** `phone_numbers_parser` 9.0.23 (MIT, pure Dart — the maintained libphonenumber port).
