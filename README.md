@@ -48,7 +48,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **1d (merged)** — `RecoveryService`: BIP-39 24-word recovery phrase as a checksummed 256-bit codec for the Master Key (entropy path, exact round-trip; not the PBKDF2 seed) with confirm-by-re-entry (blueprint §8.4, ADR-021). Anchored to the Trezor BIP-39 vectors.
 
 **V1 in progress — Phase 2 (detection pipeline, Tiers 1–3), delivered as sequential sub-PRs:**
-- **2a (this PR)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator. Tier 1 recognizers (2b), Tier 2 ML Kit (2c), and Tier 3 GLiNER ONNX (2d) register into the pipeline next.
+- **2a (merged)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator.
+- **2b (this PR)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97), wired into the pipeline. Next: 2c (Tier 1 heuristic/locale — phone/date/MRN/passport), then Tier 2 ML Kit and Tier 3 GLiNER ONNX.
 
 ## Development setup
 
