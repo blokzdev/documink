@@ -39,7 +39,7 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 ## Build status
 
-V0 Phase 1 complete — Flutter scaffold initialized with three flavors (dev/staging/prod), Riverpod + go_router + drift codegen working, strict linting enforced. Next: V0 Phase 2 (CI/CD guardrails).
+**V0 complete.** Phase 1 — Flutter scaffold (three flavors dev/staging/prod, Riverpod + go_router + drift codegen, strict lints). Phase 2 — CI/CD guardrails (analyze, test, apk-size, license-scan, analytics-scan, verify-model-hashes, codegen-freshness; pre-commit hooks). Phase 3 — Architecture Decision Records (ADR-001…ADR-017) committed under `docs/adr/`. Next: V1 Phase 1 (core data layer & vault).
 
 ## Development setup
 
