@@ -24,7 +24,10 @@ android {
         applicationId = "ai.documink.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // minSdk 26 (Android 8.0): required by com.google.mlkit:entity-extraction
+        // (Tier 2 detection). Raised from Flutter's default 24 — see blueprint §11
+        // and docs/DECISIONS.md.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

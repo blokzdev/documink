@@ -20,6 +20,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2e: minSdk 24 → 26 (spec conflict, user-confirmed) ⚠ review
+
+- **Conflict.** blueprint §11 pinned **minSdk 24 (Android 7.0)**, but `com.google.mlkit:
+  entity-extraction:16.0.0-beta6` (Tier 2) requires **minSdk 26**; the manifest merger failed the
+  release build (caught by `apk-size-check`). Surfaced via deviation-protocol.
+- **Options.** (A) raise minSdk to 26; (B) keep 24 + force-merge ML Kit's manifest
+  (`tools:overrideLibrary`) and gate Tier 2 to API ≥26 at runtime; (C) drop ML Kit (Tier 2).
+- **Choice: A — raise minSdk to 26 (maintainer-confirmed).** Android 8.0 (2017) covers effectively
+  all active devices in 2026; (B) adds an override + runtime guard and disables Tier 2 on 24–25;
+  (C) loses Tier 2. `android/app/build.gradle.kts` set `minSdk = 26`; blueprint §11 corrected.
+
 ## 2026-06-13 — V1 P2e: Tier 2 ML Kit integration
 
 - **Plugin-agnostic seam.** `MlKitEntityRecognizer` consumes an injectable

@@ -1110,7 +1110,9 @@ Hosting: Cloudflare Workers + R2 or AWS Lambda + S3. No user accounts. Anonymous
 
 ### 10.1 Android (V1)
 
-- Min SDK: 24 (Android 7.0).
+- Min SDK: 26 (Android 8.0). **Raised from 24** in V1 P2e: `com.google.mlkit:entity-extraction`
+  (Tier 2 detection) requires API 26. Android 8.0+ covers effectively all active devices; the
+  low-single-digit % on API 24–25 is an accepted trade for native ML Kit. (docs/DECISIONS.md)
 - Target SDK: latest (35).
 - Architectures: arm64-v8a primary; armeabi-v7a optional split.
 - 16 KB page size via `flutter_onnxruntime` 1.5.1+ (required Pixel 9+/Android 15+).
