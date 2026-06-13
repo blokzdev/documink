@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import '../../data/tokens_dao.dart';
+import 'fpe_operator.dart';
 
 /// The vault material for a reversible **Token-Random** replacement — exactly
 /// the columns a `tokens` row needs (blueprint §3.1/§7.1). The detection→vault
@@ -38,6 +39,9 @@ class ReversibleOperators {
 
   final TokenCrypto _crypto;
   final Random _random;
+
+  /// FF1 format-preserving encryption keyed by the vault DEK (blueprint §7.1).
+  late final FpeOperator _fpe = FpeOperator(_crypto.dek);
 
   static const int _surrogateLength = 6;
   static const String _base62 =
@@ -86,6 +90,34 @@ class ReversibleOperators {
     final blob = await _crypto.encrypt(plaintext, tokenValue: _inlineAad);
     return '<ENC:${base64.encode(blob)}>';
   }
+
+  // --- FPE (format-preserving, deterministic, stateless) ----------------
+
+  /// Format-preserving encryption of [plaintext]'s digits, keyed by the vault
+  /// DEK with a tweak from `(entity_type, workspace_id)`. Deterministic and
+  /// reversible via [fpeReverse]; no vault row needed.
+  String fpe(
+    String plaintext, {
+    required String label,
+    required String workspaceId,
+    int keepClear = 0,
+  }) => _fpe.encryptDigits(
+    plaintext,
+    tweak: FpeOperator.tweakFor(label, workspaceId),
+    keepClear: keepClear,
+  );
+
+  /// Reverses [fpe] with the same `(label, workspaceId, keepClear)`.
+  String fpeReverse(
+    String ciphertext, {
+    required String label,
+    required String workspaceId,
+    int keepClear = 0,
+  }) => _fpe.decryptDigits(
+    ciphertext,
+    tweak: FpeOperator.tweakFor(label, workspaceId),
+    keepClear: keepClear,
+  );
 
   /// Whether [text] is an inline-encrypt wrapper.
   bool isInline(String text) => _inlinePattern.hasMatch(text);

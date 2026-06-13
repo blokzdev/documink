@@ -57,7 +57,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 **V1 in progress — Phase 3 (anonymizer operators, blueprint §4.6/§7.1), delivered as sequential sub-PRs:**
 - **3a (merged)** — operator framework + policy engine (default YAML asset + per-workspace/document overrides) + the 3 irreversible operators (Redact/Mask/Replace) with offset-correct (right-to-left) application. Pure Dart.
-- **3b (this PR)** — reversible vault-backed operators (§7.1): **Token-Random** (`<LABEL_6base62>` surrogate + AES-256-GCM ciphertext via 1c's `TokenCrypto`, reversible by lookup) and **Encrypt** (stateless inline `<ENC:base64>`). `AnonymizationService` precomputes the async surrogates then delegates to the sync `Anonymizer`, returning persistable `TokenRecord`s. Next: 3c (hand-rolled FF1 FPE + NIST SP 800-38G vectors).
+- **3b (merged)** — reversible vault-backed operators (§7.1): **Token-Random** (`<LABEL_6base62>` surrogate + AES-256-GCM ciphertext via 1c's `TokenCrypto`, reversible by lookup) and **Encrypt** (stateless inline `<ENC:base64>`). `AnonymizationService` precomputes the async surrogates then delegates to the sync `Anonymizer`, returning persistable `TokenRecord`s.
+- **3c (this PR)** — **FF1 format-preserving encryption** (NIST SP 800-38G, FF1 only — FF3 forbidden) hand-rolled on `pointycastle` AES, **verified against the NIST FF1 sample vectors**. `FpeOperator` does digit-string FPE preserving separators with card keep-last-4; tweak = SHA-256(entity_type ‖ workspace_id); keyed by the vault DEK; deterministic + reversible (no vault row). Wired into the policy/`AnonymizationService`. **Completes V1 Phase 3 (anonymizer operators).**
+
+**Next: V1 Phase 4 — Input handlers** (camera/OCR, paste, image import, PDF).
 
 ## Development setup
 

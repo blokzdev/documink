@@ -4,6 +4,9 @@ import 'anonymizer.dart';
 import 'operator.dart';
 import 'reversible_operators.dart';
 
+/// Card-style labels keep their last 4 digits in the clear under FPE (§7.1).
+const int _cardKeepClear = 4;
+
 /// Anonymized text plus the [TokenRecord]s that the pipeline must persist
 /// (one per Token-Random replacement) so the tokens are reversible later.
 class AnonymizationOutcome {
@@ -29,8 +32,9 @@ class AnonymizationService {
   Future<AnonymizationOutcome> anonymize(
     String text,
     List<DetectedSpan> spans,
-    AnonymizationPolicy policy,
-  ) async {
+    AnonymizationPolicy policy, {
+    String workspaceId = '',
+  }) async {
     final surrogates = <DetectedSpan, String>{};
     final tokens = <TokenRecord>[];
 
@@ -44,8 +48,11 @@ class AnonymizationService {
         case Operator.encrypt:
           surrogates[span] = await _reversible.encryptInline(span.text);
         case Operator.fpe:
-          throw UnsupportedError(
-            'FPE (FF1) operator is not implemented until Phase 3c',
+          surrogates[span] = _reversible.fpe(
+            span.text,
+            label: span.label,
+            workspaceId: workspaceId,
+            keepClear: span.label == PiiLabels.creditCard ? _cardKeepClear : 0,
           );
         case Operator.redact:
         case Operator.mask:
