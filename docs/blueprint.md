@@ -90,10 +90,13 @@ DocuMink is a Flutter app with a four-tier detection pipeline, a SQLCipher-backe
 | Routing | go_router | ≥14 | BSD-3 |
 | Local KV (settings) | shared_preferences | latest | BSD-3 |
 | Secure key store | flutter_secure_storage | ≥10 | BSD-3 |
+| Passphrase KDF | argon2 | latest | Apache-2.0 |
+| Crypto primitives (HKDF/AES-GCM) | cryptography | latest | Apache-2.0 |
 
 **Package entry-points per phase.** Packages enter `pubspec.yaml` when used, not speculatively:
 
-- `flutter_secure_storage`, `sqlite3_flutter_libs` (or `sqlcipher_flutter_libs`) — enter at V1 Phase 1 (vault + key management).
+- `flutter_secure_storage`, `argon2`, `cryptography` — enter at V1 Phase 1b (key hierarchy);
+  `sqlite3` with `source: sqlite3mc` (vault) entered at Phase 1a (ADR-019).
 - `shared_preferences` — enters at V1 Phase 5 (settings persistence).
 - ML / LLM packages (`flutter_onnxruntime`, `flutter_gemma`, `fllama`, `google_mlkit_*`) — enter at the V1 phases that integrate them (Phases 2, 9, 10).
 
@@ -1002,21 +1005,33 @@ Display plaintext ephemerally (no auto-clipboard)
 
 ```
 User passphrase (never stored)
-  ↓ Argon2id (64 MB, t=3, p=4, salt in vault_meta)
-Master Key (MK) — RAM only, zeroed on lock
-  ↓ HKDF-SHA256 with domain separation
-  ├─→ KEK (wraps DEKs)
-  ├─→ Fingerprint-HMAC key (token indexing)
-  └─→ Sync transport key
+  ↓ Argon2id (64 MB, t=3, p=4, salt in secure storage — see note)
+Master Key (MK) — RAM only, zeroed on lock (best-effort, see note)
+  ↓ HKDF-SHA256 with domain separation (info strings)
+  ├─→ DB key            'documink:sqlcipher:v1'  (opens the SQLCipher vault)
+  ├─→ KEK               'documink:kek:v1'        (wraps DEKs)
+  ├─→ Fingerprint-HMAC  'documink:fp-hmac:v1'    (token indexing)
+  └─→ Sync transport    'documink:sync:v1'
 
-KEK wrapped by:
+KEK wrapped by (biometric fast-path, Phase 5):
   - Android: Keystore (StrongBox where available) via flutter_secure_storage
   - Windows: DPAPI via flutter_secure_storage
 
 DEK (data encryption key) encrypts tokens.ciphertext
   - Rotatable via key_version column
-  - Stored wrapped in vault_meta
+  - Stored wrapped (AES-256-GCM under KEK) in vault_meta
 ```
+
+> **Note (V1 P1b, ADR-020).** The Argon2id **salt lives in `flutter_secure_storage`**, not in
+> `vault_meta`: `vault_meta` is inside the encrypted database, which cannot be read until the
+> DB key is derived — which needs the salt. The salt is not secret, but it must be readable
+> *before* unlock. `vault_meta` holds only post-unlock material (the wrapped DEK, `key_version`).
+> A **dedicated DB-key subkey** opens SQLCipher (HKDF info `documink:sqlcipher:v1`) so the
+> database key and the KEK never share material. In V1's **passphrase-only** scope the KEK is
+> re-derived from MK on every unlock; persisting a Keystore-wrapped KEK is the biometric
+> fast-path and lands with Phase 5. **MK/subkey zeroing is best-effort** on managed Dart — the GC
+> may retain copies that cannot be scrubbed; keys are held in `Uint8List` and overwritten on lock,
+> never placed in `String`s or logs.
 
 ### 8.2 Unlock sequence
 
