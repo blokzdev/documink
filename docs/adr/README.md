@@ -60,3 +60,4 @@ significant architectural decision: its context, what was decided, why, and the 
 | [019](ADR-019.md) | Encrypted vault via `package:sqlite3` v3 `source: sqlite3mc` user-define (amends ADR-003) | Accepted |
 | [020](ADR-020.md) | Key-storage layout — salt + biometric KEK in secure storage, dedicated DB-key subkey (refines ADR-005) | Accepted |
 | [021](ADR-021.md) | BIP-39 recovery phrase as a 256-bit entropy codec (entropy path, not seed); recover-orchestration deferred to Phase 5 | Accepted |
+| [022](ADR-022.md) | Tier 3 detection model — hybrid bundled-baseline + device-tiered downloaded upgrade via signed manifest (extends ADR-004) | Accepted |

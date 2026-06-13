@@ -544,6 +544,12 @@ Implemented in pure Dart as `PiiRecognizer` implementations:
 
 ### 4.3 Tier 3: GLiNER-PII-Edge integration
 
+- **Hybrid, device-tiered delivery (ADR-022):** the **smallest GLiNER-PII variant** (edge/small,
+  ~100 MB INT8) is **bundled** as an always-available offline baseline; capable devices get a
+  **downloaded** base/large upgrade (FP16 where size allows) selected by the Device Capability
+  Profiler (§4.7) and delivered via the same signed manifest + SHA-256 + PAD/download as Tier 4.
+  Graceful degradation: no upgrade → baseline; no baseline → Tiers 1–2 only. (Full download path
+  lands with Phase 9.)
 - Loaded via `flutter_onnxruntime` at first use (lazy).
 - Execution provider auto-selected: NNAPI (Android) → XNNPACK → CPU; DirectML (Windows) → CPU.
 - Max 512 tokens per inference; long documents chunked with 50-token overlap; post-processing dedupes cross-chunk detections.

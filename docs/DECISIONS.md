@@ -20,6 +20,23 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2 Tier 3: hybrid detection-model delivery + sequencing (user-confirmed)
+
+Research (knowledgator GLiNER-PII family, Apache-2.0): edge F1 75.5% (~100 MB INT8), small 76.8%,
+base 81.0% (UINT8 197 MB / FP16 330 MB), large 83.3%. The model is too big to bundle a high-accuracy
+variant within the PRD's ≤250 MB install ceiling (Phase 12 also bundles ~80 MB MiniLM), and 8-bit
+GLiNER quantization has a documented accuracy drop.
+
+- **Delivery strategy.** Options: (A) tiered download + degradation; (B) bundle one small INT8;
+  (C) hybrid: bundle smallest + optional downloaded base/large upgrade. **Chose C (maintainer).**
+  Offline baseline + per-device accuracy; reuses the Phase 9 signed-manifest/download infra.
+  Graduated to **ADR-022**; blueprint §4.3, roadmap Phase 2, models.md §3.4 updated.
+- **Sequencing.** The downloaded-upgrade path depends on Phase 9 (profiler + manifest + download),
+  so **Phase 3 (Anonymizer operators) is done next** and full Tier 3 lands with/after Phase 9.
+  **Chose maintainer-confirmed.**
+- **Follow-up flagged:** re-evaluate whether the clinical PHI model (`obi/deid_bert_i2b2`, ~110 MB,
+  ADR-004) should also be download-on-demand vs bundled (bundling both NER models pressures 250 MB).
+
 ## 2026-06-13 — V1 P2e: minSdk 24 → 26 (spec conflict, user-confirmed) ⚠ review
 
 - **Conflict.** blueprint §11 pinned **minSdk 24 (Android 7.0)**, but `com.google.mlkit:

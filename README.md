@@ -52,7 +52,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **2b (merged)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97).
 - **2c (merged)** — Tier 1 heuristic/locale recognizers (§4.2), pure Dart: Date (ISO/numeric/textual), MRN and Passport (keyword-anchored via lookbehind, span tight to the identifier).
 - **2d (merged)** — `PhoneRecognizer` (§4.2): candidate regex + `phone_numbers_parser` (pure-Dart libphonenumber port, MIT) validity check. **Completes Tier 1.**
-- **2e (this PR)** — Tier 2 `MlKitEntityRecognizer` (§4.3) wrapping `google_mlkit_entity_extraction`: the ML-Kit-type → label mapping is pure-Dart tested via an injectable annotator; the native on-device adapter is isolated and composed at Phase 5 bootstrap. Next: Tier 3 GLiNER ONNX (2f).
+- **2e (merged)** — Tier 2 `MlKitEntityRecognizer` (§4.3) wrapping `google_mlkit_entity_extraction`: the ML-Kit-type → label mapping is pure-Dart tested via an injectable annotator; the native on-device adapter is isolated and composed at Phase 5 bootstrap. (minSdk raised 24→26 for ML Kit.)
+- **Tier 3 (GLiNER)** — delivery strategy decided (**ADR-022**): hybrid bundled-baseline + device-tiered downloaded upgrade via the Phase 9 signed manifest, with graceful degradation to Tiers 1–2. The downloaded-upgrade path depends on Phase 9 infra, so **full Tier 3 lands with/after Phase 9**.
+
+**Next: V1 Phase 3 — Anonymizer operators** (Redact/Mask/Replace/Token-Random/FPE-FF1/Encrypt; NIST vectors).
 
 ## Development setup
 
