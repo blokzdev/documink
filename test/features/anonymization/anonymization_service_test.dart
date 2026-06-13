@@ -62,13 +62,31 @@ SSN: redact
     },
   );
 
-  test('FPE policy throws until 3c', () async {
-    final policy = AnonymizationPolicy.fromYaml('CREDIT_CARD: fpe');
-    expect(
-      () => service().anonymize('card 4111 1111 1111 1111', [
-        span(5, 24, PiiLabels.creditCard, '4111 1111 1111 1111'),
-      ], policy),
-      throwsUnsupportedError,
-    );
-  });
+  test(
+    'FPE (3c) is format-preserving, keeps last 4, and is reversible',
+    () async {
+      const text = 'card 4111 1111 1111 1234';
+      expect(text.substring(5, 24), '4111 1111 1111 1234');
+      final policy = AnonymizationPolicy.fromYaml('CREDIT_CARD: fpe');
+      final outcome = await service().anonymize(
+        text,
+        [span(5, 24, PiiLabels.creditCard, '4111 1111 1111 1234')],
+        policy,
+        workspaceId: 'ws1',
+      );
+      expect(outcome.tokens, isEmpty); // FPE is stateless (no token row)
+      final fpeValue = outcome.result.text.substring(5, 24);
+      expect(fpeValue, matches(RegExp(r'^\d{4} \d{4} \d{4} \d{4}$')));
+      expect(fpeValue, isNot('4111 1111 1111 1234'));
+      expect(fpeValue.endsWith('1234'), isTrue); // keep last 4
+      // Reversible with the same (label, workspaceId, keepClear).
+      final reversed = ReversibleOperators(crypto).fpeReverse(
+        fpeValue,
+        label: PiiLabels.creditCard,
+        workspaceId: 'ws1',
+        keepClear: 4,
+      );
+      expect(reversed, '4111 1111 1111 1234');
+    },
+  );
 }

@@ -20,6 +20,22 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P3c: FF1 format-preserving encryption
+
+- **FF1 only** (NIST SP 800-38G), hand-rolled on pointycastle (MIT) AES per §2.5/§7.1; **FF3/FF3-1
+  forbidden** (NIST withdrawal, §15). Implementation **verified against the NIST FF1 sample
+  vectors** (AES-128, radix 10, with/without tweak) — committed as KATs. The radix>10 path is
+  covered by a round-trip test only (couldn't authoritatively confirm the radix-36 sample's
+  tweak/output from memory; radix 10 is what DocuMink uses for digit FPE).
+- **Key = vault DEK** (AES-256) — avoids expanding the 1b key hierarchy with a dedicated FPE
+  subkey; FF1 with AES-256 is valid. **Tweak = SHA-256(entity_type ‖ 0x00 ‖ workspace_id)** (the
+  0x00 separator makes the encoding injective) — realizes §7.1's "entity_type + workspace_id hash".
+- **Card keep-last-4**: CREDIT_CARD FPE leaves the last 4 digits clear (§7.1); separators preserved.
+  FPE is **stateless + deterministic** (no token row); reversible via `fpeReverse` with the same
+  (label, workspaceId, keepClear).
+- `AnonymizationService.anonymize` gained an optional `workspaceId` (default '') for the FPE tweak;
+  the pipeline supplies the real workspace id. crypto (BSD-3) added for sync SHA-256.
+
 ## 2026-06-13 — V1 P3b: reversible operators (Token-Random + inline Encrypt)
 
 - **Async-vs-sync seam.** 3a's `Anonymizer.apply` is sync; reversible ops need async crypto/DB. Kept
