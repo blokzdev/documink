@@ -1051,7 +1051,10 @@ DEK (data encryption key) encrypts tokens.ciphertext
 ### 8.4 Recovery
 
 - BIP-39 phrase shown once at onboarding; user confirms by re-entry.
-- Phrase encodes the Argon2id-derived MK.
+- Phrase encodes the Argon2id-derived MK **via the BIP-39 entropy path** (24 words = 256-bit MK +
+  checksum), so the exact MK bytes round-trip — *not* the PBKDF2 seed path (ADR-021). The
+  `RecoveryService` codec (V1 P1d) is storage-free; the recover→reset-passphrase orchestration
+  lands with Phase 5 onboarding.
 - Lost passphrase + lost phrase = permanently inaccessible vault (by design).
 
 ---
