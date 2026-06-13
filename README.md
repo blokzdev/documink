@@ -49,7 +49,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 **V1 in progress — Phase 2 (detection pipeline, Tiers 1–3), delivered as sequential sub-PRs:**
 - **2a (merged)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator.
-- **2b (this PR)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97), wired into the pipeline. Next: 2c (Tier 1 heuristic/locale — phone/date/MRN/passport), then Tier 2 ML Kit and Tier 3 GLiNER ONNX.
+- **2b (merged)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97).
+- **2c (this PR)** — Tier 1 heuristic/locale recognizers (§4.2), pure Dart: Date (ISO/numeric/textual), MRN and Passport (keyword-anchored via lookbehind, span tight to the identifier). Next: 2d (Phone via a pure-Dart libphonenumber port), then Tier 2 ML Kit and Tier 3 GLiNER ONNX.
 
 ## Development setup
 
