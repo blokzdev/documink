@@ -20,6 +20,30 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P9a: Device Capability Profiler core (HIGH-STAKES phase — fuller logging)
+
+- **Sequencing (user-approved).** With Phase 3 done, the strict next phase (4: input handlers) is
+  native camera/OCR/PDF and untestable in this headless sandbox. Maintainer chose "headless-testable
+  cores first," so Phase 9's pure-Dart core runs now — it also **unblocks the deferred Tier 3 model
+  delivery** (ADR-022). Native/UI phases (4–8) move to a device session.
+- **Phase 9 chunking.** 9a = pure-Dart score + selection core (this PR); 9b = Ed25519-signed manifest
+  loading + SHA-256 verification (security-critical; unblocks Tier 3); 9c = `vault_meta` persistence
+  + providers + native signal-collector interface (gated).
+- **Unit system (decision).** Capabilities stored canonically in **bytes**; all conversions use
+  **decimal** units (1 GB = 1e9, 1 MB = 1e6) so the §4.7 score formula and the manifest's
+  `size_bytes` / `min_ram_mb` share one consistent system. Avoids binary/decimal mix-ups in the
+  storage-headroom and RAM gates. (Spec is unit-loose; logged for review.)
+- **selectTier** implements §4.7 verbatim: score ≥ `min_score`, hard `requires` gate, and
+  `freeStorageBytes ≥ largestVariantBytes × 1.2` (20% headroom); highest non-opt-in tier wins,
+  always defaults to the **Balanced** variant, opt-in tiers surfaced separately. Device-agnostic with
+  **no upper ceiling** (verified by a synthetic far-future-device fixture).
+- **FloorReason** (added beyond the spec's `floorReason` String): a typed diagnosis
+  (insufficientScore / insufficientRam / insufficientStorage / noQualifyingTier) against the
+  easiest-to-qualify auto tier, to drive the §4.7 floor UX copy. No security surface.
+- **No manifest parsing in 9a.** Selection runs on an in-memory `TierCatalog` (built programmatically
+  in tests). JSON parsing is deferred to 9b so the app **never acts on an unverified manifest** —
+  parsing and Ed25519 verification land together.
+
 ## 2026-06-13 — V1 P3c: FF1 format-preserving encryption
 
 - **FF1 only** (NIST SP 800-38G), hand-rolled on pointycastle (MIT) AES per §2.5/§7.1; **FF3/FF3-1

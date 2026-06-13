@@ -58,9 +58,12 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 **V1 in progress — Phase 3 (anonymizer operators, blueprint §4.6/§7.1), delivered as sequential sub-PRs:**
 - **3a (merged)** — operator framework + policy engine (default YAML asset + per-workspace/document overrides) + the 3 irreversible operators (Redact/Mask/Replace) with offset-correct (right-to-left) application. Pure Dart.
 - **3b (merged)** — reversible vault-backed operators (§7.1): **Token-Random** (`<LABEL_6base62>` surrogate + AES-256-GCM ciphertext via 1c's `TokenCrypto`, reversible by lookup) and **Encrypt** (stateless inline `<ENC:base64>`). `AnonymizationService` precomputes the async surrogates then delegates to the sync `Anonymizer`, returning persistable `TokenRecord`s.
-- **3c (this PR)** — **FF1 format-preserving encryption** (NIST SP 800-38G, FF1 only — FF3 forbidden) hand-rolled on `pointycastle` AES, **verified against the NIST FF1 sample vectors**. `FpeOperator` does digit-string FPE preserving separators with card keep-last-4; tweak = SHA-256(entity_type ‖ workspace_id); keyed by the vault DEK; deterministic + reversible (no vault row). Wired into the policy/`AnonymizationService`. **Completes V1 Phase 3 (anonymizer operators).**
+- **3c (merged)** — **FF1 format-preserving encryption** (NIST SP 800-38G, FF1 only — FF3 forbidden) hand-rolled on `pointycastle` AES, **verified against the NIST FF1 sample vectors**. `FpeOperator` does digit-string FPE preserving separators with card keep-last-4; tweak = SHA-256(entity_type ‖ workspace_id); keyed by the vault DEK; deterministic + reversible (no vault row). Wired into the policy/`AnonymizationService`. **Completes V1 Phase 3 (anonymizer operators).**
 
-**Next: V1 Phase 4 — Input handlers** (camera/OCR, paste, image import, PDF).
+**V1 in progress — Phase 9 (Device Capability Profiler, blueprint §4.7).** Sequenced ahead of the native/UI phases (4–8) by maintainer decision — it's pure-Dart/testable in this environment and **unblocks the deferred Tier 3 model delivery** (ADR-022):
+- **9a (this PR)** — the pure-Dart selection core: `DeviceCapabilities` + `capabilityScore` (§4.7 formula), the `TierCatalog`/`ModelVariant` model, and `DeviceCapabilityProfiler.selectTier` (device-agnostic, no ceiling: highest auto-qualifying tier → Balanced, opt-in tiers surfaced, 20% storage headroom, floor-reason diagnosis). Fixture-tested (floor/minimum/mid/flagship/synthetic-future + storage & RAM gates). Native signal collection (9c) and Ed25519-signed manifest loading + SHA-256 (9b) follow.
+
+**Next: V1 Phase 9b — Ed25519-signed manifest verification + SHA-256** (then 9c persistence; then the native/UI phases 4–8 on a device session).
 
 ## Development setup
 
