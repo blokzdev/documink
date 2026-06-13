@@ -20,6 +20,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2d: phone recognizer
+
+- **Package.** `phone_numbers_parser` 9.0.23 (MIT, pure Dart — the maintained libphonenumber port).
+  Its built-in text matcher (`TextParser.findPotentialPhoneNumbers`) is not exported and the public
+  `findPotentialPhoneNumbers` drops offsets, so we use **our own candidate regex** (to keep span
+  offsets) + the library's `PhoneNumber.parse(...).isValid()` for true pattern/length validation.
+- **Default region `IsoCode.US`** for national-format numbers without a `+`. `+CC` numbers validate
+  internationally regardless. This is a V1 English/US-leaning default; broader locale handling can
+  follow in V3 multilingual. Verified: real US/GB numbers validate; SSN/ISO-date look-alikes are
+  rejected by `isValid()`.
+
 ## 2026-06-13 — V1 P2c: heuristic Tier 1 recognizers; phone split to 2d
 
 - **Keyword-anchoring for MRN & Passport.** Their formats overlap heavily with ordinary
