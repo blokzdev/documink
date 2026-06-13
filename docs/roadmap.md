@@ -130,7 +130,10 @@ Commit ADRs under `docs/adr/`:
 - Implement `PiiRecognizer` abstraction.
 - Tier 1 recognizers (Blueprint §4.2).
 - Tier 2: integrate `google_mlkit_entity_extraction`.
-- Tier 3: bundle GLiNER-PII-Edge INT8 ONNX, integrate via `flutter_onnxruntime`.
+- Tier 3: GLiNER-PII via `flutter_onnxruntime` — **hybrid delivery (ADR-022):** bundle the
+  smallest variant (offline baseline) + device-tiered downloaded base/large upgrade through the
+  Phase 9 signed manifest. Graceful degradation to Tiers 1–2. (Downloaded-upgrade path lands
+  with/after Phase 9; bundled baseline + integration scaffolding here.)
   - `detection_labels.yaml` asset.
   - Chunking with 50-token overlap; cross-chunk dedup.
 - Overlap resolver.

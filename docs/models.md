@@ -100,6 +100,15 @@ All models are **Apache 2.0 or MIT licensed** — no exceptions in the live cata
 
 Devices below Minimum tier requirements (<2 GB RAM or <250 MB free storage) get no Tier 4. Mink UI replaced with informational screen per Blueprint §4.7. Detection pipeline Tiers 1–3 continue working unchanged.
 
+### 3.4 Tier 3 detection models (this manifest also serves them — ADR-022)
+
+The same signed manifest + SHA-256 + PAD/download path serves the **Tier 3 PII NER** models, not
+just Tier 4 LLMs. Strategy (ADR-022): **bundle** the smallest `knowledgator/gliner-pii-*` variant
+(edge/small, Apache-2.0, ~100 MB INT8) as an offline baseline, and offer a **device-tiered
+downloaded upgrade** (base ≈ UINT8 197 MB / FP16 330 MB, F1 81.0%; large, F1 83.3%) on capable
+devices, with graceful degradation to Tiers 1–2. The concrete Tier 3 catalog (chosen variants,
+quantization per device class, sizes) is finalized when Tier 3 delivery is implemented (Phase 9).
+
 ---
 
 ## 4. Quantization decisions (authoritative per family)
