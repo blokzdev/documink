@@ -55,6 +55,9 @@ dev_dependencies:
   #            --delete-conflicting-outputs
   drift_dev: ^2.21.2
   build_runner: ^2.4.13
+  # Used by tool/scripts/verify_model_hashes.dart for SHA-256. Declared
+  # explicitly so the scanner doesn't rely on a transitive crypto edge.
+  crypto: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
