@@ -20,6 +20,33 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P1c: VaultService scope & wiring choices
+
+Decisions made autonomously (recommended options), specs not fully determining them:
+
+- **Vault file path injection.** Options: (A) inject via a `vaultFileProvider` that throws until
+  overridden (prod wiring + `path_provider` deferred to Phase 5; temp file in tests); (B) add
+  `path_provider` now and resolve the app-support dir. **Chose A** — there is no app bootstrap/UI
+  yet (Phase 5), and §2.5 says packages enter when used; avoids a premature dependency and keeps
+  `VaultService` unit-testable.
+- **`appDatabaseProvider` source.** Options: (A) leave it throwing (1a placeholder); (B) derive it
+  from `vaultServiceProvider` so it yields the unlocked DB and throws while locked. **Chose B** —
+  fulfils the 1a TODO and gives a single source of truth for the live DB.
+- **Auto-lock default duration.** PRD §4.6 specifies a 60–300 s range but no default. **Chose
+  120 s**, injectable via the constructor (UI will make it user-configurable in Phase 5).
+- **Token DB persistence depth.** Options: (A) ship only pure `TokenCrypto` now, defer all DB
+  CRUD to the detection/redaction pipeline; (B) also ship a thin `TokensRepository` with a minimal
+  FK fixture to prove the encrypted store→lookup→reveal round-trip end to end. **Chose B** — proves
+  the privacy-critical at-rest path (AES-GCM AAD + keyed fingerprint + `idx_tokens_fingerprint`)
+  now; pipeline-driven bulk CRUD still lands with the detection phases.
+- **Gated SQLCipher integration test.** The encrypted native build is **not linked under
+  `flutter test`** on the CI/web host (confirmed: `PRAGMA cipher_version` returns no rows), so the
+  real-cipher test **honestly skips** there (`markTestSkipped`) rather than failing or faking a
+  pass. Real encryption-at-rest is covered at build/device time (the `apk-size-check` build bundles
+  sqlite3mc). Unit tests use a plain file-backed executor to exercise the full state machine + DEK
+  unwrap + token crypto without the cipher. ⚠ review — flagged so it's visible that the encrypted
+  open is not exercised in unit CI.
+
 ## 2026-06-13 — V1 P1b: Argon2id salt + biometric KEK location ⚠ review
 
 - **Context:** blueprint §8.1 / ADR-005 said the Argon2id salt lives in `vault_meta`, but
