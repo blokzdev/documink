@@ -41,11 +41,14 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 **V0 complete.** Phase 1 — Flutter scaffold (three flavors dev/staging/prod, Riverpod + go_router + drift codegen, strict lints). Phase 2 — CI/CD guardrails (analyze, test, apk-size, license-scan, analytics-scan, verify-model-hashes, codegen-freshness; pre-commit hooks). Phase 3 — Architecture Decision Records (ADR-001…ADR-017) committed under `docs/adr/`.
 
-**V1 in progress — Phase 1 (core data layer & encrypted vault), delivered as sequential sub-PRs:**
+**V1 Phase 1 (core data layer & encrypted vault) — ✅ complete** (sub-PRs 1a–1d merged):
 - **1a (merged)** — full drift schema (16 relational tables from blueprint §3.1 + §3.2) + SQLCipher-backed executor via `package:sqlite3` v3 `source: sqlite3mc` (ADR-019). The `mink_embeddings` vec0 table is deferred to V1.2 (ADR-018).
 - **1b (merged)** — `KeyService`: the key hierarchy (Argon2id → MK → HKDF-SHA256 subkeys: DB key, KEK, fingerprint-HMAC, sync) + DEK wrap/unwrap (AES-256-GCM). Argon2id salt lives in `flutter_secure_storage` (pre-unlock); correctness anchored to RFC 9106 / RFC 5869 known-answer tests (ADR-020).
 - **1c (merged)** — `VaultService`: the lock/unlock state machine (blueprint §8.2) — passphrase → derive keys → open the SQLCipher DB → unwrap the DEK → auto-lock timer (default 120s) → best-effort key zeroization on lock. Plus `TokenCrypto`/`TokensRepository`: token plaintext encrypted at rest with AES-256-GCM (AAD = surface token) and a keyed HMAC-SHA256 fingerprint for lookup. `appDatabaseProvider` now derives from the unlocked vault.
-- **1d (this PR)** — `RecoveryService`: BIP-39 24-word recovery phrase as a checksummed 256-bit codec for the Master Key (entropy path, exact round-trip; not the PBKDF2 seed) with confirm-by-re-entry (blueprint §8.4, ADR-021). Anchored to the Trezor BIP-39 vectors. **Completes V1 Phase 1 (core data layer & encrypted vault).**
+- **1d (merged)** — `RecoveryService`: BIP-39 24-word recovery phrase as a checksummed 256-bit codec for the Master Key (entropy path, exact round-trip; not the PBKDF2 seed) with confirm-by-re-entry (blueprint §8.4, ADR-021). Anchored to the Trezor BIP-39 vectors.
+
+**V1 in progress — Phase 2 (detection pipeline, Tiers 1–3), delivered as sequential sub-PRs:**
+- **2a (this PR)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator. Tier 1 recognizers (2b), Tier 2 ML Kit (2c), and Tier 3 GLiNER ONNX (2d) register into the pipeline next.
 
 ## Development setup
 
