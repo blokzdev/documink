@@ -51,7 +51,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **2a (merged)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator.
 - **2b (merged)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97).
 - **2c (merged)** — Tier 1 heuristic/locale recognizers (§4.2), pure Dart: Date (ISO/numeric/textual), MRN and Passport (keyword-anchored via lookbehind, span tight to the identifier).
-- **2d (this PR)** — `PhoneRecognizer` (§4.2): candidate regex + `phone_numbers_parser` (pure-Dart libphonenumber port, MIT) validity check — accepts real US/international numbers, rejects SSN/date look-alikes. **Completes Tier 1.** Next: Tier 2 ML Kit (2e), Tier 3 GLiNER ONNX (2f).
+- **2d (merged)** — `PhoneRecognizer` (§4.2): candidate regex + `phone_numbers_parser` (pure-Dart libphonenumber port, MIT) validity check. **Completes Tier 1.**
+- **2e (this PR)** — Tier 2 `MlKitEntityRecognizer` (§4.3) wrapping `google_mlkit_entity_extraction`: the ML-Kit-type → label mapping is pure-Dart tested via an injectable annotator; the native on-device adapter is isolated and composed at Phase 5 bootstrap. Next: Tier 3 GLiNER ONNX (2f).
 
 ## Development setup
 

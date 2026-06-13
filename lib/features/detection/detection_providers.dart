@@ -13,9 +13,11 @@ import 'recognizers/phone_recognizer.dart';
 import 'recognizers/ssn_recognizer.dart';
 import 'recognizers/url_recognizer.dart';
 
-/// The registered detectors. Tier 1 structured/checksum recognizers landed in
-/// 2b; Tier 1 heuristic/locale (date, MRN, passport) in 2c; phone in 2d. Tier 2
-/// ML Kit and Tier 3 GLiNER ONNX register next.
+/// The registered detectors. Tier 1 (§4.2) is complete and pure-Dart, so it is
+/// the default set here. Tier 2 (`MlKitEntityRecognizer`) and Tier 3 (GLiNER)
+/// need native runtimes / a downloaded model, so they are **composed in at
+/// bootstrap** (Phase 5) on capable devices rather than listed here — keeping
+/// this provider usable in headless tests.
 final piiRecognizersProvider = Provider<List<PiiRecognizer>>((ref) {
   return [
     // Tier 1 — structured / checksum (2b)
