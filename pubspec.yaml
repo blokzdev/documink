@@ -40,6 +40,9 @@ dependencies:
   sqlite3: ^3.3.3
   path: ^1.9.1
   path_provider: ^2.1.5
+  argon2: ^1.0.1
+  cryptography: ^2.9.0
+  flutter_secure_storage: ^10.3.1
   # shared_preferences and flutter_secure_storage deferred to when first
   # used (key management lands in V1 Phase 1b, settings persistence in V1
   # Phase 5). Both pull Build Hooks transitively; we already tolerate that
