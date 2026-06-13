@@ -20,6 +20,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2b: split Tier 1 recognizers into two PRs
+
+- **Chunking.** The original plan put all of §4.2's Tier 1 recognizers in one PR. Split into
+  **2b** (structured / checksum-verifiable: Email, URL, IP, SSN, CreditCard-Luhn, IBAN-mod97 —
+  deterministic, no new deps) and **2c** (heuristic / locale: Phone via libphonenumber, Date,
+  MRN, Passport — false-positive-prone, locale-specific, adds a dep). Rationale: keeps each PR
+  tight and reviewable, and isolates the fuzzier heuristics + the phone dependency from the
+  high-confidence checksummed detectors. Downstream sub-PR numbering shifts (Tier 2 ML Kit = 2d,
+  Tier 3 GLiNER = 2e).
+- **Bare 9-digit SSNs not matched.** Only `-`/space-separated SSNs are detected, to avoid false
+  positives against arbitrary 9-digit numbers; SSA structural validity is enforced.
+
 ## 2026-06-13 — V1 P2a: detection-core foundations
 
 - **Phase 2 chunking.** Detection (Tiers 1–3) ships as sub-PRs: **2a** pure-Dart core
