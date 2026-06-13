@@ -65,9 +65,13 @@ currency (codegen-freshness job).
 
 - You MAY run **plan → implement → test → refine → document AUTONOMOUSLY *within* a single
   roadmap phase.**
-- You MUST **STOP at every phase boundary** for human review — before committing the phase
-  and before starting the next phase.
-- You must **NOT push to origin.** The human reviews and pushes.
+- At every **phase boundary**, STOP for human review: commit the phase to the current
+  **feature branch**, push it, and open (or update) a **PR into `main`** — then wait. Do not
+  start the next phase until the human has reviewed.
+- **Branch / PR flow:** one branch per PR (a branch may carry multiple commits). The agent
+  pushes its **own feature branch** and opens the PR; the agent **never pushes to or merges
+  `main`** — the human reviews and merges. After a merge, sync to the updated `main` and cut a
+  fresh branch for the next phase.
 - Within a phase, if you hit a decision the specs don't determine, a spec conflict, or
   anything security-sensitive (keys, crypto, signatures, PII handling) → **STOP and surface
   it.** Never choose silently (`deviation-protocol.md`).
