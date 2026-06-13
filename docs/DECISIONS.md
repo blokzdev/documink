@@ -20,6 +20,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P1d: BIP-39 recovery codec scope
+
+- **BIP-39 path.** Options: (A) entropy path (`entropyToMnemonic`/`mnemonicToEntropy`) — exact MK
+  round-trip; (B) PBKDF2 seed path (`mnemonicToSeed`) — one-way, cannot reproduce the MK. **Chose
+  A** (mandatory for recovery). Graduated to **ADR-021**; §8.4 corrected.
+- **Recover→reset-passphrase orchestration.** Options: (A) implement now in `RecoveryService`;
+  (B) ship only the codec + validation now, defer the orchestration (open vault with restored MK,
+  re-key to a new passphrase) to Phase 5 onboarding/UI. **Chose B** — keeps `RecoveryService`
+  storage-free and the high-stakes re-key flow with the UI that drives it.
+- **Package.** `bip39` 1.0.6 (BSD-3-Clause, allow-listed; license-scan passes).
+
 ## 2026-06-13 — V1 P1c: VaultService scope & wiring choices
 
 Decisions made autonomously (recommended options), specs not fully determining them:
