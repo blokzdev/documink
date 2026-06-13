@@ -9,11 +9,12 @@ import 'recognizers/iban_recognizer.dart';
 import 'recognizers/ip_address_recognizer.dart';
 import 'recognizers/mrn_recognizer.dart';
 import 'recognizers/passport_recognizer.dart';
+import 'recognizers/phone_recognizer.dart';
 import 'recognizers/ssn_recognizer.dart';
 import 'recognizers/url_recognizer.dart';
 
 /// The registered detectors. Tier 1 structured/checksum recognizers landed in
-/// 2b; Tier 1 heuristic/locale (date, MRN, passport) in 2c (phone → 2d); Tier 2
+/// 2b; Tier 1 heuristic/locale (date, MRN, passport) in 2c; phone in 2d. Tier 2
 /// ML Kit and Tier 3 GLiNER ONNX register next.
 final piiRecognizersProvider = Provider<List<PiiRecognizer>>((ref) {
   return [
@@ -28,6 +29,8 @@ final piiRecognizersProvider = Provider<List<PiiRecognizer>>((ref) {
     DateRecognizer(),
     MrnRecognizer(),
     PassportRecognizer(),
+    // Tier 1 — phone (2d)
+    PhoneRecognizer(),
   ];
 });
 

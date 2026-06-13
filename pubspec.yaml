@@ -45,6 +45,7 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   bip39: ^1.0.6
   unorm_dart: ^0.3.2
+  phone_numbers_parser: ^9.0.23
   # shared_preferences and flutter_secure_storage deferred to when first
   # used (key management lands in V1 Phase 1b, settings persistence in V1
   # Phase 5). Both pull Build Hooks transitively; we already tolerate that

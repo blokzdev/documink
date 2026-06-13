@@ -50,7 +50,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 **V1 in progress — Phase 2 (detection pipeline, Tiers 1–3), delivered as sequential sub-PRs:**
 - **2a (merged)** — detection core (pure Dart): `PiiRecognizer` abstraction + `DetectedSpan`/`PiiLabels`, `TextNormalizer` (Unicode NFC + zero-width strip + hyphen line-join, blueprint §4.1), the Presidio-style `OverlapResolver` (§4.5), and the `DetectionPipeline` orchestrator.
 - **2b (merged)** — Tier 1 structured/checksum recognizers (§4.2), pure Dart: Email, URL, IP (v4/v6), SSN (SSA validity), CreditCard (Luhn), IBAN (mod-97).
-- **2c (this PR)** — Tier 1 heuristic/locale recognizers (§4.2), pure Dart: Date (ISO/numeric/textual), MRN and Passport (keyword-anchored via lookbehind, span tight to the identifier). Next: 2d (Phone via a pure-Dart libphonenumber port), then Tier 2 ML Kit and Tier 3 GLiNER ONNX.
+- **2c (merged)** — Tier 1 heuristic/locale recognizers (§4.2), pure Dart: Date (ISO/numeric/textual), MRN and Passport (keyword-anchored via lookbehind, span tight to the identifier).
+- **2d (this PR)** — `PhoneRecognizer` (§4.2): candidate regex + `phone_numbers_parser` (pure-Dart libphonenumber port, MIT) validity check — accepts real US/international numbers, rejects SSN/date look-alikes. **Completes Tier 1.** Next: Tier 2 ML Kit (2e), Tier 3 GLiNER ONNX (2f).
 
 ## Development setup
 
