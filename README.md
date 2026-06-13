@@ -55,7 +55,8 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **2e (merged)** — Tier 2 `MlKitEntityRecognizer` (§4.3) wrapping `google_mlkit_entity_extraction`: the ML-Kit-type → label mapping is pure-Dart tested via an injectable annotator; the native on-device adapter is isolated and composed at Phase 5 bootstrap. (minSdk raised 24→26 for ML Kit.)
 - **Tier 3 (GLiNER)** — delivery strategy decided (**ADR-022**): hybrid bundled-baseline + device-tiered downloaded upgrade via the Phase 9 signed manifest, with graceful degradation to Tiers 1–2. The downloaded-upgrade path depends on Phase 9 infra, so **full Tier 3 lands with/after Phase 9**.
 
-**Next: V1 Phase 3 — Anonymizer operators** (Redact/Mask/Replace/Token-Random/FPE-FF1/Encrypt; NIST vectors).
+**V1 in progress — Phase 3 (anonymizer operators, blueprint §4.6/§7.1), delivered as sequential sub-PRs:**
+- **3a (this PR)** — operator framework + policy engine (default YAML asset + per-workspace/document overrides) + the 3 irreversible operators (Redact/Mask/Replace) with offset-correct (right-to-left) application. Pure Dart. Reversible operators are delegated to an injected resolver (wired in 3b/3c). Next: 3b (vault-backed Token-Random + AES-GCM Encrypt), 3c (hand-rolled FF1 FPE + NIST SP 800-38G vectors).
 
 ## Development setup
 

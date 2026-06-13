@@ -20,6 +20,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P3a: anonymizer framework + operator output formats
+
+- **Phase 3 chunking.** 3a = operator framework + policy engine + irreversible ops
+  (Redact/Mask/Replace); 3b = vault-backed reversible ops (Token-Random + AES-GCM Encrypt, on
+  1c's TokenCrypto); 3c = hand-rolled FF1 FPE + NIST SP 800-38G vectors (FF1 only; FF3 forbidden
+  per §15/§7.1). Splits the security-sensitive FF1 crypto into its own reviewable PR.
+- **Operator output formats (not precisely spec'd for V1 — chosen, refinable):** redact →
+  `[REDACTED]`; mask → `•`×len (length-preserving, full mask by default); replace → `<LABEL>`
+  (entity-type tag). Constants on `Anonymizer`.
+- **Policy as YAML asset** (`assets/policy/default_policy.yaml`, matches §4.6) via the `yaml`
+  package (BSD-3); parser takes a string so it's headless-testable, production loads via
+  `rootBundle`. `DEFAULT:` key sets the fallback (redact). Overrides layer via `policy.override(...)`.
+- **Reversible ops delegated.** `Anonymizer.apply` routes Token-Random/FPE/Encrypt to an injected
+  `ReversibleSurrogate`; absent ⇒ `StateError` (3a has no vault). Keeps 3a pure-Dart + testable.
+
 ## 2026-06-13 — V1 P2 Tier 3: hybrid detection-model delivery + sequencing (user-confirmed)
 
 Research (knowledgator GLiNER-PII family, Apache-2.0): edge F1 75.5% (~100 MB INT8), small 76.8%,

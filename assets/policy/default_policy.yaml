@@ -1,0 +1,15 @@
+# DocuMink default anonymization policy (blueprint §4.6).
+# Maps detected entity-type labels to operators. Per-workspace and per-document
+# overrides layer on top at runtime. `DEFAULT` is the fallback for unmapped
+# labels (privacy-safe: redact).
+#
+# Operators: redact | mask | replace | token_random | fpe | encrypt
+DEFAULT: redact
+PERSON: token_random
+EMAIL: mask
+PHONE: mask
+SSN: redact
+CREDIT_CARD: fpe
+MRN: fpe
+LOCATION: token_random
+DATE_OF_BIRTH: redact
