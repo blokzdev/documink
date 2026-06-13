@@ -146,8 +146,11 @@ Future<bool> checkPackageLicense(HttpClient client, PackageInfo pkg) async {
       }
 
       if (res.statusCode != 200) {
-        print('Error fetching metrics for ${pkg.name}: ${res.statusCode}');
-        return false;
+        print(
+          'Error fetching metrics for ${pkg.name}: ${res.statusCode}. '
+          'Falling back to local LICENSE scan.',
+        );
+        return checkFallback(pkg);
       }
 
       var body = await res.transform(utf8.decoder).join();
@@ -209,7 +212,13 @@ Future<bool> checkPackageLicense(HttpClient client, PackageInfo pkg) async {
     }
   }
 
-  return false;
+  // Retries exhausted (network unreachable or sustained 429): don't red-fail a
+  // potentially-compliant build on a pub.dev outage -- degrade to the local
+  // LICENSE-file deny-list scan instead.
+  print(
+    'Could not reach pub.dev for ${pkg.name}. Falling back to local LICENSE scan.',
+  );
+  return checkFallback(pkg);
 }
 
 bool checkFallback(PackageInfo pkg) {
