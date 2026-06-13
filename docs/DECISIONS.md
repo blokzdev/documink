@@ -20,6 +20,22 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-13 — V1 P2a: detection-core foundations
+
+- **Phase 2 chunking.** Detection (Tiers 1–3) ships as sub-PRs: **2a** pure-Dart core
+  (recognizer abstraction + normalize + overlap resolver + pipeline), **2b** Tier 1 regex/checksum
+  recognizers, **2c** Tier 2 ML Kit, **2d** Tier 3 GLiNER ONNX. Native/asset-heavy tiers (2c/2d)
+  are isolated so the pure-Dart core stays fully unit-testable and CI-light.
+- **NFC normalization package.** Options: (A) `unorm_dart` (MIT, pure Dart `nfc()`); (B) implement
+  NFC by hand; (C) defer NFC. **Chose A** — §4.1 mandates NFC and hand-rolling Unicode composition
+  is error-prone; `unorm_dart` is MIT (license-scan passes) and pure Dart (no native dep).
+- **Span offsets index into normalized text, not the original.** Normalization can change length
+  (NFC, zero-width strip, line-join), so detector offsets are relative to the normalized string;
+  mapping back to original-input coordinates (for rendering on the untouched source) is a
+  Phase 4/5 concern and is documented on `DetectedSpan`/`TextNormalizer`.
+- **Line-join scope.** Only hyphenated line breaks (`-\n`) are rejoined; other newlines are kept so
+  paragraph structure (and unrelated adjacent lines) is preserved.
+
 ## 2026-06-13 — V1 P1d: BIP-39 recovery codec scope
 
 - **BIP-39 path.** Options: (A) entropy path (`entropyToMnemonic`/`mnemonicToEntropy`) — exact MK
