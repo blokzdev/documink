@@ -173,9 +173,9 @@ DocuMink is a Flutter app with a four-tier detection pipeline, a SQLCipher-backe
 |---|---|---|---|
 | DB engine | SQLite (SQLCipher) | Public domain / BSD | AES-256, Community Edition free |
 | Flutter binding | drift | MIT | Reactive queries, compile-time types |
-| SQLCipher integration | sqlcipher_flutter_libs | MIT | Android + Windows binaries available |
+| SQLCipher integration | `package:sqlite3` v3 user-define `source: sqlite3mc` | MIT | Selected via Build Hooks (`hooks.user_defines`); SQLCipher-compatible cipher pinned at open (`PRAGMA cipher = 'sqlcipher'`). The former `sqlcipher_flutter_libs` package became a no-op shim on `package:sqlite3` 3.x — see ADR-019. |
 | Migrations | drift built-in | MIT | Versioned schema |
-| Vector search | sqlite-vec | Apache 2.0 | Native SQLite extension for vector indexes; HNSW-family ANN — backs Mink's Semantic and Resource Memory retrieval |
+| Vector search | sqlite-vec | Apache 2.0 | Native SQLite extension for vector indexes; HNSW-family ANN — backs Mink's Semantic and Resource Memory retrieval. **`mink_embeddings` vec0 table deferred to V1.2** (no bundleable Flutter build under SQLCipher yet) — see ADR-018 and §3.2. |
 | Full-text search | SQLite FTS5 | Public domain | Built-in BM25-based full-text index; backs `search_documents` tool and Episodic Memory topic lookup |
 | JSON | SQLite JSON1 | Public domain | Built-in; used for Project manifests, memory value payloads, Mink tool call metadata |
 | CRDT replication | cr-sqlite | MIT | SQLite extension enabling conflict-free multi-device sync |
@@ -468,6 +468,13 @@ CREATE TABLE mink_procedural_memory (
 
 -- Shared: embedding storage for Semantic and Resource Memory vector search.
 -- Uses sqlite-vec extension; embeddings stored as BLOB (float32 array).
+-- DEFERRED TO V1.2 (ADR-018): sqlite-vec has no bundleable Flutter build that
+-- loads under the encrypted SQLite library today, and its only consumers
+-- (Semantic / Resource memory) activate in V1.2. The V1-Phase-1 schema creates
+-- all 16 relational tables but NOT this virtual table; `mink_semantic_memory.
+-- embedding_id` is implemented as a plain nullable TEXT with no foreign key
+-- (a vec0 virtual table cannot be a FK target). This table is created when V1.2
+-- activates embedding search.
 CREATE VIRTUAL TABLE mink_embeddings USING vec0(
   id TEXT PRIMARY KEY,
   workspace_id TEXT,

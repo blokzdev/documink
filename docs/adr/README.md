@@ -56,3 +56,5 @@ significant architectural decision: its context, what was decided, why, and the 
 | [015](ADR-015.md) | iOS/macOS deferred until after V4 | Accepted |
 | [016](ADR-016.md) | Mink memory architecture — six typed stores, PII-safe refs (defers to memory.md) | Accepted |
 | [017](ADR-017.md) | Tier 4 model hosting — PAD / HuggingFace / Ed25519 manifest (defers to models.md) | Accepted |
+| [018](ADR-018.md) | Defer the `mink_embeddings` vec0 virtual table to V1.2 (amends ADR-003) | Accepted |
+| [019](ADR-019.md) | Encrypted vault via `package:sqlite3` v3 `source: sqlite3mc` user-define (amends ADR-003) | Accepted |

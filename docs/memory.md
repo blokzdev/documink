@@ -140,7 +140,7 @@ Adapted from MIRIX (Wang & Chen, 2025) with architectural changes for on-device 
 
 **What it is:** documents and files shared by the user, with semantic retrieval.
 
-**Schema:** existing `documents` table + embedding entries in `mink_embeddings` for document summaries.
+**Schema:** existing `documents` table + embedding entries in `mink_embeddings` for document summaries. (The `mink_embeddings` vec0 table itself is created at V1.2 activation, not in the V1 Phase 1 schema — see blueprint §3.2 and ADR-018.)
 
 **Retrieval:** hybrid BM25 (FTS5) + vector similarity on document summaries.
 

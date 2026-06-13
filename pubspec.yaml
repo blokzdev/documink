@@ -33,16 +33,17 @@ dependencies:
   flutter_riverpod: ^2.5.1
   go_router: ^14.0.0
   drift: ^2.21.0
-  # sqlite3_flutter_libs intentionally deferred to V1 Phase 1.
-  # Adding it now pulls in native_toolchain_c (Build Hooks), which
-  # breaks `dart run build_runner` AOT precompile on Dart 3.10.
-  # See dart-lang/build#4343. Re-add with sqlcipher_flutter_libs
-  # when V1 Phase 1 (vault + SQLCipher) lands.
+  # Encrypted vault (V1 Phase 1). package:sqlite3 3.x selects the encrypted
+  # build via the `hooks.user_defines` block below (source: sqlite3mc) — the
+  # old `sqlcipher_flutter_libs` package is a no-op shim on sqlite3 3.x and is
+  # intentionally NOT used. blueprint §2.4 named it; corrected in this phase.
+  sqlite3: ^3.3.3
+  path: ^1.9.1
+  path_provider: ^2.1.5
   # shared_preferences and flutter_secure_storage deferred to when first
-  # used (vault work in V1 Phase 1, settings persistence in V1 Phase 5).
-  # Not in V0 Phase 1 scope per roadmap. Also: both currently pull in
-  # Dart 3.10 Build Hooks transitively, which breaks build_runner AOT
-  # precompile (dart-lang/build#4343). Re-add when we tackle that.
+  # used (key management lands in V1 Phase 1b, settings persistence in V1
+  # Phase 5). Both pull Build Hooks transitively; we already tolerate that
+  # via --force-jit codegen (dart-lang/build#4343).
 
 
 dev_dependencies:
@@ -58,6 +59,16 @@ dev_dependencies:
   # Used by tool/scripts/verify_model_hashes.dart for SHA-256. Declared
   # explicitly so the scanner doesn't rely on a transitive crypto edge.
   crypto: ^3.0.0
+
+# Select the SQLite3 Multiple Ciphers build (MIT, no OpenSSL linkage) so the
+# vault is encrypted at rest. package:sqlite3 3.x bundles this via Dart/Flutter
+# Build Hooks; PRAGMA key / PRAGMA cipher then work directly. We pin the
+# SQLCipher-compatible cipher at open time (PRAGMA cipher = 'sqlcipher').
+# blueprint §2.4 (corrected this phase: sqlcipher_flutter_libs is a no-op shim).
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

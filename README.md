@@ -39,7 +39,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 ## Build status
 
-**V0 complete.** Phase 1 — Flutter scaffold (three flavors dev/staging/prod, Riverpod + go_router + drift codegen, strict lints). Phase 2 — CI/CD guardrails (analyze, test, apk-size, license-scan, analytics-scan, verify-model-hashes, codegen-freshness; pre-commit hooks). Phase 3 — Architecture Decision Records (ADR-001…ADR-017) committed under `docs/adr/`. Next: V1 Phase 1 (core data layer & vault).
+**V0 complete.** Phase 1 — Flutter scaffold (three flavors dev/staging/prod, Riverpod + go_router + drift codegen, strict lints). Phase 2 — CI/CD guardrails (analyze, test, apk-size, license-scan, analytics-scan, verify-model-hashes, codegen-freshness; pre-commit hooks). Phase 3 — Architecture Decision Records (ADR-001…ADR-017) committed under `docs/adr/`.
+
+**V1 in progress — Phase 1 (core data layer & encrypted vault), delivered as sequential sub-PRs:**
+- **1a (this PR)** — full drift schema (16 relational tables from blueprint §3.1 + §3.2) + SQLCipher-backed executor via `package:sqlite3` v3 `source: sqlite3mc` (ADR-019). The `mink_embeddings` vec0 table is deferred to V1.2 (ADR-018). Next: 1b (KeyService), 1c (VaultService), 1d (BIP-39 recovery).
 
 ## Development setup
 
