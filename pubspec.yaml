@@ -53,6 +53,9 @@ dependencies:
   # Settings persistence (non-sensitive prefs like theme mode — never PII).
   # Wired at bootstrap; an in-memory store keeps headless tests independent.
   shared_preferences: ^2.3.2
+  # Biometric gate for revealing reversible tokens (§5 decode). Behind an
+  # Authenticator seam; the real plugin is wired at bootstrap, faked in tests.
+  local_auth: ^2.3.0
 
 
 dev_dependencies:
