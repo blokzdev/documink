@@ -20,6 +20,30 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P9b: Ed25519-signed manifest verification (HIGH-STAKES — fuller logging)
+
+- **Signing scheme (decision).** The blueprint sketch shows a `signature` field *inside* the manifest
+  JSON, which would require canonical JSON re-serialization to verify (fragile). Instead the signed
+  artifact (`manifest.signed.json`) embeds the manifest **body as an exact string** and the Ed25519
+  signature covers that string's UTF-8 bytes. Verification is byte-exact and serialization-independent.
+  Logged as a deviation from the §4.7 sketch (the security property is identical/stronger).
+- **Pinned public key.** `ManifestVerifier` verifies against a **pinned** key (constant in code),
+  ignoring any key embedded in the file — otherwise an attacker could swap both. On any failure
+  (tampered body/signature, wrong key, bad alg, unparseable) it **throws and never returns an
+  unverified manifest** (§4.7/§6.4: "never falls back to unsigned"). Tests cover all five rejection
+  paths incl. a body forged under a different key.
+- **Dev/review key.** The committed key is a **development** Ed25519 key (deterministic from a fixed
+  seed in `tool/scripts/sign_manifest.dart`, clearly marked DEV-ONLY). The production private key is
+  held in external secure key management and never committed; the pinned public key is swapped at
+  release (key rotation = app update, models.md §5). The dev private key is NOT committed.
+- **Tier 3 unblocked (ADR-022).** The manifest carries `detection_models` (GLiNER PII: bundled
+  `tier3_baseline_bundled` + `tier3_upgrade` variants with `min_score` gates) alongside the Tier 4
+  `tiers`. This is the data layer the deferred Tier 3 hybrid delivery needs.
+- **Dev placeholder SHA-256.** Manifest `sha256` fields are zero placeholders (no multi-GB model
+  files downloaded here); CI's `verify-model-hashes` checks `tool/model_hashes.json` (bundled
+  models), not this manifest, so placeholders don't break CI. `ModelHashVerifier` is tested against
+  real computed hashes. Real hashes are filled when models are actually hosted (models.md §5 step 2).
+
 ## 2026-06-13 — V1 P9a: Device Capability Profiler core (HIGH-STAKES phase — fuller logging)
 
 - **Sequencing (user-approved).** With Phase 3 done, the strict next phase (4: input handlers) is
