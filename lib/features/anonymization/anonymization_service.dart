@@ -10,10 +10,20 @@ const int _cardKeepClear = 4;
 /// Anonymized text plus the [TokenRecord]s that the pipeline must persist
 /// (one per Token-Random replacement) so the tokens are reversible later.
 class AnonymizationOutcome {
-  const AnonymizationOutcome({required this.result, required this.tokens});
+  const AnonymizationOutcome({
+    required this.result,
+    required this.tokens,
+    this.tokensBySpan = const {},
+  });
 
   final AnonymizationResult result;
+
+  /// All minted token records, in document-iteration order.
   final List<TokenRecord> tokens;
+
+  /// The token record for each Token-Random span, so persistence can link a
+  /// `tokens` row to its owning `entities` row (blueprint §3.1).
+  final Map<DetectedSpan, TokenRecord> tokensBySpan;
 }
 
 /// Orchestrates anonymization end-to-end: it pre-computes the reversible
@@ -37,6 +47,7 @@ class AnonymizationService {
   }) async {
     final surrogates = <DetectedSpan, String>{};
     final tokens = <TokenRecord>[];
+    final tokensBySpan = <DetectedSpan, TokenRecord>{};
 
     for (final span in spans) {
       final op = policy.operatorFor(span.label);
@@ -45,6 +56,7 @@ class AnonymizationService {
           final record = await _reversible.tokenize(span.text, span.label);
           surrogates[span] = record.surrogate;
           tokens.add(record);
+          tokensBySpan[span] = record;
         case Operator.encrypt:
           surrogates[span] = await _reversible.encryptInline(span.text);
         case Operator.fpe:
@@ -67,6 +79,10 @@ class AnonymizationService {
       policy,
       reversible: (span, _) => surrogates[span]!,
     );
-    return AnonymizationOutcome(result: result, tokens: tokens);
+    return AnonymizationOutcome(
+      result: result,
+      tokens: tokens,
+      tokensBySpan: tokensBySpan,
+    );
   }
 }

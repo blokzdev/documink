@@ -69,6 +69,26 @@ void main() {
     expect(state().previewText, isNot(contains('alice@example.com')));
   });
 
+  test('save persists the previewed document to the vault', () async {
+    controller().setInput('Reach alice@example.com now.');
+    await controller().detect();
+    await controller().setOperator(PiiLabels.email, Operator.tokenRandom);
+
+    final docId = await controller().save(name: 'My note');
+    expect(docId, isNotNull);
+
+    final db = vault.service.database;
+    final docs = await db.select(db.documents).get();
+    expect(docs.single.name, 'My note');
+    // The previewed surrogate matches the persisted token value.
+    final tokens = await db.select(db.tokens).get();
+    expect(state().previewText, contains(tokens.single.tokenValue));
+  });
+
+  test('save returns null when there is nothing to save', () async {
+    expect(await controller().save(), isNull);
+  });
+
   test('empty input detects nothing', () async {
     controller().setInput('   ');
     await controller().detect();

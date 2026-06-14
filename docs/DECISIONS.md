@@ -9,6 +9,24 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5g: persist anonymized documents
+
+- **`AnonymizationOutcome.tokensBySpan`** added (non-breaking) so persistence can link each `tokens`
+  row to its owning `entities` row — the flat `tokens` list had no span association. Small, contained
+  Phase-3 enhancement.
+- **Save persists the exact previewed outcome** (the editor retains `_lastOutcome`), so Token-Random's
+  random surrogates in the preview match the stored `tokens.token_value` and remain reversible.
+- **Single default workspace (`ws_default`) for V1.** The vault is single-tenant until the
+  projects/multi-workspace UI lands; `DocumentRepository.ensureDefaultWorkspace()` creates it lazily
+  (idempotent). Avoids touching the high-stakes `VaultService.initialize` path. Revisit when projects
+  UI arrives.
+- **Whole save is one transaction** (document + entities + tokens + `document_saved` audit), so a
+  partial failure leaves no orphan rows. Audit metadata carries counts only — **no PII** (invariant #7).
+- **`redactedText` stored in `documents.metadata_json`** for text docs (it's de-identified output, not
+  PII); file artifacts will use `redacted_artifact_path` in the export phase.
+- Simple injectable id generator (`lib/data/id_generator.dart`); full ULID still deferred (schema only
+  needs a unique TEXT PK).
+
 ## 2026-06-14 — V1 Phase 5f: reversible operators in the editor
 
 - **Token-Random + Encrypt added; FPE held back.** FF1 requires a minimum numeric domain and throws
