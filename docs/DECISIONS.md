@@ -20,6 +20,24 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P12a: Mink memory PII-safe write guard (HIGH-STAKES — fuller logging)
+
+- **The invariant.** memory.md §3 requires raw PII/PHI plaintext to *never* enter memory tables.
+  12a implements the §3.3 write-path enforcement: `MemoryWriteGuard.assertNoPlaintext` →
+  `MemoryPiiScanner` runs the **shared detection pipeline** over content and rejects any detected PII
+  that isn't already a token reference (`MemoryPiiLeakError` with structured violations).
+- **Token-ref accounting.** Form A (`{"type":"token_ref",…}` maps) is skipped wholesale; Form B
+  (`<<tok_…>>` inline markers) is stripped before scanning. Form C (canonical fingerprint) is a BLOB,
+  carries no plaintext, so inherently safe. The scanner walks arbitrary JSON (Map/List/String) and
+  reports violations with a JSON-path location.
+- **Detection coverage caveat.** The guard is exactly as strong as the registered recognizers. With
+  only Tier 1 active (headless), structured PII (SSN/email/phone/CC/MRN/…) is caught; PERSON/ADDRESS
+  rely on Tier 2/3 (gated). Once Tier 2 (ML Kit) / Tier 3 (GLiNER) are wired at app bootstrap the same
+  guard covers names/addresses with no code change. Logged so this dependency is explicit.
+- **Scope.** 12a is the security choke point only. `MemoryRepository` (Core + Episodic active-V1
+  tables) and the deterministic recall router are 12b; Semantic/Procedural/Resource are V1.2-activation
+  per memory.md §2.
+
 ## 2026-06-14 — V1 P6b: ReDoS-safe regex preview sandbox (completes Phase 6)
 
 - **Isolate + kill-on-timeout.** Dart's `RegExp` has no interruptible timeout, so the live preview
