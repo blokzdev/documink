@@ -9,6 +9,11 @@ enum VariantKind {
   const VariantKind(this.id);
 
   final String id;
+
+  static VariantKind fromId(String id) => values.firstWhere(
+    (v) => v.id == id,
+    orElse: () => throw FormatException('Unknown variant kind: $id'),
+  );
 }
 
 /// One downloadable model variant within a tier (blueprint §4.7 / models.md §5).
@@ -38,6 +43,17 @@ class ModelVariant {
 
   /// Required for Specialized variants (the "what you gain" copy).
   final String? benefitLabel;
+
+  factory ModelVariant.fromJson(Map<String, dynamic> json) => ModelVariant(
+    modelId: json['model_id'] as String,
+    runtime: json['runtime'] as String,
+    sizeBytes: json['size_bytes'] as int,
+    licenseBundle: json['license_bundle'] as String,
+    sha256: json['sha256'] as String?,
+    url: json['url'] as String?,
+    padPackName: json['pad_pack_name'] as String?,
+    benefitLabel: json['benefit_label'] as String?,
+  );
 }
 
 /// A capability tier with its score gate, hard requirements, and variants.
@@ -59,6 +75,24 @@ class CatalogTier {
   /// Bytes of the largest variant — what the storage-headroom check must clear.
   int get largestVariantBytes =>
       variants.values.map((v) => v.sizeBytes).reduce((a, b) => a > b ? a : b);
+
+  factory CatalogTier.fromJson(Map<String, dynamic> json) {
+    final rawVariants = json['variants'] as Map<String, dynamic>;
+    return CatalogTier(
+      tier: json['tier'] as String,
+      minScore: json['min_score'] as int,
+      requires: json['requires'] == null
+          ? TierRequirements.none
+          : TierRequirements.fromJson(json['requires'] as Map<String, dynamic>),
+      optInOnly: json['opt_in_only'] as bool? ?? false,
+      variants: {
+        for (final entry in rawVariants.entries)
+          VariantKind.fromId(entry.key): ModelVariant.fromJson(
+            entry.value as Map<String, dynamic>,
+          ),
+      },
+    );
+  }
 }
 
 /// The signed tier catalog (blueprint §4.7 manifest). JSON parsing + Ed25519
@@ -68,4 +102,12 @@ class TierCatalog {
 
   final int version;
   final List<CatalogTier> tiers;
+
+  factory TierCatalog.fromJson(Map<String, dynamic> json) => TierCatalog(
+    version: json['version'] as int,
+    tiers: [
+      for (final t in (json['tiers'] as List<dynamic>))
+        CatalogTier.fromJson(t as Map<String, dynamic>),
+    ],
+  );
 }

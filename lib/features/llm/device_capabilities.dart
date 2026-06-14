@@ -88,4 +88,11 @@ class TierRequirements {
   final String? systemModel;
 
   static const TierRequirements none = TierRequirements();
+
+  factory TierRequirements.fromJson(Map<String, dynamic> json) =>
+      TierRequirements(
+        minRamMb: json['min_ram_mb'] as int?,
+        minStorageMb: json['min_storage_mb'] as int?,
+        systemModel: json['system_model'] as String?,
+      );
 }

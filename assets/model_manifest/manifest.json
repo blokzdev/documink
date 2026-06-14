@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "signed_at": "2026-06-13T00:00:00Z",
+  "tiers": [
+    {
+      "tier": "minimum",
+      "min_score": 25,
+      "opt_in_only": false,
+      "requires": { "min_ram_mb": 2048, "min_storage_mb": 250 },
+      "variants": {
+        "balanced": {
+          "model_id": "smollm2-360m-instruct-q4km",
+          "runtime": "fllama",
+          "size_bytes": 220000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
+          "license_bundle": "apache-2.0"
+        }
+      }
+    },
+    {
+      "tier": "standard",
+      "min_score": 55,
+      "opt_in_only": false,
+      "requires": { "min_ram_mb": 4096 },
+      "variants": {
+        "balanced": {
+          "model_id": "gemma-4-e2b-int4",
+          "runtime": "litert_lm",
+          "size_bytes": 1200000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/google/gemma-4-e2b-it-task",
+          "license_bundle": "apache-2.0"
+        },
+        "specialized": {
+          "model_id": "qwen3.5-4b-instruct-q4km",
+          "runtime": "fllama",
+          "size_bytes": 2200000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-4B-Instruct-GGUF",
+          "license_bundle": "apache-2.0",
+          "benefit_label": "Stronger reasoning; 119 languages"
+        }
+      }
+    },
+    {
+      "tier": "performance",
+      "min_score": 90,
+      "opt_in_only": false,
+      "requires": { "min_ram_mb": 6144 },
+      "variants": {
+        "balanced": {
+          "model_id": "gemma-4-e4b-int4",
+          "runtime": "litert_lm",
+          "size_bytes": 1800000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/google/gemma-4-e4b-it-task",
+          "license_bundle": "apache-2.0"
+        },
+        "specialized": {
+          "model_id": "qwen3.5-9b-instruct-q4km",
+          "runtime": "fllama",
+          "size_bytes": 5000000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/Qwen/Qwen3.5-9B-Instruct-GGUF",
+          "license_bundle": "apache-2.0",
+          "benefit_label": "Desktop-class reasoning on flagship phones; 201 languages"
+        }
+      }
+    },
+    {
+      "tier": "system_provided_android",
+      "min_score": 100,
+      "opt_in_only": false,
+      "requires": { "system_model": "gemini_nano" },
+      "variants": {
+        "balanced": {
+          "model_id": "gemini-nano-passthrough",
+          "runtime": "mlkit_genai",
+          "size_bytes": 0,
+          "license_bundle": "system"
+        }
+      }
+    },
+    {
+      "tier": "professional",
+      "min_score": 150,
+      "opt_in_only": true,
+      "requires": { "min_ram_mb": 12288 },
+      "variants": {
+        "balanced": {
+          "model_id": "gemma-4-26b-a4b-moe-q4km",
+          "runtime": "fllama",
+          "size_bytes": 9000000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/google/gemma-4-26b-a4b-it-gguf",
+          "license_bundle": "apache-2.0"
+        },
+        "specialized": {
+          "model_id": "phi-4-14b-q4km",
+          "runtime": "fllama",
+          "size_bytes": 8500000000,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "url": "https://huggingface.co/microsoft/phi-4-gguf",
+          "license_bundle": "mit",
+          "benefit_label": "Strong STEM/code reasoning"
+        }
+      }
+    }
+  ],
+  "detection_models": [
+    {
+      "model_id": "gliner-pii-edge-int8",
+      "role": "tier3_baseline_bundled",
+      "runtime": "onnx",
+      "size_bytes": 100000000,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "bundled": true,
+      "license_bundle": "apache-2.0"
+    },
+    {
+      "model_id": "gliner-pii-base-uint8",
+      "role": "tier3_upgrade",
+      "runtime": "onnx",
+      "size_bytes": 197000000,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "url": "https://huggingface.co/knowledgator/gliner-pii-base",
+      "min_score": 55,
+      "license_bundle": "apache-2.0"
+    },
+    {
+      "model_id": "gliner-pii-large-fp16",
+      "role": "tier3_upgrade",
+      "runtime": "onnx",
+      "size_bytes": 660000000,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "url": "https://huggingface.co/knowledgator/gliner-pii-large",
+      "min_score": 90,
+      "license_bundle": "apache-2.0"
+    }
+  ]
+}
