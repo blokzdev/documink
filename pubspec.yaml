@@ -50,10 +50,9 @@ dependencies:
   yaml: ^3.1.3
   pointycastle: ^3.9.1
   crypto: ^3.0.7
-  # shared_preferences and flutter_secure_storage deferred to when first
-  # used (key management lands in V1 Phase 1b, settings persistence in V1
-  # Phase 5). Both pull Build Hooks transitively; we already tolerate that
-  # via --force-jit codegen (dart-lang/build#4343).
+  # Settings persistence (non-sensitive prefs like theme mode — never PII).
+  # Wired at bootstrap; an in-memory store keeps headless tests independent.
+  shared_preferences: ^2.3.2
 
 
 dev_dependencies:
