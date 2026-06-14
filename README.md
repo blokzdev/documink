@@ -86,6 +86,9 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 **Enablement (build & release):** a manual **Build APK (manual)** workflow (`workflow_dispatch`) produces a sideloadable debug-signed APK artifact for phone testing; a **Release (signed AAB)** workflow signs an App Bundle from upload-key secrets on `v*` tags (Play App Signing). Release signing is scaffolded in `android/app/build.gradle.kts` (debug fallback when secrets absent). See **`SETUP.md`** for the one-time keystore/secrets steps and **`VERIFICATION.md`** for the on-device checklist. (Phase 4↔5 build order swapped — UI before native input; see `docs/roadmap.md`.)
 
+**V1 Phase 5 (UI/UX) — in progress:**
+- **5a (this PR)** — app-shell foundation: runtime light/dark/system theming (`themeModeProvider` + AppBar quick-toggle), go_router navigation skeleton (`routerProvider` + `Routes`), and the **Home hub** (primary actions: Scan / Paste / Import / New Project / Chat with Mink, + Settings). Destinations not yet built route to clearly-labelled placeholders. **Widget-tested** (render, navigation, theme toggle). On-device rendering / FLAG_SECURE / a11y tracked in `VERIFICATION.md`.
+
 **Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (5 UI then 4 input, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 13–14 template/inference UI, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
 
 ## Development setup
