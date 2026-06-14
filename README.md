@@ -74,7 +74,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **12b (merged)** — `MemoryRepository` for the active-V1 types (Core + Episodic): every write passes the guard; recall is scope-aware (current Project + workspace globals); Episodic recall supports `since`/`episodeType`/`limit`, newest-first. `forget` deletes.
 - **12c (this PR)** — `MemoryRouter`: the deterministic (no-LLM) dispatcher mapping Mink's memory tool calls (`remember`/`recall_core`/`recall_episodic`/`forget`) to the repository; a rejected write (unreferenced PII) surfaces as a failed `MemoryToolResult` rather than throwing. **Completes V1 Phase 12 (Mink memory, active-V1: Core + Episodic + PII-safe write path).**
 
-**Next: V1 Phase 15 — audit log** (every tool call audited, privacy invariant #7, pure Dart); native/UI phases (4–5, 7–8) on a device session.
+**V1 Phase 15 (audit log) — in progress:**
+- **15a (this PR)** — `AuditLogRepository`: append-only `record(...)` for the full event-type set (`AuditEventType`: decode/export/sync/vault_unlock/biometric_failed/mink_tool_call/tier_change/…), newest-first `query` filterable by event type(s) + time range with `limit`/`offset` pagination, and RFC-4180 **CSV export**. Privacy invariant #7 (audit every privacy-relevant action). The Settings → Audit Log UI is a UI-phase task.
+
+**Next: V1 Phase 15 UI + remaining native/UI phases (4–5, 7–8) on a device session.**
 
 ## Development setup
 
