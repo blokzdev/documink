@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/flavors/flavor.dart';
 import '../../core/routes.dart';
+import '../../features/documents/keep_original_setting.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
 import '../widgets/section_header.dart';
@@ -18,6 +19,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final flavor = ref.watch(currentFlavorProvider);
+    final keepOriginal = ref.watch(keepOriginalProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -88,6 +90,18 @@ class SettingsScreen extends ConsumerWidget {
                         subtitle: const Text('Define your own detectors'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.customEntities),
+                      ),
+                      SwitchListTile(
+                        key: const Key('keep-original-toggle'),
+                        secondary: const Icon(Icons.lock_outline),
+                        title: const Text('Keep encrypted original'),
+                        subtitle: const Text(
+                          'Store the source image/PDF, encrypted — reveal it '
+                          'later with biometrics',
+                        ),
+                        value: keepOriginal,
+                        onChanged: (v) =>
+                            ref.read(keepOriginalProvider.notifier).set(v),
                       ),
                     ],
                   ),

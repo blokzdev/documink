@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:documink/features/anonymization/operator.dart';
 import 'package:documink/features/custom_entities/custom_entity_definition.dart';
 import 'package:documink/features/custom_entities/custom_entity_providers.dart';
 import 'package:documink/features/detection/pii_span.dart';
 import 'package:documink/features/documents/document_repository.dart';
+import 'package:documink/features/documents/keep_original_setting.dart';
+import 'package:documink/features/documents/originals_repository.dart';
+import 'package:documink/features/documents/pending_original.dart';
 import 'package:documink/features/editor/paste_editor_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -90,6 +95,52 @@ void main() {
 
   test('save returns null when there is nothing to save', () async {
     expect(await controller().save(), isNull);
+  });
+
+  test('save retains the encrypted original when opted in', () async {
+    final dir = Directory.systemTemp.createTempSync('dm_orig');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/orig.png')
+      ..writeAsBytesSync([1, 2, 3, 4, 5]);
+
+    container.read(keepOriginalProvider.notifier).set(true);
+    container.read(pendingOriginalProvider.notifier).state = PendingOriginal(
+      path: file.path,
+      mime: 'image/png',
+    );
+
+    controller().setInput('Reach alice@example.com now.');
+    await controller().detect();
+    await controller().setOperator(PiiLabels.email, Operator.tokenRandom);
+    final docId = await controller().save();
+    expect(docId, isNotNull);
+
+    final originals = container.read(originalsRepositoryProvider);
+    final original = await originals.originalFor(docId!);
+    expect(original, isNotNull);
+    expect(original!.mime, 'image/png');
+    expect(await originals.decryptOriginal(original), equals([1, 2, 3, 4, 5]));
+    expect(container.read(pendingOriginalProvider), isNull); // consumed
+  });
+
+  test('save does NOT retain the original when opt-in is off', () async {
+    final dir = Directory.systemTemp.createTempSync('dm_orig2');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/orig.png')..writeAsBytesSync([9, 9, 9]);
+    // keepOriginalProvider defaults off.
+    container.read(pendingOriginalProvider.notifier).state = PendingOriginal(
+      path: file.path,
+      mime: 'image/png',
+    );
+
+    controller().setInput('Reach alice@example.com now.');
+    await controller().detect();
+    await controller().setOperator(PiiLabels.email, Operator.tokenRandom);
+    final docId = await controller().save();
+
+    final originals = container.read(originalsRepositoryProvider);
+    expect(await originals.hasOriginal(docId!), isFalse);
+    expect(container.read(pendingOriginalProvider), isNull); // still cleared
   });
 
   test('detect picks up a saved custom entity type', () async {

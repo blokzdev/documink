@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/anonymization/operator.dart';
+import '../../features/documents/keep_original_setting.dart';
+import '../../features/documents/pending_original.dart';
 import '../../features/editor/paste_editor_controller.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_typography.dart';
@@ -32,12 +34,20 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
     super.initState();
     final seed = widget.initialText;
     if (seed != null && seed.trim().isNotEmpty) {
+      // Seeded from a capture/import — keep the pending original it set.
       _textController.text = seed;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final controller = ref.read(pasteEditorControllerProvider.notifier);
         controller.setInput(seed);
         controller.detect();
+      });
+    } else {
+      // Manual paste — no source file; drop any stale pending original so it
+      // can't attach to this unrelated text (ref isn't usable in dispose).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(pendingOriginalProvider.notifier).state = null;
       });
     }
   }
@@ -54,6 +64,12 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
     final controller = ref.read(pasteEditorControllerProvider.notifier);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    // One-time contextual nudge to keep the source file encrypted (Phase 4c),
+    // shown only when a source original is in hand and the user hasn't decided.
+    final showKeepOriginalHint =
+        ref.watch(pendingOriginalProvider) != null &&
+        !ref.watch(keepOriginalProvider) &&
+        !ref.watch(keepOriginalHintSeenProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pasteTitle)),
@@ -157,6 +173,59 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                   ),
                 ),
                 const SizedBox(height: AppTokens.spacingMd),
+                if (showKeepOriginalHint) ...[
+                  Card(
+                    key: const Key('keep-original-hint'),
+                    color: theme.colorScheme.secondaryContainer.withValues(
+                      alpha: 0.4,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTokens.spacingMd),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Keep an encrypted copy of the original?',
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: AppTokens.spacingXs),
+                          Text(
+                            'It stays encrypted in your vault — reveal it later '
+                            'with biometrics.',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: AppTokens.spacingSm),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => ref
+                                    .read(keepOriginalHintSeenProvider.notifier)
+                                    .markSeen(),
+                                child: const Text('Not now'),
+                              ),
+                              const SizedBox(width: AppTokens.spacingSm),
+                              FilledButton(
+                                onPressed: () {
+                                  ref
+                                      .read(keepOriginalProvider.notifier)
+                                      .set(true);
+                                  ref
+                                      .read(
+                                        keepOriginalHintSeenProvider.notifier,
+                                      )
+                                      .markSeen();
+                                },
+                                child: const Text('Keep'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppTokens.spacingMd),
+                ],
                 FilledButton.tonalIcon(
                   onPressed: () async {
                     final id = await controller.save();

@@ -9,6 +9,32 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 4c-2: original retention data-flow + secure viewer (HIGH-STAKES) ⚠ review
+
+The UI/data-flow/native half of Phase 4c, on top of the 4c-1 core.
+
+- **Capture the original:** `IngestedText` gained `originalPath`/`mime`, set by `_ingestImage`
+  (picked path + extension-derived MIME) and `importPdf` (the PDF path, `application/pdf`). The
+  throwaway OCR scaffold is never the original.
+- **Thread to save (no nav overload):** a `pendingOriginalProvider` (StateProvider) is set by
+  `CaptureScreen.onRedact` and consumed by `PasteEditorController.save()`, which — **only if the
+  `keepOriginalProvider` opt-in is on** — reads the file bytes and calls `OriginalsRepository.saveOriginal`.
+  Best-effort (a missing/unreadable original never fails the redaction save); the pending original is
+  always cleared after save. **`ref` can't be used in `dispose`** (riverpod), so a stale pending is
+  instead cleared in the editor's `initState` for the manual-paste path; capture overwrites it fresh.
+- **Secure viewer:** `OriginalRevealService` → `OriginalViewerScreen` (`Image.memory` / `pdfx`),
+  reached by a direct `MaterialPageRoute` (decrypted bytes never enter go_router state). **FLAG_SECURE**
+  via a first-party `ScreenSecurity` seam (`NoScreenSecurity` default; `PlatformScreenSecurity`
+  MethodChannel → `MainActivity` add/clearFlags) — no third-party plugin (avoids the JVM-target pain).
+  Hygiene: enable on init / disable on dispose, evict the ImageCache + dispose the PDF controller on
+  close, and pop on `AppLifecycleState.paused`.
+- **Opt-in surfacing:** a Settings → Privacy "Keep encrypted original" switch, plus a one-time,
+  dismissible in-context "keep the original?" hint in the editor (a `seen_keep_original_hint` flag),
+  shown only when a source original is in hand and the user hasn't decided. Default stays OFF.
+- **Scope:** shared-image originals (via the share coordinator) are not retained for now — only the
+  CaptureScreen paths set the pending original; noted as a possible follow-up. Image view is
+  headless-tested; the PDF view + FLAG_SECURE + real biometric are device-verified (VERIFICATION.md).
+
 ## 2026-06-14 — V1 Phase 4c-1: encrypted original-document core (HIGH-STAKES — fuller logging) ⚠ review
 
 The headless crypto/schema core for retaining original documents encrypted, revealable via biometric

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/routes.dart';
+import '../../features/documents/pending_original.dart';
 import '../../features/input/capture_controller.dart';
 import '../../features/input/ingested_text.dart';
 import '../../l10n/gen/app_localizations.dart';
@@ -54,9 +55,19 @@ class CaptureScreen extends ConsumerWidget {
           CaptureStatus.ready => _ReadyView(
             result: state.result!,
             onRedact: () {
-              final text = state.result!.text;
+              final result = state.result!;
+              // Remember the source file so the editor can optionally retain it
+              // encrypted on save (Phase 4c). Null for text-only sources.
+              ref
+                  .read(pendingOriginalProvider.notifier)
+                  .state = result.originalPath == null
+                  ? null
+                  : PendingOriginal(
+                      path: result.originalPath!,
+                      mime: result.mime ?? 'application/octet-stream',
+                    );
               controller.reset();
-              context.push(Routes.paste, extra: text);
+              context.push(Routes.paste, extra: result.text);
             },
             onRetry: controller.reset,
             retryLabel: _isScan

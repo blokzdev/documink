@@ -305,6 +305,42 @@ void main() {
     });
   });
 
+  group('original-source fields (Phase 4c)', () {
+    test('captured/imported image carries originalPath + mime', () async {
+      final camera = await _service(
+        ocr: _FakeOcr('x'),
+        imageSource: _FakeImageSource(
+          camera: const PickedImage(path: '/tmp/a.jpg'),
+        ),
+      ).captureFromCamera();
+      expect(camera!.originalPath, '/tmp/a.jpg');
+      expect(camera.mime, 'image/jpeg');
+
+      final png = await _service(
+        ocr: _FakeOcr('x'),
+        imageSource: _FakeImageSource(
+          gallery: const PickedImage(path: '/tmp/b.PNG'),
+        ),
+      ).importImage();
+      expect(png!.mime, 'image/png');
+    });
+
+    test('imported PDF carries originalPath + application/pdf', () async {
+      final result = await _service(
+        pdfSource: _FakePdfSource('/tmp/doc.pdf'),
+        pdfTextExtractor: _FakePdfTextExtractor(const ['text']),
+      ).importPdf();
+      expect(result!.originalPath, '/tmp/doc.pdf');
+      expect(result.mime, 'application/pdf');
+    });
+
+    test('shared/pasted text has no original', () {
+      final shared = _service().ingestSharedText('hello');
+      expect(shared.originalPath, isNull);
+      expect(shared.mime, isNull);
+    });
+  });
+
   group('unwired seams fail loudly rather than returning empty', () {
     test('image + OCR seams', () async {
       expect(

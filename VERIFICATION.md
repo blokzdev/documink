@@ -130,6 +130,26 @@ with a fake receiver; the native `ACTION_SEND` receipt needs a device:
   plaintext, denial/cancel/no-enrollment blocks it; both outcomes audit-logged. Headless tests cover
   the decrypt-after-auth path via a fake authenticator; the real biometric prompt is device-only.
 
+## Encrypted original-document retention (Phase 4c)
+
+The crypto/repository/reveal core (4c-1) is unit-tested headlessly. 4c-2's data-flow + viewer need
+a device:
+- ☐ **Opt-in capture→retain** — with "Keep encrypted original" ON, scan/import an image or PDF →
+  redact → save; confirm a `document_originals` row exists and the source file's bytes round-trip.
+- ☐ **View original · biometric** — the document-detail "View original" button triggers the real
+  `local_auth` prompt; success opens the viewer (image via `Image.memory`, PDF via `pdfx`);
+  denial/cancel blocks it; both audited (`document_original_revealed`).
+- ☐ **FLAG_SECURE** — while the original viewer is open, screenshots/screen-record are blocked and the
+  app-switcher preview is obscured; the flag is **cleared** after leaving the viewer (other screens
+  screenshot normally). *(MainActivity `documink/screen_security` channel.)*
+- ☐ **No decrypted residue** — after closing the viewer, no decrypted original lingers (image cache
+  evicted; no temp file written for image view; pdfx render temps cleaned).
+- ☐ **Backgrounding** — sending the app to background while the viewer is open dismisses it.
+- ☐ **Delete cascade** — deleting a document with a retained original removes the original row too.
+- ☐ **Contextual notice** — the one-time "keep the original?" hint appears (when a source is in hand
+  and the user hasn't decided) and does not reappear after Keep/Not-now.
+- ☐ **Large-file** — a multi-MB image / multi-page PDF encrypts + reveals without OOM or jank.
+
 ## Export (Phase 7 — native share/save)
 
 - ☐ **Share / save exported artifacts** — wire the OS **share sheet** + file save for the redacted

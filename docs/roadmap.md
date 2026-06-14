@@ -202,9 +202,11 @@ Commit ADRs under `docs/adr/`:
   AAD=documentId); `document_originals` table + the repo's **first drift migration** (1→2, tested);
   `OriginalsRepository` (+ delete cascade); `OriginalRevealService` (biometric + audit); opt-in
   setting (default off). All unit-tested. **Storage = BLOB in the SQLCipher DB** (maintainer-chosen).
-- **4c-2 (next):** capture the original through ingestion→save (opt-in), the biometric **secure viewer**
-  (Image.memory / pdfx) with **FLAG_SECURE** (first-party platform-channel seam) + cache hygiene,
-  the Settings toggle, and a one-time contextual "keep the original?" notice. Device-verified.
+- **4c-2 (shipped):** captures the original through ingestion→save (opt-in via `pendingOriginalProvider`),
+  the biometric **secure viewer** (`Image.memory` / `pdfx`) with **FLAG_SECURE** (first-party
+  platform-channel seam) + ImageCache/lifecycle hygiene, the Settings toggle, and a one-time
+  contextual "keep the original?" notice. Image view + data-flow headless-tested; PDF view +
+  FLAG_SECURE + real biometric device-verified. **Completes Phase 4c.**
 
 ### Phase 5 — UI / UX (non-chat)
 

@@ -14,6 +14,8 @@ class IngestedText {
     required this.source,
     this.pageCount = 1,
     this.warnings = const [],
+    this.originalPath,
+    this.mime,
   });
 
   /// The recognized/extracted text.
@@ -27,6 +29,14 @@ class IngestedText {
 
   /// Non-fatal notes for the user (e.g. "No text was recognized in the image").
   final List<String> warnings;
+
+  /// Path to the **original source file** (image/PDF) this text came from, when
+  /// one exists — so it can be optionally retained encrypted (Phase 4c). Null
+  /// for pasted/shared text (no file). Not the throwaway OCR scaffold.
+  final String? originalPath;
+
+  /// MIME type of [originalPath] (e.g. `image/jpeg`, `application/pdf`).
+  final String? mime;
 
   /// True when there is no usable text to redact.
   bool get isEmpty => text.trim().isEmpty;
