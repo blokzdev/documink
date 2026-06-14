@@ -443,6 +443,9 @@ Commit ADRs under `docs/adr/`:
 - Privacy policy drafted, hosted at documink.ai/privacy.
 - Data Safety form completed.
 - Play Store listing: screenshots, feature graphic, description (privacy posture + Mink + Projects + tier system).
+- Final app launcher icon: Android adaptive icon (foreground + background layers, all densities) + a monochrome layer for themed icons; replaces the default Flutter launcher icon.
+- DocuMink wordmark / logo finalization: promote the in-app CustomPaint brandmark (design-system L1) into a production brand asset set (launcher icon, store feature graphic, wordmark).
+- Trademark / brand-name clearance for "DocuMink" + the `documink.ai` domain before publishing (the proprietary code license does not grant or clear trademark rights).
 - Regression suite on all Tier 4 models on reference devices.
 - Internal testing track → closed alpha → open beta.
 - Bug triage and final polish.
