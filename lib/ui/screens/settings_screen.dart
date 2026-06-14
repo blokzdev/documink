@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/flavors/flavor.dart';
+import '../../core/routes.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
 
@@ -54,11 +56,12 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(),
 
             const _SectionHeader('Privacy'),
-            const ListTile(
-              leading: Icon(Icons.receipt_long_outlined),
-              title: Text('Audit log'),
-              subtitle: Text('View privacy-relevant actions (later phase)'),
-              enabled: false,
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Audit log'),
+              subtitle: const Text('View privacy-relevant actions'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(Routes.auditLog),
             ),
             const ListTile(
               leading: Icon(Icons.label_outline),
