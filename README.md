@@ -69,7 +69,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **6a (merged)** — `CustomEntityDefinition` (label/regex/validator/examples/default-operator) + `CustomEntityValidator` (form vetting: regex compiles, operator/validator known, examples match + pass the validator) + `CustomEntityRecognizer` (a `PiiRecognizer` running user patterns → spans, with the `luhn`/`none` validator) + `CustomEntityRepository` (persist to `custom_entity_types`, workspace-global vs Project-scoped).
 - **6b (this PR)** — `RegexSandbox`: ReDoS-safe live preview running the user pattern in a **disposable isolate** with a hard timeout (killed on timeout) + a sample-length cap, returning `ok`/`error`/`timedOut`. **Completes V1 Phase 6 (custom entity types).**
 
-**Next: V1 Phase 12 — Mink memory-safety** (PII-safe reference model / `assertNoPlaintext`); native/UI phases (4–5, 7–8) on a device session.
+**V1 in progress — Phase 12 (Mink memory, memory.md §3), high-stakes:**
+- **12a (this PR)** — the PII-safe write-path invariant (memory.md §3.3): `TokenRef` (Form A) + `<<tok_…>>` inline markers (Form B) + `isTokenRefMap`; `MemoryPiiScanner` runs the detection pipeline over would-be memory content, recursively walking JSON and **excluding token references**, flagging any unreferenced PII; `MemoryWriteGuard.assertNoPlaintext` rejects leaks with a structured `MemoryPiiLeakError`. Every memory write must pass this guard. Next: 12b — `MemoryRepository` (Core + Episodic active-V1 tables) behind the guard + the deterministic recall router.
+
+**Next: V1 Phase 12b — MemoryRepository + deterministic router**; native/UI phases (4–5, 7–8) on a device session.
 
 ## Development setup
 
