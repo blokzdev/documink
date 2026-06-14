@@ -20,6 +20,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P6b: ReDoS-safe regex preview sandbox (completes Phase 6)
+
+- **Isolate + kill-on-timeout.** Dart's `RegExp` has no interruptible timeout, so the live preview
+  runs the untrusted pattern in a **disposable isolate** (`Isolate.spawn`) and the result future is
+  raced against a deadline; on `TimeoutException` the isolate is `kill`ed immediately. This is the
+  only robust way to neutralize catastrophic backtracking (ReDoS) without hanging the UI thread.
+- **Defense in depth:** the sample is truncated to `maxSampleLength` (default 10k) before matching,
+  bounding work regardless of the timeout.
+- Result is a typed `RegexPreviewResult` (ok+matches / error+message / timedOut). Tested incl. an
+  actual exponential pattern `(a+)+$` that reliably trips the timeout path.
+
 ## 2026-06-14 — V1 P6a: custom entity types core
 
 - **Naming.** drift already generates a `CustomEntityType` data class for the table; the domain model
