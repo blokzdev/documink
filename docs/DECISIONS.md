@@ -9,6 +9,16 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L4: vault browser + document detail
+
+- `StatusBadge` (colour-coded pill) + a tiny `formatTimestamp` (no `intl`) in `lib/core/`.
+- Vault browser: document **cards** (type icon by `doc.type`, name, date, status), centred under
+  `maxContentWidth`.
+- Detail: header row (StatusBadge + type + date), monospace content card, and an `AnimatedSwitcher`
+  reveal of original values. Revealed rows kept as `Text` (not `SelectableText`) so the existing
+  `find.textContaining` reveal tests still match; the `revealed-values` key moved onto the animated
+  child.
+
 ## 2026-06-14 — V1 UI elevation L3: editor
 
 - `EntityChip` renders each detected type as a colour-coded pill (hue dot + label + count) via

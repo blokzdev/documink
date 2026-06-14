@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/datetime_format.dart';
 import '../../features/documents/document_repository.dart';
 import '../../features/documents/reveal_service.dart';
+import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
+import '../widgets/status_badge.dart';
 
 /// The reversible tokens for a document (drives whether to show Reveal).
 final _tokenCountProvider = FutureProvider.autoDispose.family<int, String>(
@@ -103,62 +106,100 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
               return const Center(child: Text('Document not found.'));
             }
             final redacted = _redactedText(doc.metadataJson);
-            return ListView(
-              padding: const EdgeInsets.all(AppTokens.spacingMd),
-              children: [
-                Text(doc.name, style: theme.textTheme.headlineSmall),
-                const SizedBox(height: AppTokens.spacingSm),
-                Text(
-                  '${doc.type} · ${doc.status}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppTokens.maxContentWidth,
                 ),
-                const SizedBox(height: AppTokens.spacingMd),
-                Text('Redacted content', style: theme.textTheme.titleMedium),
-                const SizedBox(height: AppTokens.spacingSm),
-                Container(
-                  width: double.infinity,
+                child: ListView(
                   padding: const EdgeInsets.all(AppTokens.spacingMd),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: SelectableText(
-                    redacted ?? '(no preview stored)',
-                    key: const Key('document-redacted-text'),
-                  ),
-                ),
-                if (tokenCount > 0) ...[
-                  const SizedBox(height: AppTokens.spacingMd),
-                  FilledButton.tonalIcon(
-                    onPressed: _revealing ? null : _reveal,
-                    icon: const Icon(Icons.lock_open_outlined),
-                    label: Text(
-                      'Reveal original values ($tokenCount) · biometric',
-                    ),
-                  ),
-                ],
-                if (_revealed != null && _revealed!.isNotEmpty) ...[
-                  const SizedBox(height: AppTokens.spacingMd),
-                  Card(
-                    key: const Key('revealed-values'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppTokens.spacingMd),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (final entry in _revealed!.entries)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Text('${entry.key} → ${entry.value}'),
+                  children: [
+                    Text(doc.name, style: theme.textTheme.headlineSmall),
+                    const SizedBox(height: AppTokens.spacingSm),
+                    Row(
+                      children: [
+                        StatusBadge(doc.status),
+                        const SizedBox(width: AppTokens.spacingSm),
+                        Expanded(
+                          child: Text(
+                            '${doc.type} · ${formatTimestamp(doc.createdAt)}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
-                        ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppTokens.spacingLg),
+                    Text(
+                      'Redacted content',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppTokens.spacingSm),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppTokens.spacingMd),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(AppTokens.radiusMd),
+                        ),
+                      ),
+                      child: SelectableText(
+                        redacted ?? '(no preview stored)',
+                        key: const Key('document-redacted-text'),
+                        style: AppTypography.mono(context),
                       ),
                     ),
-                  ),
-                ],
-              ],
+                    if (tokenCount > 0) ...[
+                      const SizedBox(height: AppTokens.spacingMd),
+                      FilledButton.tonalIcon(
+                        onPressed: _revealing ? null : _reveal,
+                        icon: const Icon(Icons.lock_open_outlined),
+                        label: Text(
+                          'Reveal original values ($tokenCount) · biometric',
+                        ),
+                      ),
+                    ],
+                    AnimatedSwitcher(
+                      duration: AppTokens.durationMedium,
+                      child: (_revealed != null && _revealed!.isNotEmpty)
+                          ? Padding(
+                              key: const Key('revealed-values'),
+                              padding: const EdgeInsets.only(
+                                top: AppTokens.spacingMd,
+                              ),
+                              child: Card(
+                                color: theme.colorScheme.tertiaryContainer
+                                    .withValues(alpha: 0.4),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(
+                                    AppTokens.spacingMd,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      for (final entry in _revealed!.entries)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                          ),
+                                          child: Text(
+                                            '${entry.key} → ${entry.value}',
+                                            style: AppTypography.mono(context),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         ),
