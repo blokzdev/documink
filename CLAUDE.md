@@ -121,6 +121,34 @@ platform channels, the encrypted-SQLite build, real rendering, models, or hardwa
 biometric, Keystore, ML Kit/ONNX, Tier-4 runtime, sync transport, signed APK/AAB build)
 **cannot** be verified here.
 
+## Device-bound phases: build behind seams now, batch verification (standing workflow)
+
+A phase being "native" (camera/OCR, share/export rendering, sync transport, Tier-4 inference,
+a11y) is **not** a reason to defer the whole phase to a device session. Build it **here**, the
+same way the existing native features already are (Authenticator → `local_auth`; ML Kit
+annotator; device-signal collector; sync transport): **do not stop at phase boundaries waiting
+for a device.** Per phase:
+
+1. **Model the native capability as a seam** — a small interface or typedef in pure Dart, with
+   a *safe default* implementation (fails loudly / denies, never silently succeeds — see
+   `DenyingAuthenticator`, `UnavailableOcrRecognizer`).
+2. **Put the value in a pure-Dart orchestrator** (e.g. `InputIngestionService`) that depends
+   only on the seams — this is the part worth testing and it is **fully headless-testable**.
+3. **Write the real adapter** wrapping the plugin (e.g. `MlKitTextRecognizer`). It must
+   **compile and analyze clean**; it is **not** exercised by `flutter test`. Compose it at
+   bootstrap via a provider override.
+4. **Test the orchestrator + UI with fakes** (success / cancel / empty / error paths). Widget
+   tests cover screen structure and navigation.
+5. **Batch the on-device checks into `VERIFICATION.md`** in the same PR — one item per native
+   behavior you could not exercise here (capture, OCR accuracy, permission prompts, real
+   rendering, transport, inference). **Never claim a deferred check passed.**
+
+This keeps the autonomous roadmap loop moving through native phases while staying honest about
+what is and isn't proven. Scope a native phase into headless-shippable slices; if part of it is
+genuinely un-buildable here (e.g. it needs a license-cleared plugin you must first vet), ship
+the buildable slice and log the remainder as a tracked follow-up (roadmap + `VERIFICATION.md` +
+`docs/DECISIONS.md`) rather than blocking.
+
 ## Device verification & setup tracking
 
 - **`VERIFICATION.md`** (repo root) is the running checklist of on-device/native checks the
