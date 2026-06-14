@@ -9,6 +9,25 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L1: design-system foundation
+
+Maintainer-directed "world-class UX" pass; design direction confirmed via questions.
+
+- **Ink Indigo** palette (primary `#4F46E5`, teal `#0D9488` secondary, slate neutrals), light + dark
+  via `ColorScheme.fromSeed(...).copyWith(secondary: accent)`. Dark mode first-class.
+- **Refined platform-font** type scale (no font assets → offline; privacy/offline-friendly) + a
+  monospace style for redaction output. Custom font was offered and declined for reliability.
+- **Centralized component themes** in `app_theme.dart` (`_themeFor(scheme)`) so every screen inherits
+  the look with zero per-screen change — using the Flutter-3.38 `…ThemeData` names (`CardThemeData`,
+  `DialogThemeData`, etc.).
+- **Entity colour system** (`AppColors.entityColor`): 13 PII labels → ~8 semantic hues for chips;
+  unknown/custom → slate. Contrast handled by the (L2) chip, so hues are mid-tone for both modes.
+- **In-app vector brandmark** (`BrandMark`/`BrandLockup`, CustomPaint — a redaction-bar glyph); the
+  adaptive launcher icon stays deferred (device/asset task).
+- **Honest constraint:** pixels aren't rendered here — structure is widget-tested; aesthetics are
+  device-verified via the Build APK artifact (visual-review items in VERIFICATION.md). Existing 250
+  screen tests stay green (they assert text/keys, not pixels).
+
 ## 2026-06-14 — V1 Phase 5k: audit log viewer
 
 - Read-only Settings → Audit log over the existing `AuditLogRepository.query`; `auditEntriesProvider`

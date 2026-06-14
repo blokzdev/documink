@@ -84,6 +84,18 @@ an item here in the same PR.
   plaintext, denial/cancel/no-enrollment blocks it; both outcomes audit-logged. Headless tests cover
   the decrypt-after-auth path via a fake authenticator; the real biometric prompt is device-only.
 
+## UI design elevation (visual review — device/screenshots)
+
+The headless container can't render pixels; structure is widget-tested but **aesthetics need eyes**.
+After each UI-elevation PR, pull **Build APK (manual)** and review:
+
+- ☐ **Design system (L1)** — Ink-Indigo light **and** dark look right; brandmark renders crisply;
+  text hierarchy/contrast (WCAG AA) reads well; component themes (cards/inputs/buttons/dialogs)
+  consistent across screens.
+- ☐ **Per-screen visual review (L2–L5)** — Home, unlock, editor (entity chips colour-coded + mono
+  preview), vault browser cards, document detail (reveal animation), settings, audit — each in
+  light/dark, at large dynamic-type, with TalkBack.
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.
