@@ -25,20 +25,23 @@ class StatusBadge extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final fg = dark ? Color.lerp(hue, Colors.white, 0.55)! : hue;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTokens.spacingSm,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: hue.withValues(alpha: dark ? 0.24 : 0.14),
-        borderRadius: BorderRadius.circular(AppTokens.radiusSm),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.w700,
+    return Semantics(
+      label: 'Status: $label',
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTokens.spacingSm,
+          vertical: 2,
+        ),
+        decoration: BoxDecoration(
+          color: hue.withValues(alpha: dark ? 0.24 : 0.14),
+          borderRadius: BorderRadius.circular(AppTokens.radiusSm),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: fg,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );

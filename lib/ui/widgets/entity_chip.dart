@@ -19,29 +19,34 @@ class EntityChip extends StatelessWidget {
     final bg = hue.withValues(alpha: dark ? 0.24 : 0.14);
     final fg = dark ? Color.lerp(hue, Colors.white, 0.55)! : hue;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTokens.spacingSm,
-        vertical: AppTokens.spacingXs,
-      ),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(AppTokens.radiusSm),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: hue, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: AppTokens.spacingSm),
-          Text(
-            count == null ? label : '$label · $count',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: fg),
-          ),
-        ],
+    return Semantics(
+      label: count == null ? label : '$label, $count found',
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTokens.spacingSm,
+          vertical: AppTokens.spacingXs,
+        ),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(AppTokens.radiusSm),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: hue, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: AppTokens.spacingSm),
+            Text(
+              count == null ? label : '$label · $count',
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: fg),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -178,6 +178,19 @@ Commit ADRs under `docs/adr/`:
 - Dark mode.
 - i18n scaffolding (English-only in V1, structure ready for V3 multilingual).
 
+> **Design-elevation sub-arc (2026-06-14):** after the functional UI landed, a world-class UX pass
+> was executed as a design-system-first arc (maintainer-directed):
+> - **L1** — Ink-Indigo design system (colour + per-PII entity colours, type scale, component themes, brandmark).
+> - **L2** — shared kit (`AppEmptyState`/`SectionHeader`/`PrimaryActionCard`) + Home & Unlock.
+> - **L3** — editor (colour-coded entity chips, monospace preview, copy).
+> - **L4** — vault browser cards + document-detail sections & animated reveal.
+> - **L5** — Settings cards, audit per-event icons, page transitions, header semantics.
+> - **L6** — resilience & polish: `AppErrorState` + Retry across async screens, pull-to-refresh,
+>   inline Detect progress, a11y semantic labels on chips/badges.
+>
+> Built headless (structure widget-tested); aesthetics are device-verified (`VERIFICATION.md`).
+> **i18n scaffolding (above) is the remaining item to close Phase 5.**
+
 ### Phase 6 — Custom entity types
 
 - "Add Custom Entity" UI in Settings and inside Projects.

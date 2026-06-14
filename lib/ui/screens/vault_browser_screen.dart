@@ -8,6 +8,7 @@ import '../../data/app_database.dart';
 import '../../features/documents/document_repository.dart';
 import '../theme/tokens.dart';
 import '../widgets/app_empty_state.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/status_badge.dart';
 
 /// The vault browser: saved (redacted) documents as cards (blueprint §Phase 5).
@@ -22,8 +23,10 @@ class VaultBrowserScreen extends ConsumerWidget {
       body: SafeArea(
         child: docsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) =>
-              const Center(child: Text('Could not load documents.')),
+          error: (_, __) => AppErrorState(
+            title: 'Could not load documents',
+            onRetry: () => ref.invalidate(documentsListProvider),
+          ),
           data: (docs) {
             if (docs.isEmpty) {
               return const AppEmptyState(
@@ -32,17 +35,23 @@ class VaultBrowserScreen extends ConsumerWidget {
                 message: 'Redact some text and tap “Save to vault”.',
               );
             }
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: AppTokens.maxContentWidth,
-                ),
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(AppTokens.spacingMd),
-                  itemCount: docs.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AppTokens.spacingSm),
-                  itemBuilder: (context, i) => _DocumentCard(docs[i]),
+            return RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(documentsListProvider);
+                await ref.read(documentsListProvider.future);
+              },
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppTokens.maxContentWidth,
+                  ),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(AppTokens.spacingMd),
+                    itemCount: docs.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppTokens.spacingSm),
+                    itemBuilder: (context, i) => _DocumentCard(docs[i]),
+                  ),
                 ),
               ),
             );

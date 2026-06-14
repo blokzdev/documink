@@ -8,6 +8,7 @@ import '../../features/documents/document_repository.dart';
 import '../../features/documents/reveal_service.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/status_badge.dart';
 
 /// The reversible tokens for a document (drives whether to show Reveal).
@@ -100,7 +101,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       body: SafeArea(
         child: docAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const Center(child: Text('Could not load.')),
+          error: (_, __) => AppErrorState(
+            title: 'Could not load the document',
+            onRetry: () =>
+                ref.invalidate(documentByIdProvider(widget.documentId)),
+          ),
           data: (doc) {
             if (doc == null) {
               return const Center(child: Text('Document not found.'));
