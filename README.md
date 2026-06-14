@@ -65,7 +65,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **9b (merged)** — **Ed25519-signed manifest** (§4.7 / models.md §5). `ManifestVerifier` verifies the signature over the manifest body against a **pinned** public key (rejects tampered body/signature/wrong-key/bad-alg — never falls back to unsigned), then parses it into a `ModelManifest` (`TierCatalog` + Tier 3 `DetectionModel`s). `ModelHashVerifier` does post-download SHA-256. Ships `assets/model_manifest/manifest.{json,signed.json}` + a re-runnable `tool/scripts/sign_manifest.dart`. The manifest also carries the **Tier 3 GLiNER PII** entries — **unblocks the deferred Tier 3 delivery** (ADR-022).
 - **9c (this PR)** — persistence + orchestration: `ProfilerState` (the §4.7 `llm_*` fields) persisted to `vault_meta` as one JSON blob via `ProfilerRepository`; `DeviceSignalCollector` interface (native Android/Windows adapters wired at Phase-5 bootstrap); `ProfilerService` (collect → select against the verified manifest → persist; `recheck`). Providers wired. **Completes V1 Phase 9 (Device Capability Profiler + signed manifest).**
 
-**Next: V1 Phase 6 — custom entity types** (regex validation/sandbox, pure Dart), then Phase 12 Mink memory-safety; native/UI phases (4–5, 7–8) on a device session.
+**V1 in progress — Phase 6 (custom entity types, roadmap §6), pure Dart:**
+- **6a (this PR)** — `CustomEntityDefinition` (label/regex/validator/examples/default-operator) + `CustomEntityValidator` (form vetting: regex compiles, operator/validator known, examples match + pass the validator) + `CustomEntityRecognizer` (a `PiiRecognizer` running user patterns → spans, with the `luhn`/`none` validator) + `CustomEntityRepository` (persist to `custom_entity_types`, workspace-global vs Project-scoped). Next: 6b — the ReDoS-safe isolate preview sandbox.
+
+**Next: V1 Phase 6b — ReDoS-safe regex preview sandbox**, then Phase 12 Mink memory-safety; native/UI phases (4–5, 7–8) on a device session.
 
 ## Development setup
 
