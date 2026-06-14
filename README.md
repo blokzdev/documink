@@ -66,9 +66,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **9c (this PR)** — persistence + orchestration: `ProfilerState` (the §4.7 `llm_*` fields) persisted to `vault_meta` as one JSON blob via `ProfilerRepository`; `DeviceSignalCollector` interface (native Android/Windows adapters wired at Phase-5 bootstrap); `ProfilerService` (collect → select against the verified manifest → persist; `recheck`). Providers wired. **Completes V1 Phase 9 (Device Capability Profiler + signed manifest).**
 
 **V1 in progress — Phase 6 (custom entity types, roadmap §6), pure Dart:**
-- **6a (this PR)** — `CustomEntityDefinition` (label/regex/validator/examples/default-operator) + `CustomEntityValidator` (form vetting: regex compiles, operator/validator known, examples match + pass the validator) + `CustomEntityRecognizer` (a `PiiRecognizer` running user patterns → spans, with the `luhn`/`none` validator) + `CustomEntityRepository` (persist to `custom_entity_types`, workspace-global vs Project-scoped). Next: 6b — the ReDoS-safe isolate preview sandbox.
+- **6a (merged)** — `CustomEntityDefinition` (label/regex/validator/examples/default-operator) + `CustomEntityValidator` (form vetting: regex compiles, operator/validator known, examples match + pass the validator) + `CustomEntityRecognizer` (a `PiiRecognizer` running user patterns → spans, with the `luhn`/`none` validator) + `CustomEntityRepository` (persist to `custom_entity_types`, workspace-global vs Project-scoped).
+- **6b (this PR)** — `RegexSandbox`: ReDoS-safe live preview running the user pattern in a **disposable isolate** with a hard timeout (killed on timeout) + a sample-length cap, returning `ok`/`error`/`timedOut`. **Completes V1 Phase 6 (custom entity types).**
 
-**Next: V1 Phase 6b — ReDoS-safe regex preview sandbox**, then Phase 12 Mink memory-safety; native/UI phases (4–5, 7–8) on a device session.
+**Next: V1 Phase 12 — Mink memory-safety** (PII-safe reference model / `assertNoPlaintext`); native/UI phases (4–5, 7–8) on a device session.
 
 ## Development setup
 
