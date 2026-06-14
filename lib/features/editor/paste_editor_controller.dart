@@ -7,14 +7,19 @@ import '../detection/detection_pipeline.dart';
 import '../detection/detection_providers.dart';
 import '../detection/pii_span.dart';
 
-/// Operators offered in the paste editor (Phase 5b). Restricted to the
-/// **irreversible** transforms, which need no unlocked vault — the reversible
-/// operators (Token-Random / FPE / Encrypt) arrive with the vault-unlock UX in a
-/// later chunk.
+/// Operators offered in the paste editor. Irreversible transforms plus the
+/// vault-backed reversible ones (Token-Random, Encrypt) — available because the
+/// editor is reached only behind the vault-unlock gate (Phase 5e).
+///
+/// FPE is intentionally excluded here: FF1 needs a minimum numeric domain and
+/// throws on arbitrary text, so it belongs with per-type applicability (numeric
+/// labels only) in a later chunk.
 const List<Operator> editorOperators = [
   Operator.redact,
   Operator.mask,
   Operator.replace,
+  Operator.tokenRandom,
+  Operator.encrypt,
 ];
 
 enum EditorStatus { idle, detecting, ready }
@@ -27,6 +32,7 @@ class PasteEditorState {
     this.detection,
     this.operators = const {},
     this.previewText = '',
+    this.error,
   });
 
   final String input;
@@ -38,6 +44,9 @@ class PasteEditorState {
 
   /// Redacted preview of the normalized text under the current operators.
   final String previewText;
+
+  /// Non-null when the last anonymization attempt failed (preview unchanged).
+  final String? error;
 
   List<DetectedSpan> get spans => detection?.spans ?? const [];
 
@@ -69,7 +78,8 @@ class PasteEditorController extends Notifier<PasteEditorState> {
   }
 
   /// Runs the detection pipeline (Tier 1, headless) over the current input and
-  /// initializes a redact-by-default operator per detected label.
+  /// initializes a redact-by-default operator per detected label, then computes
+  /// the preview.
   Future<void> detect() async {
     final input = state.input;
     if (input.trim().isEmpty) {
@@ -86,30 +96,48 @@ class PasteEditorController extends Notifier<PasteEditorState> {
       status: EditorStatus.ready,
       detection: result,
       operators: operators,
-      previewText: _preview(result, operators),
+      previewText: await _preview(result, operators),
     );
   }
 
   /// Changes the operator applied to all spans of [label] and recomputes the
-  /// preview.
-  void setOperator(String label, Operator op) {
-    if (!state.operators.containsKey(label)) return;
-    final operators = {...state.operators, label: op};
+  /// preview. Reversible operators (Token-Random/Encrypt) use the unlocked
+  /// vault; a failure keeps the previous preview and sets [PasteEditorState.error].
+  Future<void> setOperator(String label, Operator op) async {
     final detection = state.detection;
-    state = PasteEditorState(
-      input: state.input,
-      status: state.status,
-      detection: detection,
-      operators: operators,
-      previewText: detection == null ? '' : _preview(detection, operators),
-    );
+    if (detection == null || !state.operators.containsKey(label)) return;
+    final operators = {...state.operators, label: op};
+    try {
+      state = PasteEditorState(
+        input: state.input,
+        status: EditorStatus.ready,
+        detection: detection,
+        operators: operators,
+        previewText: await _preview(detection, operators),
+      );
+    } catch (_) {
+      state = PasteEditorState(
+        input: state.input,
+        status: EditorStatus.ready,
+        detection: detection,
+        operators: operators,
+        previewText: state.previewText,
+        error: 'Could not apply that operator to this text.',
+      );
+    }
   }
 
-  String _preview(DetectionResult detection, Map<String, Operator> operators) {
+  /// Computes the redacted preview via the vault-backed [AnonymizationService].
+  /// Tokens minted for reversible operators are **not persisted** here — preview
+  /// only; persistence happens at save/export (a later phase).
+  Future<String> _preview(
+    DetectionResult detection,
+    Map<String, Operator> operators,
+  ) async {
     final policy = AnonymizationPolicy(operators, fallback: Operator.redact);
-    return ref
-        .read(anonymizerProvider)
-        .apply(detection.normalizedText, detection.spans, policy)
-        .text;
+    final outcome = await ref
+        .read(anonymizationServiceProvider)
+        .anonymize(detection.normalizedText, detection.spans, policy);
+    return outcome.result.text;
   }
 }

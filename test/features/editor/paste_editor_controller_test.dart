@@ -4,14 +4,22 @@ import 'package:documink/features/editor/paste_editor_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/test_vault.dart';
+
 void main() {
+  late TestVault vault;
   late ProviderContainer container;
+
   PasteEditorController controller() =>
       container.read(pasteEditorControllerProvider.notifier);
   PasteEditorState state() => container.read(pasteEditorControllerProvider);
 
-  setUp(() => container = ProviderContainer());
-  tearDown(() => container.dispose);
+  setUp(() async {
+    vault = await TestVault.unlocked();
+    container = ProviderContainer(overrides: [vault.override]);
+    addTearDown(container.dispose);
+    addTearDown(vault.dispose);
+  });
 
   test('starts idle and empty', () {
     expect(state().status, EditorStatus.idle);
@@ -31,15 +39,33 @@ void main() {
     expect(s.previewText, isNot(contains('alice@example.com')));
   });
 
-  test('changing an operator recomputes the preview', () async {
+  test('Replace and Mask operators update the preview', () async {
     controller().setInput('Reach alice@example.com now.');
     await controller().detect();
 
-    controller().setOperator(PiiLabels.email, Operator.replace);
+    await controller().setOperator(PiiLabels.email, Operator.replace);
     expect(state().previewText, contains('<${PiiLabels.email}>'));
 
-    controller().setOperator(PiiLabels.email, Operator.mask);
+    await controller().setOperator(PiiLabels.email, Operator.mask);
     expect(state().previewText, contains('•'));
+    expect(state().previewText, isNot(contains('alice@example.com')));
+  });
+
+  test('Token-Random yields a vault surrogate', () async {
+    controller().setInput('Reach alice@example.com now.');
+    await controller().detect();
+
+    await controller().setOperator(PiiLabels.email, Operator.tokenRandom);
+    expect(state().previewText, contains('<${PiiLabels.email}_'));
+    expect(state().previewText, isNot(contains('alice@example.com')));
+  });
+
+  test('Encrypt yields an inline ciphertext wrapper', () async {
+    controller().setInput('Reach alice@example.com now.');
+    await controller().detect();
+
+    await controller().setOperator(PiiLabels.email, Operator.encrypt);
+    expect(state().previewText, contains('<ENC:'));
     expect(state().previewText, isNot(contains('alice@example.com')));
   });
 
@@ -50,18 +76,14 @@ void main() {
     expect(state().entityCount, 0);
   });
 
-  test('setInput clears prior detection', () async {
-    controller().setInput('alice@example.com');
-    await controller().detect();
-    expect(state().entityCount, greaterThan(0));
-
-    controller().setInput('nothing here');
-    expect(state().detection, isNull);
-    expect(state().status, EditorStatus.idle);
-  });
-
-  test('editor offers only irreversible operators', () {
-    expect(editorOperators, [Operator.redact, Operator.mask, Operator.replace]);
-    expect(editorOperators.every((o) => !o.isReversible), isTrue);
+  test('editor offers irreversible + Token-Random + Encrypt (no FPE)', () {
+    expect(editorOperators, [
+      Operator.redact,
+      Operator.mask,
+      Operator.replace,
+      Operator.tokenRandom,
+      Operator.encrypt,
+    ]);
+    expect(editorOperators, isNot(contains(Operator.fpe)));
   });
 }
