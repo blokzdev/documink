@@ -20,6 +20,20 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P9c: profiler persistence + orchestration (completes Phase 9)
+
+- **Persistence shape (decision).** §4.7 lists several `llm_*` `vault_meta` fields. Stored as a
+  **single JSON document** under `llm:profiler_state` (one atomic row) rather than one row per field —
+  simpler, atomic updates, no partial-write states. The JSON keys keep the spec's `llm_*` names.
+- **Native collection deferred.** `DeviceSignalCollector` is an interface; the Android
+  (ActivityManager/StatFs/…) and Windows (GlobalMemoryStatusEx/DXGI/…) adapters are platform code
+  wired at Phase-5 bootstrap (same pattern as the ML Kit Tier 2 adapter). `deviceSignalCollectorProvider`
+  throws until overridden, so the pure core stays headless-testable (fake collector in tests).
+- **`ProfilerService`** takes the **already-verified** manifest (9b) as a parameter — it never parses
+  raw manifest bytes itself; selection + persistence only.
+- **User preference ±1 tier shift** (desktop onboarding, §4.7) is **persisted** here but applied in the
+  onboarding UI (Phase 5); 9c keeps to selection + persistence.
+
 ## 2026-06-14 — V1 P9b: Ed25519-signed manifest verification (HIGH-STAKES — fuller logging)
 
 - **Signing scheme (decision).** The blueprint sketch shows a `signature` field *inside* the manifest
