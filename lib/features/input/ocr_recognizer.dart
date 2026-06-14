@@ -1,3 +1,5 @@
+import 'input_exceptions.dart';
+
 /// Recognizes text in an image file (a camera capture or an imported photo).
 ///
 /// Device-only in production (ML Kit Text Recognition runs on-device via
@@ -14,7 +16,7 @@ abstract interface class OcrRecognizer {
 /// Thrown when OCR is requested but no platform recognizer was wired (the safe
 /// default). Surfaces a clear, user-facing message rather than silently
 /// returning empty text.
-class OcrUnavailableException implements Exception {
+class OcrUnavailableException implements InputUnavailableException {
   const OcrUnavailableException();
 
   @override

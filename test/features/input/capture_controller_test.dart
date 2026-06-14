@@ -3,6 +3,8 @@ import 'package:documink/features/input/image_input_source.dart';
 import 'package:documink/features/input/ingested_text.dart';
 import 'package:documink/features/input/input_providers.dart';
 import 'package:documink/features/input/ocr_recognizer.dart';
+import 'package:documink/features/input/pdf_source.dart';
+import 'package:documink/features/input/pdf_text_extractor.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,14 +28,33 @@ class _FakeImageSource implements ImageInputSource {
   Future<PickedImage?> pickImage() async => pick;
 }
 
+class _FakePdfSource implements PdfSource {
+  _FakePdfSource(this._path);
+  final String? _path;
+  @override
+  Future<String?> pickPdf() async => _path;
+}
+
+class _FakePdfTextExtractor implements PdfTextExtractor {
+  _FakePdfTextExtractor(this._pages);
+  final List<String> _pages;
+  @override
+  Future<List<String>> extractPages(String path) async => _pages;
+}
+
 ProviderContainer _container({
   required OcrRecognizer ocr,
   required ImageInputSource source,
+  PdfSource? pdfSource,
+  PdfTextExtractor? pdfTextExtractor,
 }) {
   final container = ProviderContainer(
     overrides: [
       ocrRecognizerProvider.overrideWithValue(ocr),
       imageInputSourceProvider.overrideWithValue(source),
+      if (pdfSource != null) pdfSourceProvider.overrideWithValue(pdfSource),
+      if (pdfTextExtractor != null)
+        pdfTextExtractorProvider.overrideWithValue(pdfTextExtractor),
     ],
   );
   addTearDown(container.dispose);
@@ -95,6 +116,34 @@ void main() {
 
     await c.read(captureControllerProvider.notifier).scan();
     c.read(captureControllerProvider.notifier).reset();
+
+    expect(c.read(captureControllerProvider).status, CaptureStatus.idle);
+  });
+
+  test('importPdf success moves to ready with the extracted text', () async {
+    final c = _container(
+      ocr: _FakeOcr('unused'),
+      source: _FakeImageSource(),
+      pdfSource: _FakePdfSource('/tmp/doc.pdf'),
+      pdfTextExtractor: _FakePdfTextExtractor(const ['Contract body.']),
+    );
+
+    await c.read(captureControllerProvider.notifier).importPdf();
+
+    final state = c.read(captureControllerProvider);
+    expect(state.status, CaptureStatus.ready);
+    expect(state.result!.text, 'Contract body.');
+    expect(state.result!.source, InputSourceKind.pdfImport);
+  });
+
+  test('importPdf cancel returns to idle', () async {
+    final c = _container(
+      ocr: _FakeOcr('unused'),
+      source: _FakeImageSource(),
+      pdfSource: _FakePdfSource(null),
+    );
+
+    await c.read(captureControllerProvider.notifier).importPdf();
 
     expect(c.read(captureControllerProvider).status, CaptureStatus.idle);
   });

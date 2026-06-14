@@ -162,9 +162,13 @@ Commit ADRs under `docs/adr/`:
 >   / `ImageInputSource` seams; the pure-Dart `InputIngestionService` + the capture UI are
 >   headless-tested with fakes; real adapters (`MlKitTextRecognizer`, `SystemImageSource`) wired
 >   at bootstrap and **device-verified** (`VERIFICATION.md`).
-> - **Tracked follow-ups (remaining Phase 4):** **PDF import** (text-layer extraction + per-page
->   OCR fallback — pending a license-cleared PDF text package) and **inbound share-sheet intent**
->   (receive text/images shared from other apps). Logged in `docs/DECISIONS.md`.
+> - **4b (shipped):** **PDF import** — text-layer extraction (`flutter_pdf_text`/PDFBox) with
+>   per-page **OCR fallback** for scanned pages (`pdfx` rasterize → the existing OCR seam),
+>   `file_selector` picking; behind `PdfSource`/`PdfTextExtractor`/`PdfPageRasterizer` seams.
+>   Plus input-flow polish: localized capture + editor strings, source badge + multi-page/scanned
+>   warnings, gallery option in scan mode, a11y `Semantics`.
+> - **Tracked follow-up (remaining Phase 4):** **inbound share-sheet intent** (receive text/images
+>   shared from other apps) — the next PR. Logged in `docs/DECISIONS.md`.
 
 ### Phase 4 — Input handlers
 
