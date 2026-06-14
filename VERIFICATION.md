@@ -84,6 +84,14 @@ an item here in the same PR.
   plaintext, denial/cancel/no-enrollment blocks it; both outcomes audit-logged. Headless tests cover
   the decrypt-after-auth path via a fake authenticator; the real biometric prompt is device-only.
 
+## Export (Phase 7 — native share/save)
+
+- ☐ **Share / save exported artifacts** — wire the OS **share sheet** + file save for the redacted
+  `.txt` / JSON (e.g. `share_plus` / file picker) on a device; confirm the redacted output leaves via
+  the share intent and is audited. Headless tests cover content generation + the in-app copy action.
+- ☐ **PNG/PDF export rendering** — redacted image/PDF artifacts (native graphics) when those input
+  types land (Phase 4).
+
 ## UI design elevation (visual review — device/screenshots)
 
 The headless container can't render pixels; structure is widget-tested but **aesthetics need eyes**.

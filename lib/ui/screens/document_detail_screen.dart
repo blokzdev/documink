@@ -1,11 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/datetime_format.dart';
+import '../../data/app_database.dart';
+import '../../data/id_generator.dart';
+import '../../features/audit/audit_providers.dart';
 import '../../features/documents/document_repository.dart';
 import '../../features/documents/reveal_service.dart';
+import '../../features/export/export_service.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
 import '../widgets/app_error_state.dart';
@@ -80,9 +85,86 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     await Navigator.of(context).maybePop();
   }
 
+  Future<void> _export(Document doc, String redacted) async {
+    final entities = await ref
+        .read(documentRepositoryProvider)
+        .entitiesForDocument(doc.id);
+    final export = ref
+        .read(exportServiceProvider)
+        .build(
+          name: doc.name,
+          type: doc.type,
+          status: doc.status,
+          createdAtEpochMs: doc.createdAt,
+          redactedText: redacted,
+          entities: [
+            for (final e in entities)
+              ExportEntity(
+                label: e.entityType,
+                operator: e.operatorApplied,
+                start: e.spanStart,
+                end: e.spanEnd,
+              ),
+          ],
+        );
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notes_outlined),
+              title: const Text('Copy redacted text'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _copyExport(export.text, 'text', doc.id);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.data_object_outlined),
+              title: const Text('Copy metadata (JSON)'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _copyExport(export.jsonMetadata, 'json', doc.id);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _copyExport(String content, String format, String docId) async {
+    // Clipboard is a platform channel (absent in headless tests); never let it
+    // block the audit / feedback.
+    try {
+      await Clipboard.setData(ClipboardData(text: content));
+    } catch (_) {}
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Copied')));
+    }
+    await ref
+        .read(auditLogRepositoryProvider)
+        .record(
+          id: defaultIdGenerator(),
+          workspaceId: DocumentRepository.defaultWorkspaceId,
+          eventType: 'document_exported',
+          documentId: docId,
+          success: true,
+          metadata: {'format': format},
+          nowEpochMs: DateTime.now().millisecondsSinceEpoch,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final docAsync = ref.watch(documentByIdProvider(widget.documentId));
+    final doc = docAsync.valueOrNull;
+    final redacted = doc == null ? null : _redactedText(doc.metadataJson);
     final tokenCount =
         ref.watch(_tokenCountProvider(widget.documentId)).valueOrNull ?? 0;
     final theme = Theme.of(context);
@@ -91,6 +173,12 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       appBar: AppBar(
         title: const Text('Document'),
         actions: [
+          if (doc != null && redacted != null)
+            IconButton(
+              icon: const Icon(Icons.ios_share_outlined),
+              tooltip: 'Export',
+              onPressed: () => _export(doc, redacted),
+            ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Delete',
