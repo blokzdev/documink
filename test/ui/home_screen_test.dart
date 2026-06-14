@@ -55,7 +55,8 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Phase 5e'), findsOneWidget);
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('System default'), findsOneWidget);
   });
 
   testWidgets('theme toggle cycles the theme mode', (tester) async {

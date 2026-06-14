@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
+import '../ui/screens/settings_screen.dart';
 import 'routes.dart';
 
 /// Builds a fresh router. Exposed as a factory so tests get an isolated
@@ -51,11 +52,7 @@ GoRouter createRouter() => GoRouter(
     ),
     GoRoute(
       path: Routes.settings,
-      builder: (context, state) => const PlaceholderScreen(
-        title: 'Settings',
-        message: 'The Settings screen arrives in Phase 5e.',
-        icon: Icons.settings_outlined,
-      ),
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );
