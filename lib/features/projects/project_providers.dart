@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/app_database.dart';
 import '../../services/database_providers.dart';
 import 'project_repository.dart';
+import 'template_manifest.dart';
+import 'template_service.dart';
 import 'tool_permission_registry.dart';
 
 /// Decides whether a Mink tool call is permitted under a Project manifest
@@ -26,4 +28,15 @@ final projectsListProvider = FutureProvider.autoDispose<List<Project>>(
 /// A single Project by id.
 final projectByIdProvider = FutureProvider.autoDispose.family<Project?, String>(
   (ref, id) => ref.watch(projectRepositoryProvider).getById(id),
+);
+
+/// Loads + verifies the bundled, Ed25519-signed Verified-templates catalog.
+final templateServiceProvider = Provider<TemplateService>(
+  (ref) => TemplateService(),
+);
+
+/// The Verified templates (blueprint §6.3), for the template picker (14b-2).
+/// Throws if the bundled catalog fails Ed25519 verification.
+final verifiedTemplatesProvider = FutureProvider<List<TemplateDefinition>>(
+  (ref) => ref.watch(templateServiceProvider).verifiedTemplates(),
 );

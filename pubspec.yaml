@@ -119,6 +119,7 @@ flutter:
   assets:
     - assets/policy/default_policy.yaml
     - assets/model_manifest/manifest.signed.json
+    - assets/template_manifest/manifest.signed.json
 
   # To add assets to your application, add an assets section, like this:
   #   - images/a_dot_burr.jpeg
