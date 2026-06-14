@@ -5,10 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../core/routes.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
+import '../widgets/brand_mark.dart';
 import '../widgets/primary_action_card.dart';
 
-/// The Home hub: primary actions (blueprint §Phase 5) + a theme quick-toggle
-/// and a Settings entry.
+/// The Home hub: brand header + primary actions (blueprint §Phase 5), with a
+/// theme quick-toggle and a Settings entry.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -54,9 +55,9 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DocuMink'),
         actions: [
           IconButton(
             icon: Icon(_themeIcon(themeMode)),
@@ -71,20 +72,40 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: ListView.separated(
-          padding: const EdgeInsets.all(AppTokens.spacingMd),
-          itemCount: _actions.length,
-          separatorBuilder: (_, __) =>
-              const SizedBox(height: AppTokens.spacingSm),
-          itemBuilder: (context, i) {
-            final action = _actions[i];
-            return PrimaryActionCard(
-              icon: action.icon,
-              label: action.label,
-              description: action.description,
-              onTap: () => context.push(action.route),
-            );
-          },
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppTokens.maxContentWidth,
+            ),
+            child: ListView(
+              padding: const EdgeInsets.all(AppTokens.spacingMd),
+              children: [
+                const BrandLockup(markSize: 36),
+                const SizedBox(height: AppTokens.spacingLg),
+                Text(
+                  'Redact with confidence',
+                  style: theme.textTheme.headlineSmall,
+                ),
+                const SizedBox(height: AppTokens.spacingXs),
+                Text(
+                  'On-device, private, and reversible.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: AppTokens.spacingLg),
+                for (final action in _actions) ...[
+                  PrimaryActionCard(
+                    icon: action.icon,
+                    label: action.label,
+                    description: action.description,
+                    onTap: () => context.push(action.route),
+                  ),
+                  const SizedBox(height: AppTokens.spacingSm),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

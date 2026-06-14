@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/vault_providers.dart';
 import '../../services/vault_service.dart';
 import '../theme/tokens.dart';
+import '../widgets/brand_mark.dart';
 
 /// Minimum passphrase length for a new vault (UX guard; the KDF is the real
 /// strength). Kept modest so it's memorable; biometrics are a later fast-path.
@@ -86,11 +87,7 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.all(AppTokens.spacingLg),
                 children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 56,
-                    color: theme.colorScheme.primary,
-                  ),
+                  const Center(child: BrandMark(size: 56)),
                   const SizedBox(height: AppTokens.spacingMd),
                   Text(
                     exists ? 'Unlock DocuMink' : 'Create your vault',

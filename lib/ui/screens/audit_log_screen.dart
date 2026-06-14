@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/audit/audit_log_repository.dart';
 import '../../features/audit/audit_providers.dart';
-import '../theme/tokens.dart';
+import '../widgets/app_empty_state.dart';
 
 /// Settings → Audit log: a transparent, read-only view of privacy-relevant
 /// actions (roadmap §15). Carries IDs/token-refs and metadata only — never PII.
@@ -22,15 +22,12 @@ class AuditLogScreen extends ConsumerWidget {
               const Center(child: Text('Could not load the log.')),
           data: (entries) {
             if (entries.isEmpty) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(AppTokens.spacingLg),
-                  child: Text(
-                    'No activity yet. Privacy-relevant actions (saves, reveals, '
-                    'deletes, …) are recorded here.',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              return const AppEmptyState(
+                icon: Icons.receipt_long_outlined,
+                title: 'No activity yet',
+                message:
+                    'Privacy-relevant actions (saves, reveals, deletes, …) '
+                    'are recorded here.',
               );
             }
             return ListView.separated(

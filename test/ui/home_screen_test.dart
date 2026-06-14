@@ -30,14 +30,16 @@ void main() {
   ) async {
     await _pumpApp(tester);
 
-    expect(find.text('DocuMink'), findsOneWidget);
+    expect(find.bySemanticsLabel('DocuMink'), findsOneWidget);
     for (final label in const [
       'Scan',
       'Paste text',
       'Import',
       'New Project',
       'Chat with Mink',
+      'My documents',
     ]) {
+      await tester.scrollUntilVisible(find.text(label), 120);
       expect(find.text(label), findsOneWidget);
     }
   });
@@ -60,7 +62,7 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('APPEARANCE'), findsOneWidget);
     expect(find.text('System default'), findsOneWidget);
   });
 

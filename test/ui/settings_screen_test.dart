@@ -23,11 +23,11 @@ void main() {
   testWidgets('shows the settings sections', (tester) async {
     await _pump(tester);
     // Top sections render immediately…
-    expect(find.text('Appearance'), findsOneWidget);
-    expect(find.text('Security'), findsOneWidget);
+    expect(find.text('APPEARANCE'), findsOneWidget);
+    expect(find.text('SECURITY'), findsOneWidget);
     // …lower ones are below the fold in the test viewport.
-    await tester.scrollUntilVisible(find.text('About'), 200);
-    expect(find.text('About'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('ABOUT'), 200);
+    expect(find.text('ABOUT'), findsOneWidget);
   });
 
   testWidgets('selecting a theme updates themeMode live', (tester) async {
