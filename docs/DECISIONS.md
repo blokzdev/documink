@@ -9,6 +9,35 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — Design intent: encrypted original-document retention + reveal (Phase 4c) ⚠ review
+
+- **Context (maintainer-requested):** while discussing the rasterized-page temp file, the maintainer
+  asked whether originals could be kept encrypted and the original PII revealed via passcode/biometric.
+  Findings: (1) the rasterized OCR PNG is throwaway scaffolding (delete-after-use is right); (2)
+  "reveal original PII via biometric" **already exists for text** (reversible tokens → AES-256-GCM in
+  `tokens`, biometric-gated reveal in `reveal_service.dart` / `document_detail_screen.dart`, audited
+  `document_reveal`); (3) the **original source document itself is NOT stored** — only a
+  non-recoverable SHA-256 `sourceHash`. So "keep + reveal the whole original" is a genuine new feature.
+- **Scope decision (maintainer-chosen):** ship the temp-file hardening now; **design + roadmap** the
+  feature now (this note + roadmap Phase 4c); **build it as its own dedicated, security-reviewed PR.**
+  Not folded into the hardening change (it touches vault schema + crypto + a new reveal surface).
+- **Deviation note:** this extends beyond PRD §4.6 (entity-level decode) to document-level retention.
+  Surfaced per deviation-protocol; proceeding because it's user-directed and consistent with the
+  privacy-first reversible model. Flagged ⚠ for the maintainer + `security-review` at build time.
+- **Design (to implement next):**
+  - **Storage:** new `document_originals` table `(id, documentId FK, mime, ciphertext BLOB, createdAt)`
+    — keeps `documents` lean, allows lazy load. **First drift migration** (schemaVersion 1→2,
+    `onUpgrade` → `m.createTable`); `app_database.dart` currently has `onCreate`-only at version 1.
+  - **Crypto:** reuse `TokenCrypto.encrypt/decrypt` (AES-256-GCM, AAD = documentId) via
+    `VaultService.tokenCrypto` + the unlocked DEK. No new key material.
+  - **Retain:** carry the original source bytes through ingestion/save (opt-in; default off for
+    storage growth). The OCR scaffold is never stored — only the user's actual file.
+  - **Reveal:** "View original · biometric" mirroring `RevealService` → `Authenticator` → decrypt →
+    transient secure viewer (`Image.memory` / PDF render), **FLAG_SECURE**, audited
+    (`document_original_revealed`); plaintext never persisted/logged.
+  - **Invariants:** encrypted at rest under the DEK; never synced in plaintext (SyncEnvelope seals
+    deltas); biometric-gated; audited. High-stakes per CLAUDE.md → fuller logging at build time.
+
 ## 2026-06-14 — V1 Phase 4 hardening: delete rasterized PDF page-images after OCR
 
 - **Context:** post-merge web research on the 4a/4b pipeline. `PdfxPageRasterizer` writes each
