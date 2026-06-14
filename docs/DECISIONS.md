@@ -9,6 +9,20 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 7: export (headless core)
+
+- `ExportService` (pure) builds two artifacts from a redacted document: the **redacted text** and a
+  **JSON metadata sidecar** (versioned; name/type/status/createdAt + entity type/operator/offsets +
+  redactedText). **No PII** — only de-identified metadata + the already-redacted text.
+- Detail screen **Export** action → bottom sheet (copy text / copy JSON) → Clipboard + a
+  `document_exported` audit entry. Clipboard is wrapped in try/catch so the audit/feedback never
+  block on the platform channel (absent in headless tests).
+- **Native share-sheet / file-save deferred** to a device task (the genuinely native part);
+  VERIFICATION.md tracks it. The content-generation core is what's headless-testable, and it's
+  fully unit-tested.
+- Export widget test asserts the sheet wiring (deterministic); fire-and-forget audit timing isn't
+  asserted in the widget test (covered by `AuditLogRepository` tests + the ExportService unit test).
+
 ## 2026-06-14 — V1 Phase 6: custom entity types UI
 
 - List/add/edit/delete screens over the existing repo + `CustomEntityValidator` + `RegexSandbox`

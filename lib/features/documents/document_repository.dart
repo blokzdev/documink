@@ -188,6 +188,14 @@ class DocumentRepository {
     });
   }
 
+  /// The detected entities of [documentId], in document order.
+  Future<List<Entity>> entitiesForDocument(String documentId) async {
+    return (_db.select(_db.entities)
+          ..where((e) => e.documentId.equals(documentId))
+          ..orderBy([(e) => OrderingTerm.asc(e.spanStart)]))
+        .get();
+  }
+
   /// The reversible tokens belonging to [documentId] (joined via its entities).
   Future<List<Token>> tokensForDocument(String documentId) async {
     final query = _db.select(_db.tokens).join([
