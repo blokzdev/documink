@@ -3,6 +3,7 @@ class Routes {
   const Routes._();
 
   static const home = '/';
+  static const unlock = '/unlock';
   static const scan = '/scan';
   static const paste = '/paste';
   static const import = '/import';

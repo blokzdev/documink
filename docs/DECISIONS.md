@@ -9,6 +9,30 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5e: vault unlock UX (HIGH-STAKES — fuller logging)
+
+The passphrase gate is the UI over the Phase-1 `VaultService`; no new crypto, no change to key
+handling. Security-relevant decisions:
+
+- **No secret material in UI state.** The screen only holds the passphrase in `TextEditingController`s
+  (obscured) and passes them straight to `VaultService.initialize/unlock`; it reads only
+  `VaultState`/`appUnlockedProvider` (key-free, per the existing `VaultState` contract). Keys/DEK never
+  enter widget state. On a wrong passphrase the catch shows a generic "Incorrect passphrase." — no
+  detail about why (no oracle).
+- **Gate via a derived `appUnlockedProvider`** (`bool` from `vaultServiceProvider.isUnlocked`) rather
+  than reading vault internals in the router. Lets widget tests bypass the gate with a plain
+  `overrideWithValue` without constructing the vault stack, and keeps the router free of key material.
+- **Router redirect** sends locked → `/unlock` and unlocked away from `/unlock`; refreshed via a
+  `ValueNotifier` bumped on `appUnlockedProvider` changes (`ref.listen` in the router provider).
+- **Create-vault UX guard:** min passphrase length (8) + confirm match are *UX* checks only; the real
+  strength is Argon2id (unchanged). Documented as non-authoritative.
+- **Auto-lock** keeps the existing 120 s default in `VaultService`; the timer is exercised in unit
+  tests with a fake. The biometric fast-path (ADR-005/020) stays deferred.
+- **Headless testing of the real path:** widget tests drive an actual `VaultService` with the
+  in-memory `SecureKeyStore` fake + plain `NativeDatabase` executor (the Phase-1c test seam), so
+  create→unlock and wrong-passphrase rejection run for real without the SQLCipher native build. The
+  encrypted-build open stays the gated `vault_service_test` integration case (VERIFICATION.md).
+
 ## 2026-06-14 — V1 Phase 5d: settings persistence
 
 - **`SettingsStore` interface + in-memory default + `shared_preferences` impl at bootstrap** — the

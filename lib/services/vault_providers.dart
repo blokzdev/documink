@@ -25,3 +25,16 @@ final vaultServiceProvider = StateNotifierProvider<VaultService, VaultState>((
     vaultFile: ref.watch(vaultFileProvider),
   );
 });
+
+/// Whether the vault is currently unlocked. The router gates all screens behind
+/// this (locked → unlock screen). Overridable in widget tests to bypass the gate
+/// without constructing the full vault stack.
+final appUnlockedProvider = Provider<bool>(
+  (ref) => ref.watch(vaultServiceProvider).isUnlocked,
+);
+
+/// Whether a vault has already been initialized (a salt exists) — decides the
+/// unlock screen's create-vs-unlock mode.
+final vaultExistsProvider = FutureProvider<bool>(
+  (ref) => ref.watch(vaultServiceProvider.notifier).vaultExists(),
+);
