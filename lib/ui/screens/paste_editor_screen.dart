@@ -55,8 +55,18 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
               onPressed: state.status == EditorStatus.detecting
                   ? null
                   : controller.detect,
-              icon: const Icon(Icons.search),
-              label: const Text('Detect'),
+              icon: state.status == EditorStatus.detecting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.search),
+              label: Text(
+                state.status == EditorStatus.detecting
+                    ? 'Detecting…'
+                    : 'Detect',
+              ),
             ),
             const SizedBox(height: AppTokens.spacingMd),
             if (state.error != null) ...[

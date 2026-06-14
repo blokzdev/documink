@@ -9,6 +9,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L6: resilience & polish
+
+Maintainer asked to keep polishing blind with confident, headless-safe refinements (and to record
+the L1–L6 arc in `roadmap.md`). L6:
+
+- **`AppErrorState`** (icon + message + Retry) replaces plain error text on the three async screens;
+  Retry invalidates the relevant provider (`documentsListProvider` / `auditEntriesProvider` /
+  `documentByIdProvider`) to refetch — a real resilience win, fully widget-testable.
+- **Pull-to-refresh** (`RefreshIndicator`) on the vault browser + audit list.
+- **Inline Detect progress** on the editor button (spinner + "Detecting…").
+- **a11y**: semantic labels on `EntityChip` ("LABEL, n found") and `StatusBadge` ("Status: …");
+  `SectionHeader` already `header: true`.
+- The L1–L6 design-elevation sub-arc is now documented in `roadmap.md` under Phase 5; **i18n
+  scaffolding remains to close Phase 5** (next).
+
 ## 2026-06-14 — V1 UI elevation L5: Settings & Audit + motion/a11y (closes the arc)
 
 - Settings rows grouped into `_SettingsGroup` cards under `SectionHeader`s, centred under

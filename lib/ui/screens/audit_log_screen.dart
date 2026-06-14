@@ -5,6 +5,7 @@ import '../../core/datetime_format.dart';
 import '../../features/audit/audit_log_repository.dart';
 import '../../features/audit/audit_providers.dart';
 import '../widgets/app_empty_state.dart';
+import '../widgets/app_error_state.dart';
 
 /// Settings → Audit log: a transparent, read-only view of privacy-relevant
 /// actions (roadmap §15). Carries IDs/token-refs and metadata only — never PII.
@@ -19,8 +20,10 @@ class AuditLogScreen extends ConsumerWidget {
       body: SafeArea(
         child: entriesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) =>
-              const Center(child: Text('Could not load the log.')),
+          error: (_, __) => AppErrorState(
+            title: 'Could not load the log',
+            onRetry: () => ref.invalidate(auditEntriesProvider),
+          ),
           data: (entries) {
             if (entries.isEmpty) {
               return const AppEmptyState(
@@ -31,10 +34,16 @@ class AuditLogScreen extends ConsumerWidget {
                     'are recorded here.',
               );
             }
-            return ListView.separated(
-              itemCount: entries.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, i) => _EntryTile(entries[i]),
+            return RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(auditEntriesProvider);
+                await ref.read(auditEntriesProvider.future);
+              },
+              child: ListView.separated(
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, i) => _EntryTile(entries[i]),
+              ),
             );
           },
         ),
