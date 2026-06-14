@@ -20,6 +20,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P12c: deterministic memory router (completes Phase 12 active-V1)
+
+- **Deterministic dispatch (no LLM)** per memory.md §4.1: a `switch` over tool names
+  (`remember`/`recall_core`/`recall_episodic`/`forget`) → `MemoryRepository`. Mink emits the tool
+  call; routing is plain code.
+- **Rejected writes surface as failures, not exceptions.** A `MemoryPiiLeakError` from the guard is
+  caught and returned as a failed `MemoryToolResult` so Mink can react ("I can't store that as-is").
+- **Injectable id/clock.** The router takes an id generator + clock (defaults: time+random id,
+  `DateTime.now`) so tests are deterministic. No ULID util existed; a real one can replace the default
+  later without API change.
+- **Scope param.** `remember` honors `scope: 'global'|'project'` to attach/omit the projectId.
+
 ## 2026-06-14 — V1 P12b: MemoryRepository (Core + Episodic, guarded)
 
 - **Active-V1 types only.** Implemented Core + Episodic (memory.md §2.1/§2.2); Knowledge Vault is the
