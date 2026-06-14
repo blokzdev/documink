@@ -9,6 +9,14 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L3: editor
+
+- `EntityChip` renders each detected type as a colour-coded pill (hue dot + label + count) via
+  `AppColors.entityColor`; foreground tone-mapped per brightness for contrast.
+- Redacted preview now uses `AppTypography.mono` on a tonal surface with a copy-to-clipboard action —
+  reads like "output", and surrogates/redaction markers are legible.
+- Existing editor tests still pass (`find.textContaining('EMAIL')` matches the chip's "EMAIL · n").
+
 ## 2026-06-14 — V1 UI elevation L2: shared UI kit + Home/Unlock
 
 - Extracted reusable widgets — `AppEmptyState`, `SectionHeader`, richer `PrimaryActionCard` — and
