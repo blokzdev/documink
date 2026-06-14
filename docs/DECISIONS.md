@@ -20,6 +20,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P8b: CRDT conflict resolution (§9.4)
+
+- **Auto-resolution primitives** match the spec: `lwwWinner` (LWW on scalars, newer `updatedAt` wins,
+  ties broken by lexicographically-greater `deviceId` so all replicas converge regardless of merge
+  order) and `setUnion` (collection merge). cr-sqlite applies column LWW at runtime; these model the
+  same semantics for app-level merges/tests.
+- **Hard-conflict detection** is the genuine app-level value: `SyncConflictDetector` flags the §9.4
+  case cr-sqlite would silently resolve — two devices independently creating the same custom-entity
+  *identity* (`workspace_id, project_id, label`) with diverging definition (regex/validator/operator).
+  Same record id ⇒ CRDT handles; identical definition ⇒ benign duplicate; divergent ⇒ surfaced to
+  Settings → Sync Conflicts. Pure Dart, fully tested; the conflict-resolution UI is a UI-phase task.
+
 ## 2026-06-14 — V1 P8a: sync delta envelope crypto (HIGH-STAKES — fuller logging)
 
 - **Scope.** Only the encryption envelope for CRDT deltas — the headless-testable, security-relevant
