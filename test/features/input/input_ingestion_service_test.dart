@@ -5,6 +5,7 @@ import 'package:documink/features/input/ocr_recognizer.dart';
 import 'package:documink/features/input/pdf_page_rasterizer.dart';
 import 'package:documink/features/input/pdf_source.dart';
 import 'package:documink/features/input/pdf_text_extractor.dart';
+import 'package:documink/features/input/temp_file_disposer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Fake OCR returning a fixed string (or throwing) for the given path.
@@ -59,6 +60,13 @@ class _FakeRasterizer implements PdfPageRasterizer {
   }
 }
 
+/// Records the temp files asked to be disposed.
+class _FakeDisposer implements TempFileDisposer {
+  final List<String> disposed = [];
+  @override
+  Future<void> dispose(String path) async => disposed.add(path);
+}
+
 /// Builds a service; unused seams default to fakes that are never invoked.
 InputIngestionService _service({
   OcrRecognizer? ocr,
@@ -66,12 +74,14 @@ InputIngestionService _service({
   PdfSource? pdfSource,
   PdfTextExtractor? pdfTextExtractor,
   PdfPageRasterizer? pdfPageRasterizer,
+  TempFileDisposer? tempFileDisposer,
 }) => InputIngestionService(
   ocr: ocr ?? _FakeOcr(''),
   imageSource: imageSource ?? _FakeImageSource(),
   pdfSource: pdfSource ?? _FakePdfSource(null),
   pdfTextExtractor: pdfTextExtractor ?? _FakePdfTextExtractor(const []),
   pdfPageRasterizer: pdfPageRasterizer ?? _FakeRasterizer(),
+  tempFileDisposer: tempFileDisposer ?? _FakeDisposer(),
 );
 
 void main() {
@@ -162,11 +172,13 @@ void main() {
       () async {
         final ocr = _FakeOcr('should-not-be-called');
         final raster = _FakeRasterizer();
+        final disposer = _FakeDisposer();
         final service = _service(
           ocr: ocr,
           pdfSource: _FakePdfSource('/tmp/doc.pdf'),
           pdfTextExtractor: _FakePdfTextExtractor(const ['Hello world.']),
           pdfPageRasterizer: raster,
+          tempFileDisposer: disposer,
         );
 
         final result = await service.importPdf();
@@ -177,17 +189,21 @@ void main() {
         expect(result.warnings, isEmpty);
         expect(raster.rendered, isEmpty);
         expect(ocr.calls, isEmpty);
+        // No rasterization → nothing to clean up.
+        expect(disposer.disposed, isEmpty);
       },
     );
 
     test('OCRs a scanned (text-less) page via the rasterizer', () async {
       final ocr = _FakeOcr('OCR text from page 1');
       final raster = _FakeRasterizer();
+      final disposer = _FakeDisposer();
       final service = _service(
         ocr: ocr,
         pdfSource: _FakePdfSource('/tmp/scan.pdf'),
         pdfTextExtractor: _FakePdfTextExtractor(const ['']),
         pdfPageRasterizer: raster,
+        tempFileDisposer: disposer,
       );
 
       final result = await service.importPdf();
@@ -196,6 +212,27 @@ void main() {
       expect(raster.rendered, [0]);
       expect(ocr.calls, ['/tmp/page_0.png']);
       expect(result.warnings.single, contains('Page 1 was scanned'));
+      // The rasterized page (PII) is deleted after OCR.
+      expect(disposer.disposed, ['/tmp/page_0.png']);
+    });
+
+    test('deletes the rasterized page even when OCR throws', () async {
+      final raster = _FakeRasterizer();
+      final disposer = _FakeDisposer();
+      final service = _service(
+        ocr: _FakeOcr('', throwError: true),
+        pdfSource: _FakePdfSource('/tmp/scan.pdf'),
+        pdfTextExtractor: _FakePdfTextExtractor(const ['']),
+        pdfPageRasterizer: raster,
+        tempFileDisposer: disposer,
+      );
+
+      await expectLater(
+        service.importPdf(),
+        throwsA(isA<OcrUnavailableException>()),
+      );
+      // finally{} ran: the PII page-image is not left behind.
+      expect(disposer.disposed, ['/tmp/page_0.png']);
     });
 
     test(

@@ -167,8 +167,10 @@ Commit ADRs under `docs/adr/`:
 >   `file_selector` picking; behind `PdfSource`/`PdfTextExtractor`/`PdfPageRasterizer` seams.
 >   Plus input-flow polish: localized capture + editor strings, source badge + multi-page/scanned
 >   warnings, gallery option in scan mode, a11y `Semantics`.
-> - **Tracked follow-up (remaining Phase 4):** **inbound share-sheet intent** (receive text/images
->   shared from other apps) — the next PR. Logged in `docs/DECISIONS.md`.
+> - **Tracked follow-ups (remaining Phase 4):**
+>   - **Inbound share-sheet intent** (receive text/images shared from other apps).
+>   - **Phase 4c — encrypted original-document retention + reveal** (maintainer-requested, 2026-06-14;
+>     high-stakes — see below). Logged in `docs/DECISIONS.md`.
 
 ### Phase 4 — Input handlers
 
@@ -176,6 +178,23 @@ Commit ADRs under `docs/adr/`:
 - Paste text input (inline highlights, share-sheet intent handler).
 - Image import (JPG, PNG, HEIC via system picker).
 - PDF import (text-layer extraction + OCR-per-page for scanned).
+
+#### Phase 4c — Encrypted original-document retention + biometric reveal (planned; high-stakes)
+
+> **Added 2026-06-14 (maintainer-requested).** Extends the reversible philosophy from *original
+> entity values* (already shipped: reversible tokens + biometric reveal) to the **whole original
+> document**. Beyond the current PRD §4.6 (entity-level decode) — surfaced per deviation-protocol;
+> design logged in `docs/DECISIONS.md`. Requires `security-review`.
+
+- **Opt-in retention:** on save, optionally keep the **original source bytes** (captured photo /
+  imported image / source PDF — *not* the throwaway OCR scaffold) AES-256-GCM-encrypted under the
+  vault DEK. Default off (storage growth; PRD §8.2 footprint).
+- **Storage:** new `document_originals` table `(id, documentId FK, mime, ciphertext BLOB, createdAt)`;
+  the **first drift migration** (schemaVersion 1→2). Reuse `TokenCrypto`/DEK (AAD = documentId).
+- **Reveal/view:** "View original · biometric" mirroring the token-reveal flow → `Authenticator` →
+  decrypt → transient secure viewer with **FLAG_SECURE**; audited (`document_original_revealed`).
+- **Invariants:** encrypted at rest under the vault DEK; never synced in plaintext (SyncEnvelope
+  already seals deltas); biometric-gated; audit-logged. Built as its own dedicated, reviewed PR.
 
 ### Phase 5 — UI / UX (non-chat)
 

@@ -4,6 +4,7 @@ import 'package:documink/features/input/ocr_recognizer.dart';
 import 'package:documink/features/input/pdf_page_rasterizer.dart';
 import 'package:documink/features/input/pdf_source.dart';
 import 'package:documink/features/input/pdf_text_extractor.dart';
+import 'package:documink/features/input/temp_file_disposer.dart';
 import 'package:documink/l10n/gen/app_localizations.dart';
 import 'package:documink/ui/screens/capture_screen.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,14 @@ class _FakeRasterizer implements PdfPageRasterizer {
       '/tmp/p$pageIndex.png';
 }
 
+/// No-op disposer — widget tests must not touch the real filesystem (real
+/// dart:io async stalls pumpAndSettle under the fake-async clock).
+class _NoopDisposer implements TempFileDisposer {
+  const _NoopDisposer();
+  @override
+  Future<void> dispose(String path) async {}
+}
+
 Future<void> _pump(
   WidgetTester tester, {
   required CaptureMode mode,
@@ -67,6 +76,7 @@ Future<void> _pump(
           pdfTextExtractorProvider.overrideWithValue(pdfTextExtractor),
         if (pdfPageRasterizer != null)
           pdfPageRasterizerProvider.overrideWithValue(pdfPageRasterizer),
+        tempFileDisposerProvider.overrideWithValue(const _NoopDisposer()),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,

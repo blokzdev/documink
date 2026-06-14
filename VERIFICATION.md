@@ -105,6 +105,9 @@ with fakes; the native adapters need a device:
   memory on rasterize+OCR of many scanned pages.
 - ☐ **APK size** — confirm the 3 new plugins (flutter_pdf_text/PDFBox, pdfx, file_selector) keep
   the base APK under the 150 MB ceiling (CI `apk-size-check` covers this on every build).
+- ☐ **No PII page-images linger** — after a scanned-PDF import, the app cache dir
+  (`getTemporaryDirectory()`) holds **no leftover `pdf_page_*.png`** files; OCR still succeeds.
+  (Delete-after-use is unit-asserted via a fake disposer; this confirms the real deletion on device.)
 - ☐ **Inbound share-sheet intent** *(tracked follow-up — next PR)* — receiving text/images shared
   from another app into DocuMink.
 
