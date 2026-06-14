@@ -42,11 +42,11 @@ void main() {
   ) async {
     await _pumpApp(tester);
 
-    await tester.tap(find.text('Paste text'));
+    await tester.tap(find.text('Import'));
     await tester.pumpAndSettle();
 
-    // Placeholder destination for the paste route.
-    expect(find.textContaining('Phase 5b'), findsOneWidget);
+    // Placeholder destination for the import route (Phase 4 native input).
+    expect(find.textContaining('Phase 4'), findsOneWidget);
   });
 
   testWidgets('Settings action pushes the settings screen', (tester) async {

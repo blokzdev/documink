@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../ui/screens/home_screen.dart';
+import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
 import 'routes.dart';
 
@@ -22,11 +23,7 @@ GoRouter createRouter() => GoRouter(
     ),
     GoRoute(
       path: Routes.paste,
-      builder: (context, state) => const PlaceholderScreen(
-        title: 'Paste text',
-        message: 'The paste-and-redact editor arrives next (Phase 5b).',
-        icon: Icons.content_paste_outlined,
-      ),
+      builder: (context, state) => const PasteEditorScreen(),
     ),
     GoRoute(
       path: Routes.import,

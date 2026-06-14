@@ -9,6 +9,19 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5b: paste-and-redact editor
+
+- **Irreversible operators only** (Redact / Mask / Replace) in this chunk: they run through the
+  pure synchronous `Anonymizer` with **no unlocked vault**, so the whole flow is headless-testable.
+  Reversible operators (Token-Random / FPE / Encrypt) need the vault-unlock UX + crypto and land in
+  a later chunk (`editorOperators` enforces this; all are `!isReversible`).
+- **Operator selection per label (entity type), not per span.** Matches the policy engine's
+  label→operator model (`AnonymizationPolicy.operatorFor(label)`) and keeps the `Anonymizer`
+  unmodified. Per-span granularity is a possible later refinement.
+- **Default = redact** for every detected label (privacy-safe default), overridable in the UI.
+- Editor state is a `Notifier<PasteEditorState>` that stores the computed `previewText`, so the
+  screen just renders state and tests assert on it directly.
+
 ## 2026-06-14 — V1 Phase 5a: UI app-shell foundation
 
 Spec doesn't dictate UI implementation details; recommended choices:
