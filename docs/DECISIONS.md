@@ -9,6 +9,14 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5j: delete documents
+
+- **Manual cascade in one transaction** (tokens → entities → document) since the schema FKs don't
+  declare `ON DELETE CASCADE` (drift default RESTRICT). Audited as `document_deleted`.
+- **`Navigator.maybePop`** (not go_router `context.pop`) after delete so the detail screen works both
+  in the app and in plain widget tests; the vault list is invalidated to refresh.
+- Confirm dialog before deleting (destructive action).
+
 ## 2026-06-14 — V1 Phase 5i: biometric-gated token reveal (HIGH-STAKES — fuller logging)
 
 The reveal (decode) feature exposes plaintext PII after auth — the payoff of the reversible-token

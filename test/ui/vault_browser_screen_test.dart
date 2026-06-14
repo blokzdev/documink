@@ -76,4 +76,19 @@ void main() {
     expect(text, contains('[REDACTED]'));
     expect(text, isNot(contains('alice@example.com')));
   });
+
+  testWidgets('delete confirm removes the document', (tester) async {
+    final id = await saveDoc('Doc One', 'Email alice@example.com today.');
+    await pump(tester, DocumentDetailScreen(documentId: id));
+
+    await tester.tap(find.byTooltip('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+
+    expect(
+      await container.read(documentRepositoryProvider).documentById(id),
+      isNull,
+    );
+  });
 }

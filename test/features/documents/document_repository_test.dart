@@ -104,6 +104,39 @@ void main() {
     expect(await repo.documentById('nope'), isNull);
   });
 
+  test(
+    'deleteDocument removes the document, its entities and tokens',
+    () async {
+      const text = 'Email alice@example.com now.';
+      final detection = await container
+          .read(detectionPipelineProvider)
+          .detect(text);
+      const policy = AnonymizationPolicy({
+        PiiLabels.email: Operator.tokenRandom,
+      }, fallback: Operator.redact);
+      final outcome = await container
+          .read(anonymizationServiceProvider)
+          .anonymize(detection.normalizedText, detection.spans, policy);
+      final repo = container.read(documentRepositoryProvider);
+      final docId = await repo.saveAnonymizedText(
+        name: 'Doc',
+        originalText: text,
+        detection: detection,
+        operators: const {PiiLabels.email: Operator.tokenRandom},
+        outcome: outcome,
+      );
+
+      await repo.deleteDocument(docId);
+
+      final db = vault.service.database;
+      expect(await db.select(db.documents).get(), isEmpty);
+      expect(await db.select(db.entities).get(), isEmpty);
+      expect(await db.select(db.tokens).get(), isEmpty);
+      final audit = await db.select(db.auditLog).get();
+      expect(audit.any((a) => a.eventType == 'document_deleted'), isTrue);
+    },
+  );
+
   test('ensureDefaultWorkspace is idempotent', () async {
     final repo = container.read(documentRepositoryProvider);
     await repo.ensureDefaultWorkspace();
