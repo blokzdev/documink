@@ -29,6 +29,10 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Root wiring:** `DocuMinkApp` became a `ConsumerStatefulWidget` to own the coordinator lifecycle
   (start after first frame; `ref.listenManual(appUnlockedProvider)` to flush; dispose the stream sub).
 - **V1 takes the first shared item;** `SEND_MULTIPLE` batch beyond the first is V3.
+- **Build fix:** `receive_sharing_intent` 1.8.1's Android module compiles Java at 1.8 but Kotlin at
+  17; AGP 8 + Kotlin 2.x fail that intra-module mismatch. Set
+  `kotlin.jvm.target.validation.mode=warning` in `android/gradle.properties` (our own modules stay
+  uniformly 17). The mixed target is benign on minSdk 26 (D8 desugars); revisit when the plugin aligns.
 
 ## 2026-06-14 — Design intent: encrypted original-document retention + reveal (Phase 4c) ⚠ review
 
