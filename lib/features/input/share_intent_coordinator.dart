@@ -30,10 +30,20 @@ class ShareIntentCoordinator {
   String? _pending;
 
   /// Subscribe to runtime shares and process the cold-start share (if any).
+  /// All paths are guarded: a share that fails (e.g. OCR error, unreadable URI)
+  /// is dropped silently rather than crashing the app — it's a best-effort
+  /// convenience, never critical.
   Future<void> start() async {
-    _subscription = _receiver.shareStream().listen(_handle);
-    final initial = await _receiver.initialShare();
-    if (initial != null) await _handle(initial);
+    _subscription = _receiver.shareStream().listen(
+      _handleSafely,
+      onError: (_) {}, // a malformed share event must not kill the stream
+    );
+    try {
+      final initial = await _receiver.initialShare();
+      if (initial != null) await _handle(initial);
+    } catch (_) {
+      // Ignore a failed cold-start share (the app still opens normally).
+    }
   }
 
   /// Flush a share that arrived while locked. Call when the vault unlocks.
@@ -48,6 +58,16 @@ class ShareIntentCoordinator {
   Future<void> dispose() async {
     await _subscription?.cancel();
     _subscription = null;
+  }
+
+  /// Stream-listener wrapper: a single bad share must not throw out of the
+  /// subscription (which would become an unhandled async error).
+  Future<void> _handleSafely(SharedInput input) async {
+    try {
+      await _handle(input);
+    } catch (_) {
+      // Best-effort: drop this share, keep listening for the next one.
+    }
   }
 
   Future<void> _handle(SharedInput input) async {

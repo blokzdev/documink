@@ -12,10 +12,22 @@ import 'package:documink/features/input/temp_file_disposer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeOcr implements OcrRecognizer {
-  _FakeOcr(this._text);
+  _FakeOcr(this._text, {this.throwError = false});
   final String _text;
+  final bool throwError;
   @override
-  Future<String> recognizeImage(String imagePath) async => _text;
+  Future<String> recognizeImage(String imagePath) async {
+    if (throwError) throw const OcrUnavailableException();
+    return _text;
+  }
+}
+
+/// A receiver whose initialShare() throws (a malformed cold-start intent).
+class _ThrowingReceiver implements ShareIntentReceiver {
+  @override
+  Future<SharedInput?> initialShare() async => throw StateError('bad intent');
+  @override
+  Stream<SharedInput> shareStream() => const Stream.empty();
 }
 
 // Unused seams for the ingestion service in these tests.
@@ -158,6 +170,40 @@ void main() {
     await c.start();
     c.onUnlocked();
 
+    expect(navigated, isEmpty);
+    await c.dispose();
+  });
+
+  test('a shared-image OCR failure is dropped, never crashes', () async {
+    final navigated = <String>[];
+    final c = ShareIntentCoordinator(
+      receiver: _FakeReceiver(
+        initial: const SharedInput(
+          kind: SharedInputKind.image,
+          value: '/tmp/x.jpg',
+        ),
+      ),
+      ingestion: _ingestion(ocr: _FakeOcr('', throwError: true)),
+      isUnlocked: () => true,
+      navigateToEditor: navigated.add,
+    );
+
+    // Must complete without throwing; nothing routed.
+    await c.start();
+    expect(navigated, isEmpty);
+    await c.dispose();
+  });
+
+  test('a throwing initialShare() is swallowed', () async {
+    final navigated = <String>[];
+    final c = ShareIntentCoordinator(
+      receiver: _ThrowingReceiver(),
+      ingestion: _ingestion(),
+      isUnlocked: () => true,
+      navigateToEditor: navigated.add,
+    );
+
+    await c.start(); // does not throw
     expect(navigated, isEmpty);
     await c.dispose();
   });
