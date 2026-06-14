@@ -9,6 +9,11 @@ class Routes {
   static const import = '/import';
   static const newProject = '/projects/new';
   static const projects = '/projects';
+
+  /// Project detail, e.g. `/projects/<id>`.
+  static String projectDetail(String id) => '/projects/$id';
+  static const projectDetailPattern = '/projects/:id';
+
   static const chat = '/chat';
   static const vault = '/vault';
   static const settings = '/settings';

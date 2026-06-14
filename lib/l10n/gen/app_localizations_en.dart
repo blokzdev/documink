@@ -371,4 +371,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String projectsTemplateLine(String template, String date) {
     return '$template · updated $date';
   }
+
+  @override
+  String get projectDetailDocumentsTab => 'Documents';
+
+  @override
+  String get projectDetailSettingsTab => 'Settings';
+
+  @override
+  String get projectDetailLoadError => 'Could not load this project';
+
+  @override
+  String get projectDetailNotFound => 'Project not found.';
+
+  @override
+  String get projectDetailNoDocuments => 'No documents in this project yet';
+
+  @override
+  String get projectDetailActive => 'Active project';
+
+  @override
+  String get projectDetailActiveSubtitle =>
+      'New captures and saves go to this project';
+
+  @override
+  String get projectSectionPermissions => 'Permissions';
+
+  @override
+  String get projectSectionPolicy => 'Default redaction policy';
+
+  @override
+  String get projectSectionPersona => 'Mink persona';
+
+  @override
+  String get projectPersonaHint =>
+      'Persona id (e.g. medical_records_conservative)';
+
+  @override
+  String get projectPersonaSave => 'Save persona';
+
+  @override
+  String get projectSettingsSaved => 'Settings updated';
+
+  @override
+  String get projectPolicyInherit => 'Default (—)';
+
+  @override
+  String get projectDecodeOff => 'Off';
+
+  @override
+  String get projectDecodeOn => 'On';
+
+  @override
+  String get projectDecodeBiometric => 'Biometric';
+
+  @override
+  String get permReadDocuments => 'Read documents';
+
+  @override
+  String get permDetectPii => 'Detect PII';
+
+  @override
+  String get permAnonymize => 'Anonymize';
+
+  @override
+  String get permDecode => 'Reveal originals (decode)';
+
+  @override
+  String get permRewriteContent => 'Rewrite content';
+
+  @override
+  String get permExpandContent => 'Expand content';
+
+  @override
+  String get permExport => 'Export';
+
+  @override
+  String get permModifyProjectSettings => 'Modify project settings';
+
+  @override
+  String get permCrossProjectSearch => 'Cross-project search';
+
+  @override
+  String get permSearchWeb => 'Search the web';
 }
