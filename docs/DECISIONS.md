@@ -9,6 +9,39 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 P14a: Projects core, and how Phase 14 is sliced
+
+- **Context:** Phase 14 (Projects & templates) is large and partly depends on phases not yet
+  built (Tier-4 `LlmBackend` for the upload→domain-inference creation path; the Mink chat UI for
+  the Project-detail "chat sessions" tab; `documink.ai/templates` hosting + CRDT for remote/synced
+  templates). The `projects` table + every `project_id` FK already shipped in P1a (schema v2), and
+  `ProjectManifest`/`ProjectPermissions`/`ToolPermissionRegistry` already exist.
+- **Options:** (A) one big Phase-14 PR; (B) slice into headless-shippable sub-PRs, building the
+  dependency-blocked parts behind seams / deferring them with tracking.
+- **Choice:** **B.** Sub-PRs: **14a** Projects core (repository CRUD + active-project provider +
+  document/custom-entity project-threading; pure-Dart, no migration); **14b** bundled
+  Ed25519-signed verified templates (reuse the P9 `ManifestVerifier`) + template picker (Path A);
+  **14c** Project list/detail (documents + settings tabs) + settings editors + blank wizard
+  (Path C); **14d** upload + `DomainInferenceService` behind a seam (Path B) + personal-template
+  save, largely deferred to Tier-4.
+- **Rationale:** matches the commit-hygiene "one concern per PR" rule and the established
+  build-behind-seams workflow (cf. Phase 4 slicing). Keeps the autonomous loop moving without
+  blocking on un-built phases.
+
+### Sub-decisions (14a)
+- **Templates ship bundled-then-remote.** The signed *remote* fetch (`documink.ai/templates`)
+  needs hosting that doesn't exist yet; 14b will bundle the verified templates as a signed asset
+  (offline last-known-good) and add remote fetch + CRDT personal-template sync later as seams.
+- **Active-project selection is in-memory for 14a** (`activeProjectProvider`, default `null` =
+  workspace-global). No selection UI exists yet; restart-durable persistence lands with the
+  selector in 14c.
+- **`null` projectId = whole-workspace view** for `listDocuments`/custom entities (back-compat);
+  a non-null id scopes strictly to that Project (§6.7 isolation), enforced at the repository layer.
+- **Manifest custom-entity seeding is defensive:** unknown/unsupported validators fall back to
+  `none` and a missing operator to `redact`, so a manifest never aborts Project creation. V1's
+  `CustomValidator` supports only `none`/`luhn`; richer validators in the verified templates
+  (e.g. `luhn_npi`) need an enum extension — to be handled in **14b** when those templates land.
+
 ## 2026-06-14 — Phase 4 audit + polish + a reusable `/phase-audit` command
 
 - **Context:** end-of-Phase-4 review (3-agent sweep: code audit + web research + repo-convention
