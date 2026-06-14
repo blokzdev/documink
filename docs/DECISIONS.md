@@ -9,6 +9,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 6: custom entity types UI
+
+- List/add/edit/delete screens over the existing repo + `CustomEntityValidator` + `RegexSandbox`
+  (ReDoS-safe isolate live preview). `customEntitiesProvider` (auto-dispose) lists scope.
+- **Saved entities feed detection**: the editor's `detect()` composes Tier-1 recognizers +
+  `CustomEntityRecognizer(savedDefs)` into the pipeline (was Tier-1 only) — define a pattern, it gets
+  detected. Headless tests confirm (`TKT-\d+` → `TICKET` span).
+- **Workspace FK**: `custom_entity_types.workspace_id` FKs `workspaces`, so the form (and tests)
+  call `DocumentRepository.ensureDefaultWorkspace()` before saving. (Single-tenant V1 default — a
+  proper unlock-time bootstrap can replace these ad-hoc calls when projects land.)
+- Default-operator choices exclude FPE (same rationale as the editor).
+
 ## 2026-06-14 — V1 Phase 5: i18n scaffolding (closes Phase 5)
 
 - `flutter_localizations` (sdk) + `intl ^0.20.2` + `gen_l10n` (`generate: true`, `l10n.yaml`).

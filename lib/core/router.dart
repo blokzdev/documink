@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/custom_entities/custom_entity_definition.dart';
 import '../services/vault_providers.dart';
 import '../ui/screens/audit_log_screen.dart';
+import '../ui/screens/custom_entity_form_screen.dart';
+import '../ui/screens/custom_entity_types_screen.dart';
 import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
@@ -93,6 +96,16 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.auditLog,
         builder: (context, state) => const AuditLogScreen(),
+      ),
+      GoRoute(
+        path: Routes.customEntities,
+        builder: (context, state) => const CustomEntityTypesScreen(),
+      ),
+      GoRoute(
+        path: Routes.customEntityForm,
+        builder: (context, state) => CustomEntityFormScreen(
+          initial: state.extra as CustomEntityDefinition?,
+        ),
       ),
     ],
   );

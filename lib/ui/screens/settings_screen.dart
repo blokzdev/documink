@@ -82,13 +82,12 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.auditLog),
                       ),
-                      const ListTile(
-                        leading: Icon(Icons.label_outline),
-                        title: Text('Custom entity types'),
-                        subtitle: Text(
-                          'Define your own detectors (later phase)',
-                        ),
-                        enabled: false,
+                      ListTile(
+                        leading: const Icon(Icons.label_outline),
+                        title: const Text('Custom entity types'),
+                        subtitle: const Text('Define your own detectors'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.customEntities),
                       ),
                     ],
                   ),

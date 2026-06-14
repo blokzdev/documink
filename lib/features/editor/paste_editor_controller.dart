@@ -4,6 +4,8 @@ import '../anonymization/anonymization_policy.dart';
 import '../anonymization/anonymization_providers.dart';
 import '../anonymization/anonymization_service.dart';
 import '../anonymization/operator.dart';
+import '../custom_entities/custom_entity_providers.dart';
+import '../custom_entities/custom_entity_recognizer.dart';
 import '../detection/detection_pipeline.dart';
 import '../detection/detection_providers.dart';
 import '../detection/pii_span.dart';
@@ -94,7 +96,14 @@ class PasteEditorController extends Notifier<PasteEditorState> {
       return;
     }
     state = PasteEditorState(input: input, status: EditorStatus.detecting);
-    final result = await ref.read(detectionPipelineProvider).detect(input);
+    // Tier-1 recognizers + the user's custom entity types (roadmap §6).
+    final recognizers = [
+      ...ref.read(piiRecognizersProvider),
+      if (await ref.read(customEntitiesProvider.future) case final defs
+          when defs.isNotEmpty)
+        CustomEntityRecognizer(defs),
+    ];
+    final result = await DetectionPipeline(recognizers).detect(input);
     final operators = <String, Operator>{
       for (final span in result.spans) span.label: Operator.redact,
     };

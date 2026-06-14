@@ -1,5 +1,8 @@
 import 'package:documink/features/anonymization/operator.dart';
+import 'package:documink/features/custom_entities/custom_entity_definition.dart';
+import 'package:documink/features/custom_entities/custom_entity_providers.dart';
 import 'package:documink/features/detection/pii_span.dart';
+import 'package:documink/features/documents/document_repository.dart';
 import 'package:documink/features/editor/paste_editor_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -87,6 +90,28 @@ void main() {
 
   test('save returns null when there is nothing to save', () async {
     expect(await controller().save(), isNull);
+  });
+
+  test('detect picks up a saved custom entity type', () async {
+    await container.read(documentRepositoryProvider).ensureDefaultWorkspace();
+    await container
+        .read(customEntityRepositoryProvider)
+        .save(
+          const CustomEntityDefinition(
+            id: 'cet1',
+            workspaceId: DocumentRepository.defaultWorkspaceId,
+            label: 'TICKET',
+            regexPattern: r'TKT-\d+',
+            defaultOperator: Operator.redact,
+            createdAtEpochMs: 0,
+          ),
+        );
+
+    controller().setInput('Please see TKT-123 for details.');
+    await controller().detect();
+
+    expect(state().labels, contains('TICKET'));
+    expect(state().previewText, isNot(contains('TKT-123')));
   });
 
   test('empty input detects nothing', () async {
