@@ -20,6 +20,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P15a: audit log repository + CSV export
+
+- **Append-only** `record(...)` (plain `insert`, never update/delete) over the existing `audit_log`
+  table; `AuditEventType` constants cover the roadmap §15 / schema event set.
+- **No raw PII in audit rows** (privacy-invariants #7): the repository stores IDs/token-refs/metadata
+  as given; the *caller* keeps plaintext out of `metadata`. Documented on `AuditEntry` (kept the
+  contract simple rather than re-scanning every audit write).
+- **Query**: newest-first, filter by event type(s) + `[since, until)` time range, `limit`/`offset`
+  pagination — matches the Settings → Audit Log UI needs (UI itself is a UI-phase task).
+- **CSV export** is a pure static function with RFC-4180 quoting (fields with comma/quote/newline are
+  quoted, internal quotes doubled) — testable headless; ships in V1 (Pro-gate flag is V1.1).
+
 ## 2026-06-14 — V1 P12c: deterministic memory router (completes Phase 12 active-V1)
 
 - **Deterministic dispatch (no LLM)** per memory.md §4.1: a `switch` over tool names
