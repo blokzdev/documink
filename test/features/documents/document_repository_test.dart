@@ -72,6 +72,38 @@ void main() {
     },
   );
 
+  test('listDocuments returns saved docs; documentById fetches one', () async {
+    final repo = container.read(documentRepositoryProvider);
+
+    Future<String> save(String name) async {
+      final detection = await container
+          .read(detectionPipelineProvider)
+          .detect('a@b.com');
+      final outcome = await container
+          .read(anonymizationServiceProvider)
+          .anonymize(
+            detection.normalizedText,
+            detection.spans,
+            const AnonymizationPolicy({}, fallback: Operator.redact),
+          );
+      return repo.saveAnonymizedText(
+        name: name,
+        originalText: 'a@b.com',
+        detection: detection,
+        operators: const {},
+        outcome: outcome,
+      );
+    }
+
+    await save('First');
+    final secondId = await save('Second');
+
+    final docs = await repo.listDocuments();
+    expect(docs, hasLength(2));
+    expect(await repo.documentById(secondId), isNotNull);
+    expect(await repo.documentById('nope'), isNull);
+  });
+
   test('ensureDefaultWorkspace is idempotent', () async {
     final repo = container.read(documentRepositoryProvider);
     await repo.ensureDefaultWorkspace();

@@ -77,6 +77,12 @@ an item here in the same PR.
 - ☐ **Theme persists across restart** — `shared_preferences`-backed `SettingsStore` saves/loads the
   theme mode on a real device (Android; Windows on V2). Headless tests use the in-memory store.
 
+## Document reveal (Phase 5, native)
+
+- ☐ **Biometric-gated token reveal** — in the document detail screen, revealing a reversible token
+  (`decode`) prompts biometric auth and decrypts via the vault; denial blocks it; the action is
+  audit-logged. Headless tests cover save + read-only redacted view only.
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.

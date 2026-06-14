@@ -9,6 +9,15 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5h: vault browser + document detail
+
+- **Read providers** `documentsListProvider` (auto-dispose, refetches on open) and
+  `documentByIdProvider` (family) over the vault-backed `DocumentRepository`.
+- **Detail is read-only** for now: shows the stored `redactedText`. **Revealing** reversible tokens
+  is biometric-gated and native — deferred (tracked in VERIFICATION.md); keeping it out here avoids
+  putting any decrypt path in the browser before the biometric gate exists.
+- Added a `My documents` Home action + `/vault` and `/document/:id` routes.
+
 ## 2026-06-14 — V1 Phase 5g: persist anonymized documents
 
 - **`AnonymizationOutcome.tokensBySpan`** added (non-breaking) so persistence can link each `tokens`

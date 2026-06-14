@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/vault_providers.dart';
+import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
 import '../ui/screens/settings_screen.dart';
+import '../ui/screens/vault_browser_screen.dart';
 import '../ui/screens/vault_unlock_screen.dart';
 import 'routes.dart';
 
@@ -73,6 +75,15 @@ GoRouter createRouter(Ref ref) {
           message: 'The Mink chat UI arrives with the conversational layer.',
           icon: Icons.chat_bubble_outline,
         ),
+      ),
+      GoRoute(
+        path: Routes.vault,
+        builder: (context, state) => const VaultBrowserScreen(),
+      ),
+      GoRoute(
+        path: Routes.documentPattern,
+        builder: (context, state) =>
+            DocumentDetailScreen(documentId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.settings,

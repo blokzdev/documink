@@ -141,6 +141,20 @@ class DocumentRepository {
 
     return documentId;
   }
+
+  /// All documents in the default workspace, newest first.
+  Future<List<Document>> listDocuments() async {
+    final workspaceId = await ensureDefaultWorkspace();
+    return (_db.select(_db.documents)
+          ..where((d) => d.workspaceId.equals(workspaceId))
+          ..orderBy([(d) => OrderingTerm.desc(d.createdAt)]))
+        .get();
+  }
+
+  /// A single document by id, or null if absent.
+  Future<Document?> documentById(String id) => (_db.select(
+    _db.documents,
+  )..where((d) => d.id.equals(id))).getSingleOrNull();
 }
 
 /// Document persistence against the unlocked vault. Reading it while locked
@@ -149,3 +163,15 @@ final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
   ref.watch(vaultServiceProvider);
   return DocumentRepository(ref.read(vaultServiceProvider.notifier).database);
 });
+
+/// The saved documents in the vault (newest first). Auto-disposes so it refetches
+/// each time the vault browser is opened.
+final documentsListProvider = FutureProvider.autoDispose<List<Document>>(
+  (ref) => ref.watch(documentRepositoryProvider).listDocuments(),
+);
+
+/// A single saved document by id.
+final documentByIdProvider = FutureProvider.autoDispose
+    .family<Document?, String>(
+      (ref, id) => ref.watch(documentRepositoryProvider).documentById(id),
+    );
