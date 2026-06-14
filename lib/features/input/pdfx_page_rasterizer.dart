@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -16,8 +17,12 @@ import 'pdf_page_rasterizer.dart';
 class PdfxPageRasterizer implements PdfPageRasterizer {
   const PdfxPageRasterizer();
 
-  /// Upscale factor — higher resolution gives ML Kit OCR more to work with.
+  /// Preferred upscale — higher resolution gives ML Kit OCR more to work with.
   static const double _scale = 2.0;
+
+  /// Cap on the longest rendered edge (px). Bounds memory on very large pages
+  /// while staying comfortably legible for OCR (ML Kit guidance ~≤1920–2048).
+  static const double _maxEdgePx = 2400;
 
   @override
   Future<String> renderPageToImage(String path, int pageIndex) async {
@@ -26,9 +31,13 @@ class PdfxPageRasterizer implements PdfPageRasterizer {
       // pdfx page numbers are 1-based; our seam is 0-based.
       final page = await document.getPage(pageIndex + 1);
       try {
+        // Upscale 2x for OCR legibility, but cap the longest edge so a huge
+        // page can't blow up memory.
+        final longestEdge = math.max(page.width, page.height);
+        final scale = math.min(_scale, _maxEdgePx / longestEdge);
         final image = await page.render(
-          width: page.width * _scale,
-          height: page.height * _scale,
+          width: page.width * scale,
+          height: page.height * scale,
           format: PdfPageImageFormat.png,
           backgroundColor: '#FFFFFF',
         );

@@ -4,6 +4,7 @@ import 'ocr_recognizer.dart';
 import 'pdf_page_rasterizer.dart';
 import 'pdf_source.dart';
 import 'pdf_text_extractor.dart';
+import 'temp_file_disposer.dart';
 
 /// Orchestrates turning a raw input source into [IngestedText] for the redaction
 /// pipeline (roadmap Phase 4 — input handlers).
@@ -19,17 +20,20 @@ class InputIngestionService {
     required PdfSource pdfSource,
     required PdfTextExtractor pdfTextExtractor,
     required PdfPageRasterizer pdfPageRasterizer,
+    required TempFileDisposer tempFileDisposer,
   }) : _ocr = ocr,
        _imageSource = imageSource,
        _pdfSource = pdfSource,
        _pdfTextExtractor = pdfTextExtractor,
-       _pdfPageRasterizer = pdfPageRasterizer;
+       _pdfPageRasterizer = pdfPageRasterizer,
+       _tempFileDisposer = tempFileDisposer;
 
   final OcrRecognizer _ocr;
   final ImageInputSource _imageSource;
   final PdfSource _pdfSource;
   final PdfTextExtractor _pdfTextExtractor;
   final PdfPageRasterizer _pdfPageRasterizer;
+  final TempFileDisposer _tempFileDisposer;
 
   /// Capture a page with the camera and OCR it. Returns null if the user
   /// cancels the capture; throws [OcrUnavailableException] /
@@ -80,9 +84,15 @@ class InputIngestionService {
     for (var i = 0; i < pages.length; i++) {
       var pageText = pages[i];
       if (pageText.trim().isEmpty) {
-        // Scanned / image-only page — rasterize and OCR it.
+        // Scanned / image-only page — rasterize and OCR it. The rendered PNG
+        // holds PII, so delete it as soon as OCR is done (even on failure):
+        // it's throwaway scaffolding and must not linger in the cache.
         final imagePath = await _pdfPageRasterizer.renderPageToImage(path, i);
-        pageText = await _ocr.recognizeImage(imagePath);
+        try {
+          pageText = await _ocr.recognizeImage(imagePath);
+        } finally {
+          await _tempFileDisposer.dispose(imagePath);
+        }
         if (pageText.trim().isNotEmpty) ocrPages.add(i + 1);
       }
       if (multiPage) buffer.writeln('--- Page ${i + 1} ---');

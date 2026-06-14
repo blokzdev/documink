@@ -53,6 +53,15 @@ simplification at the phase-boundary review — **never remove a workaround auto
   `'dart compile' does not support build hooks`. **Hard rule.** Do NOT downgrade deps, pin
   versions, or switch Dart/Flutter channels to dodge it. (blueprint.md §15 #30; `.agents/rules/dart-toolchain.md`.)
 
+## Deferred opportunities (revisit at the next toolchain bump)
+
+- **PDF stack consolidation to `pdfrx`.** The Phase 4b PDF import uses three plugins
+  (`flutter_pdf_text`/PDFBox for the text layer + `pdfx` for scanned-page rasterize + `file_selector`).
+  `pdfrx` (MIT, pdfium) does text extraction **and** rendering in one lib (~5–9 MB lighter, one
+  native backend, more actively maintained). It is **blocked today**: `pdfrx` requires Flutter
+  ≥ 3.41.0 vs. our pinned 3.38.6. When the Flutter floor moves to ≥ 3.41, evaluate consolidating
+  (text via `PdfPage.loadText()`, raster via `PdfPage.render()`) — see `docs/DECISIONS.md`.
+
 ## Generated files
 
 `*.g.dart` (e.g. `lib/data/app_database.g.dart`) **are committed** and must be kept current

@@ -9,6 +9,26 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 4 hardening: delete rasterized PDF page-images after OCR
+
+- **Context:** post-merge web research on the 4a/4b pipeline. `PdfxPageRasterizer` writes each
+  scanned page to a PNG in `getTemporaryDirectory()` (app-private cache, not auto-backed-up) to feed
+  OCR — but **never deleted** it. For a privacy-first app, those PII-laden page-images must not
+  linger in cache until the OS evicts them.
+- **Options:** (A) delete-after-use (try/finally); (B) in-memory `InputImage.fromBytes` so nothing
+  touches disk; (C) leave as-is (rely on OS cache eviction).
+- **Choice:** **A.** New `TempFileDisposer` seam (default real `IoTempFileDisposer`, best-effort
+  delete; recording fake in tests); `importPdf()` disposes each rasterized page in a `finally` so it
+  goes even if OCR throws. Tested (incl. the throw path). **(B) rejected** — ML Kit `fromBytes` wants
+  NV21/YUV and our `OcrRecognizer` seam is path-based; the RGBA→NV21 marshaling isn't worth it.
+  Scope: only files **we** create (rasterized pages); we don't delete `image_picker`/camera files.
+- **Also (marginal):** capped raster resolution (longest edge ≤ 2400 px) to bound memory on huge
+  pages; added explicit `-keep …text.latin.**` beside the `-dontwarn` (ML Kit plugin ships no
+  consumer R8 rules — flutter-ml/google_ml_kit_flutter#744, so `-dontwarn` stays).
+- **Logged, not actioned — `pdfrx` consolidation:** one pdfium lib could replace
+  flutter_pdf_text + pdfx (~5–9 MB lighter), but `pdfrx` needs Flutter ≥ 3.41.0 vs. our pinned
+  3.38.6. Deferred to the next toolchain bump (CLAUDE.md "Deferred opportunities").
+
 ## 2026-06-14 — V1 Phase 4b: PDF import + input-flow polish
 
 - **Scope (maintainer-chosen split):** complete **PDF import** now (text-layer + per-page OCR

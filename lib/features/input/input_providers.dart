@@ -6,6 +6,7 @@ import 'ocr_recognizer.dart';
 import 'pdf_page_rasterizer.dart';
 import 'pdf_source.dart';
 import 'pdf_text_extractor.dart';
+import 'temp_file_disposer.dart';
 
 /// On-device text recognizer. Defaults to the always-failing
 /// [UnavailableOcrRecognizer]; bootstrap overrides it with `MlKitTextRecognizer`
@@ -39,6 +40,13 @@ final pdfPageRasterizerProvider = Provider<PdfPageRasterizer>(
   (ref) => const UnavailablePdfPageRasterizer(),
 );
 
+/// Deletes transient files we create (rasterized PDF pages). Defaults to the
+/// real [IoTempFileDisposer] (dart:io works everywhere); tests override with a
+/// recording fake to assert cleanup.
+final tempFileDisposerProvider = Provider<TempFileDisposer>(
+  (ref) => const IoTempFileDisposer(),
+);
+
 /// The pure-Dart ingestion orchestrator, composed from the seams above.
 final inputIngestionServiceProvider = Provider<InputIngestionService>(
   (ref) => InputIngestionService(
@@ -47,5 +55,6 @@ final inputIngestionServiceProvider = Provider<InputIngestionService>(
     pdfSource: ref.watch(pdfSourceProvider),
     pdfTextExtractor: ref.watch(pdfTextExtractorProvider),
     pdfPageRasterizer: ref.watch(pdfPageRasterizerProvider),
+    tempFileDisposer: ref.watch(tempFileDisposerProvider),
   ),
 );

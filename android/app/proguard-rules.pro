@@ -11,3 +11,7 @@
 -dontwarn com.google.mlkit.vision.text.devanagari.**
 -dontwarn com.google.mlkit.vision.text.japanese.**
 -dontwarn com.google.mlkit.vision.text.korean.**
+
+# Keep the Latin recognizer we DO use (the plugin ships no consumer R8 rules —
+# flutter-ml/google_ml_kit_flutter#744 — so be explicit).
+-keep class com.google.mlkit.vision.text.latin.** { *; }
