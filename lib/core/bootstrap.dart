@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flavors/flavor.dart';
 import 'router.dart';
+import '../services/authenticator.dart';
+import '../services/local_auth_authenticator.dart';
 import '../services/settings_store.dart';
 import '../services/shared_preferences_settings_store.dart';
 import '../services/vault_providers.dart';
@@ -25,6 +27,7 @@ Future<void> bootstrap(Flavor flavor) async {
           SharedPreferencesSettingsStore(prefs),
         ),
         vaultFileProvider.overrideWithValue(vaultFile),
+        authenticatorProvider.overrideWithValue(LocalAuthAuthenticator()),
       ],
       child: const DocuMinkApp(),
     ),

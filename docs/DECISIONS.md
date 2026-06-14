@@ -9,6 +9,25 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5i: biometric-gated token reveal (HIGH-STAKES — fuller logging)
+
+The reveal (decode) feature exposes plaintext PII after auth — the payoff of the reversible-token
+system, and a privacy-sensitive surface. Decisions:
+
+- **Deny-by-default `Authenticator` seam.** The default `authenticatorProvider` is
+  `DenyingAuthenticator` (always false) so a reveal can **never** bypass auth if the real impl wasn't
+  wired. Bootstrap overrides it with `LocalAuthAuthenticator` (`local_auth`); tests inject a fake.
+  Any platform error (no enrollment, cancel, unavailable) is treated as **denial** — never reveal on
+  an ambiguous result.
+- **Every attempt is audited** (`document_reveal`, `success` + `biometricResult`), success or denial,
+  before returning — privacy invariant #7. Audit metadata is counts only; **no plaintext** in the
+  audit row, logs, or persisted state.
+- **Plaintext is transient:** returned to the widget for display only, held in screen state, never
+  written back to the DB or any store. Decryption uses the unlocked vault's `TokenCrypto` (AES-GCM
+  with the surrogate as AAD — a relabelled token fails authentication).
+- **`local_auth` (BSD-3) added**; the real biometric prompt is device-only → VERIFICATION.md. The
+  decrypt-after-auth path is fully headless-tested via a fake authenticator + in-memory vault.
+
 ## 2026-06-14 — V1 Phase 5h: vault browser + document detail
 
 - **Read providers** `documentsListProvider` (auto-dispose, refetches on open) and

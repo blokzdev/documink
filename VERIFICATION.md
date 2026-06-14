@@ -79,9 +79,10 @@ an item here in the same PR.
 
 ## Document reveal (Phase 5, native)
 
-- ☐ **Biometric-gated token reveal** — in the document detail screen, revealing a reversible token
-  (`decode`) prompts biometric auth and decrypts via the vault; denial blocks it; the action is
-  audit-logged. Headless tests cover save + read-only redacted view only.
+- ☐ **Biometric-gated token reveal on device** (Phase 5i) — the document detail "Reveal original
+  values" button triggers the real `local_auth` prompt (`LocalAuthAuthenticator`); success reveals
+  plaintext, denial/cancel/no-enrollment blocks it; both outcomes audit-logged. Headless tests cover
+  the decrypt-after-auth path via a fake authenticator; the real biometric prompt is device-only.
 
 ## UI / accessibility (Phases 5, 16)
 

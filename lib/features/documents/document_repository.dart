@@ -155,6 +155,15 @@ class DocumentRepository {
   Future<Document?> documentById(String id) => (_db.select(
     _db.documents,
   )..where((d) => d.id.equals(id))).getSingleOrNull();
+
+  /// The reversible tokens belonging to [documentId] (joined via its entities).
+  Future<List<Token>> tokensForDocument(String documentId) async {
+    final query = _db.select(_db.tokens).join([
+      innerJoin(_db.entities, _db.entities.id.equalsExp(_db.tokens.entityId)),
+    ])..where(_db.entities.documentId.equals(documentId));
+    final rows = await query.get();
+    return [for (final row in rows) row.readTable(_db.tokens)];
+  }
 }
 
 /// Document persistence against the unlocked vault. Reading it while locked

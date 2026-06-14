@@ -4,18 +4,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/documents/document_repository.dart';
+import '../../features/documents/reveal_service.dart';
 import '../theme/tokens.dart';
 
-/// Read-only view of a saved document: its redacted text + metadata. Revealing
-/// reversible tokens (biometric-gated) is a later phase.
-class DocumentDetailScreen extends ConsumerWidget {
+/// The reversible tokens for a document (drives whether to show Reveal).
+final _tokenCountProvider = FutureProvider.autoDispose.family<int, String>(
+  (ref, id) async =>
+      (await ref.watch(documentRepositoryProvider).tokensForDocument(id))
+          .length,
+);
+
+/// View of a saved document: its redacted text, with a biometric-gated reveal of
+/// the original values behind reversible tokens (§5 `decode`).
+class DocumentDetailScreen extends ConsumerStatefulWidget {
   const DocumentDetailScreen({super.key, required this.documentId});
 
   final String documentId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final docAsync = ref.watch(documentByIdProvider(documentId));
+  ConsumerState<DocumentDetailScreen> createState() =>
+      _DocumentDetailScreenState();
+}
+
+class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
+  Map<String, String>? _revealed;
+  bool _revealing = false;
+
+  Future<void> _reveal() async {
+    setState(() => _revealing = true);
+    final revealed = await ref
+        .read(revealServiceProvider)
+        .reveal(widget.documentId);
+    if (!mounted) return;
+    setState(() {
+      _revealing = false;
+      _revealed = revealed;
+    });
+    if (revealed == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final docAsync = ref.watch(documentByIdProvider(widget.documentId));
+    final tokenCount =
+        ref.watch(_tokenCountProvider(widget.documentId)).valueOrNull ?? 0;
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Document')),
       body: SafeArea(
@@ -26,7 +64,6 @@ class DocumentDetailScreen extends ConsumerWidget {
             if (doc == null) {
               return const Center(child: Text('Document not found.'));
             }
-            final theme = Theme.of(context);
             final redacted = _redactedText(doc.metadataJson);
             return ListView(
               padding: const EdgeInsets.all(AppTokens.spacingMd),
@@ -54,6 +91,35 @@ class DocumentDetailScreen extends ConsumerWidget {
                     key: const Key('document-redacted-text'),
                   ),
                 ),
+                if (tokenCount > 0) ...[
+                  const SizedBox(height: AppTokens.spacingMd),
+                  FilledButton.tonalIcon(
+                    onPressed: _revealing ? null : _reveal,
+                    icon: const Icon(Icons.lock_open_outlined),
+                    label: Text(
+                      'Reveal original values ($tokenCount) · biometric',
+                    ),
+                  ),
+                ],
+                if (_revealed != null && _revealed!.isNotEmpty) ...[
+                  const SizedBox(height: AppTokens.spacingMd),
+                  Card(
+                    key: const Key('revealed-values'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTokens.spacingMd),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final entry in _revealed!.entries)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Text('${entry.key} → ${entry.value}'),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             );
           },
