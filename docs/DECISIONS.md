@@ -9,6 +9,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L2: shared UI kit + Home/Unlock
+
+- Extracted reusable widgets — `AppEmptyState`, `SectionHeader`, richer `PrimaryActionCard` — and
+  refactored vault-browser/audit empty-states + settings section headers onto them (consistency, less
+  duplication). Section labels are **uppercased** (small accented caps) — tests updated accordingly.
+- **Home**: brand lockup + tagline header, elevated cards, centred under `maxContentWidth` for large
+  screens. AppBar title dropped (brand lives in the body) → home test asserts the `DocuMink`
+  *semantics* label, not a Text.
+- **Unlock**: brandmark replaces the generic lock icon.
+- Visual result device-verified (VERIFICATION.md); structure widget-tested.
+
 ## 2026-06-14 — V1 UI elevation L1: design-system foundation
 
 Maintainer-directed "world-class UX" pass; design direction confirmed via questions.

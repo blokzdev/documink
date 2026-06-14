@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/flavors/flavor.dart';
 import '../../core/routes.dart';
 import '../theme/theme_mode_controller.dart';
-import '../theme/tokens.dart';
+import '../widgets/section_header.dart';
 
 /// Settings (Phase 5c). Appearance (theme) is live now; security/privacy/AI
 /// rows that depend on native features (biometrics, vault, models) are shown as
@@ -23,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           children: [
-            const _SectionHeader('Appearance'),
+            const SectionHeader('Appearance'),
             RadioGroup<ThemeMode>(
               groupValue: themeMode,
               onChanged: (m) =>
@@ -40,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const Divider(),
 
-            const _SectionHeader('Security'),
+            const SectionHeader('Security'),
             const ListTile(
               leading: Icon(Icons.lock_clock_outlined),
               title: Text('Auto-lock'),
@@ -55,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const Divider(),
 
-            const _SectionHeader('Privacy'),
+            const SectionHeader('Privacy'),
             ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
               title: const Text('Audit log'),
@@ -71,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const Divider(),
 
-            const _SectionHeader('About'),
+            const SectionHeader('About'),
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('DocuMink'),
@@ -90,30 +90,4 @@ class SettingsScreen extends ConsumerWidget {
     ThemeMode.light => 'Light',
     ThemeMode.dark => 'Dark',
   };
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppTokens.spacingMd,
-        AppTokens.spacingMd,
-        AppTokens.spacingMd,
-        AppTokens.spacingSm,
-      ),
-      child: Text(
-        title,
-        style: theme.textTheme.titleSmall?.copyWith(
-          color: theme.colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 }
