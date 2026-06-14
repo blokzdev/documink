@@ -9,6 +9,22 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 P14c-1: active-project persistence in SettingsStore
+
+- **Context:** the Project list/switcher needs the selected Project id to survive
+  app restarts (14a kept it in-memory).
+- **Options:** (A) persist in `vault_meta` (encrypted DB); (B) persist in
+  `SettingsStore` (`shared_preferences`, the `themeMode` precedent).
+- **Choice:** **B.** `ActiveProjectNotifier.build()` reads, and `set()` writes,
+  `active_project_id` in `settingsStoreProvider` (empty string = none).
+- **Rationale:** a Project id is **non-PII UI state** (same class as theme mode),
+  must be readable **before the vault is unlocked** (the switcher/redirect may run
+  pre-unlock), and `vault_meta` is for vault-owned secrets. No PII leaves the
+  vault — privacy-invariants intact.
+- **Web research:** the blank wizard (14c-3) will use the built-in Material
+  `Stepper` (no new dep) — preserve state across steps, clear progress,
+  optional-step skip ([LogRocket], [Flutter Gems]).
+
 ## 2026-06-14 — V1 P14b-1: Verified-templates backend (signed, bundled)
 
 - **Context:** Phase 14b ships the 8 Verified Project templates as an

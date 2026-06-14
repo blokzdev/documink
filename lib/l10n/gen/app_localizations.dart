@@ -663,6 +663,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Project created'**
   String get templateProjectCreated;
+
+  /// Projects list app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get projectsTitle;
+
+  /// Tooltip for the new-project action.
+  ///
+  /// In en, this message translates to:
+  /// **'New Project'**
+  String get projectsNewTooltip;
+
+  /// Tile that clears the active project (whole-workspace view).
+  ///
+  /// In en, this message translates to:
+  /// **'All documents'**
+  String get projectsAllDocuments;
+
+  /// Subtitle for the all-documents tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything across projects'**
+  String get projectsAllDocumentsSubtitle;
+
+  /// Section header above the project list.
+  ///
+  /// In en, this message translates to:
+  /// **'Your projects'**
+  String get projectsSectionYours;
+
+  /// Empty-state title for the project list.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects yet'**
+  String get projectsEmptyTitle;
+
+  /// Empty-state message for the project list.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a Project to scope documents, detectors, and Mink to one context.'**
+  String get projectsEmptyMessage;
+
+  /// Error-state title for the project list.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load projects'**
+  String get projectsLoadError;
+
+  /// Badge marking the currently active project.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get projectsActiveBadge;
+
+  /// Menu action: archive a project.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get projectsArchive;
+
+  /// Snackbar confirming a project was archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Project archived'**
+  String get projectsArchived;
+
+  /// Project card subtitle: template id and last-updated date.
+  ///
+  /// In en, this message translates to:
+  /// **'{template} · updated {date}'**
+  String projectsTemplateLine(String template, String date);
 }
 
 class _AppLocalizationsDelegate

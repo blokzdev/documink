@@ -12,6 +12,7 @@ import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
+import '../ui/screens/projects_list_screen.dart';
 import '../ui/screens/settings_screen.dart';
 import '../ui/screens/template_picker_screen.dart';
 import '../ui/screens/vault_browser_screen.dart';
@@ -64,6 +65,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.newProject,
         builder: (context, state) => const TemplatePickerScreen(),
+      ),
+      GoRoute(
+        path: Routes.projects,
+        builder: (context, state) => const ProjectsListScreen(),
       ),
       GoRoute(
         path: Routes.chat,
