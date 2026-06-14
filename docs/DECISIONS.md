@@ -9,6 +9,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5d: settings persistence
+
+- **`SettingsStore` interface + in-memory default + `shared_preferences` impl at bootstrap** — the
+  same injectable-seam pattern as `SecureKeyStore`/`DeviceSignalCollector`, so headless tests run
+  without platform channels and the persistent store is device-verified (VERIFICATION.md).
+- **Non-sensitive prefs only** in `shared_preferences` (theme mode). Privacy invariant #4: **no PII**
+  here — sensitive state stays in the encrypted vault. Theme mode is not PII.
+- `shared_preferences` (BSD-3, allowlisted) added; replaces the deferred-deps comment in pubspec.
+- `themeModeProvider.build()` reads the persisted value synchronously (the store is loaded at
+  bootstrap before `runApp`), so theme applies pre-first-frame without a flash.
+
 ## 2026-06-14 — V1 Phase 5b: paste-and-redact editor
 
 - **Irreversible operators only** (Redact / Mask / Replace) in this chunk: they run through the

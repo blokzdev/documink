@@ -68,6 +68,11 @@ an item here in the same PR.
 - ☐ **Camera capture + OCR**, **image import** (JPG/PNG/HEIC picker), **PDF import**
   (text-layer extraction + per-page OCR). *(to be added when Phase 4 is built)*
 
+## Settings persistence (Phase 5d)
+
+- ☐ **Theme persists across restart** — `shared_preferences`-backed `SettingsStore` saves/loads the
+  theme mode on a real device (Android; Windows on V2). Headless tests use the in-memory store.
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.
