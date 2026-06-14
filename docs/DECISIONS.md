@@ -9,6 +9,36 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 4b: PDF import + input-flow polish
+
+- **Scope (maintainer-chosen split):** complete **PDF import** now (text-layer + per-page OCR
+  fallback); **inbound share-sheet intent is the next PR** (a separate native surface). All four
+  surfaced polish items folded in: localize capture + paste-editor strings, source badge +
+  multi-page/scanned warnings, "Choose from gallery" in scan mode, a11y `Semantics`.
+- **PDF package choices (license-clean; verified by dry-run resolve + the CI license scanner):**
+  - **`flutter_pdf_text` ^0.9.0** (MIT; Apache PDFBox on Android) — text-layer extraction per page.
+  - **`pdfx` ^2.9.2** (MIT) — rasterizes scanned/text-less pages to a temp PNG.
+  - **`file_selector` ^1.1.0** (BSD-3, Flutter team) — PDF picking. **Chose over `file_picker`:**
+    `file_picker` only resolved to a stale `3.0.4` (latest 11.x) on the pinned toolchain — a
+    constraint conflict pinned it back — whereas `file_selector` resolved to current versions.
+  - **Rejected:** `syncfusion_flutter_pdf` (commercial) and `doc_text_extractor` (depends on it) —
+    deny-list per `.agents/rules/license-policy.md`.
+- **Reuse, not a new OCR seam:** the rasterizer writes a page to a temp image file and the
+  orchestrator feeds that path to the **existing** `OcrRecognizer.recognizeImage` — a scanned PDF
+  page reuses the exact ML Kit OCR pipeline as a captured photo. Decision logic: per page, use the
+  text layer if non-empty, else rasterize → OCR; concatenate with `--- Page N ---` markers for
+  multi-page; warnings name the OCR'd pages and flag fully-empty extraction.
+- **Friendly errors:** added an `InputUnavailableException` marker so the capture UI shows our
+  authored seam messages verbatim but masks unexpected raw errors (e.g. native `PlatformException`)
+  behind a generic fallback.
+- **Localization scope (honest):** localized the **widget-layer** strings (titles, buttons, hints,
+  labels, source badges, operator names). Strings generated in the pure-Dart service/controller
+  (PDF warnings with interpolated page numbers, the operator-error message) stay English for now —
+  localizing them properly means structuring them as typed codes, tracked as a follow-up. V1 is
+  English-only regardless; this advances the i18n scaffolding for V3.
+- **No AndroidManifest change:** `file_selector` uses the Storage Access Framework (no storage
+  permission) and pdfx/PDFBox need no permissions.
+
 ## 2026-06-14 — Workflow: build device-bound phases behind seams (no phase-boundary stop)
 
 - **Context:** native/UI/model phases (4 input, 7 render, 8 transport, 10–14 Mink/LLM, 16 a11y)

@@ -30,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
     _HomeAction(
       icon: Icons.file_open_outlined,
       label: 'Import',
-      description: 'Pick an image to redact',
+      description: 'Pick an image or PDF to redact',
       route: Routes.import,
     ),
     _HomeAction(

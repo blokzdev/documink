@@ -1,3 +1,4 @@
+import 'package:documink/l10n/gen/app_localizations.dart';
 import 'package:documink/ui/screens/paste_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +18,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [vault.override],
-        child: const MaterialApp(home: PasteEditorScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: PasteEditorScreen(),
+        ),
       ),
     );
   }
@@ -87,6 +92,8 @@ void main() {
       ProviderScope(
         overrides: [vault.override],
         child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: PasteEditorScreen(initialText: 'Reach alice@example.com.'),
         ),
       ),

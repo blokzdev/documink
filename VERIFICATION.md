@@ -87,10 +87,26 @@ device:
   finds the PII (spot-check email/phone/SSN on a sample doc).
 - ☐ **End-to-end scan→redact** (PRD §7.2) — scan a page → review recognized text → "Redact this
   text" → detection + operators → save to vault.
-- ☐ **PDF import** *(tracked follow-up — not yet built)* — text-layer extraction + per-page OCR
-  fallback for scanned PDFs. *(pending a license-cleared PDF text package; docs/DECISIONS.md)*
-- ☐ **Inbound share-sheet intent** *(tracked follow-up — not yet built)* — receiving text/images
-  shared from another app into DocuMink.
+- ☐ **Gallery from scan** — the Scan screen's "Choose from gallery" opens the picker and OCRs the
+  chosen photo (same path as Import). *(lib/features/input/system_image_source.dart)*
+
+**PDF import (Phase 4b)** — `InputIngestionService.importPdf()` + capture UI are headless-tested
+with fakes; the native adapters need a device:
+- ☐ **PDF file picker** — "Choose PDF" opens `file_selector` and returns a PDF path.
+  *(lib/features/input/file_selector_pdf_source.dart)*
+- ☐ **Text-layer extraction** — a born-digital PDF's text is extracted via `flutter_pdf_text`
+  (PDFBox) and seeds the editor; no OCR runs (no scanned-page warning shown).
+  *(lib/features/input/flutter_pdf_text_extractor.dart)*
+- ☐ **Scanned-PDF OCR fallback** — an image-only PDF rasterizes each page via `pdfx` and OCRs it;
+  the "Page N was scanned — used OCR" warning shows. *(lib/features/input/pdfx_page_rasterizer.dart)*
+- ☐ **Multi-page** — a multi-page PDF concatenates with `--- Page N ---` markers; the source badge
+  shows the page count.
+- ☐ **Large-PDF performance** — PRD §8.1 budget: a 10-page document processes within ~15 s; watch
+  memory on rasterize+OCR of many scanned pages.
+- ☐ **APK size** — confirm the 3 new plugins (flutter_pdf_text/PDFBox, pdfx, file_selector) keep
+  the base APK under the 150 MB ceiling (CI `apk-size-check` covers this on every build).
+- ☐ **Inbound share-sheet intent** *(tracked follow-up — next PR)* — receiving text/images shared
+  from another app into DocuMink.
 
 ## Settings persistence (Phase 5d)
 

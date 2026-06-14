@@ -1,3 +1,5 @@
+import 'input_exceptions.dart';
+
 /// A picked image's local file path.
 class PickedImage {
   const PickedImage({required this.path});
@@ -21,7 +23,7 @@ abstract interface class ImageInputSource {
 
 /// Thrown when image capture/picking is requested but no platform source was
 /// wired (the safe default).
-class ImageSourceUnavailableException implements Exception {
+class ImageSourceUnavailableException implements InputUnavailableException {
   const ImageSourceUnavailableException();
 
   @override

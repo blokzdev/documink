@@ -11,5 +11,178 @@
   "homeSubtitle": "On-device, private, and reversible.",
   "@homeSubtitle": {
     "description": "Home screen sub-headline."
+  },
+
+  "captureScanTitle": "Scan",
+  "@captureScanTitle": {
+    "description": "App-bar title for the camera-scan capture screen."
+  },
+  "captureImportTitle": "Import",
+  "@captureImportTitle": {
+    "description": "App-bar title for the image/PDF import screen."
+  },
+  "captureScanPrompt": "Capture a document with the camera, then redact the recognized text.",
+  "@captureScanPrompt": {
+    "description": "Idle-state guidance on the scan screen."
+  },
+  "captureImportPrompt": "Pick an image or PDF to extract and redact its text.",
+  "@captureImportPrompt": {
+    "description": "Idle-state guidance on the import screen."
+  },
+  "captureCapturePage": "Capture page",
+  "@captureCapturePage": {
+    "description": "Button: open the camera to capture a page."
+  },
+  "captureChooseFromGallery": "Choose from gallery",
+  "@captureChooseFromGallery": {
+    "description": "Secondary button on the scan screen: pick an existing photo instead of capturing."
+  },
+  "captureChooseImage": "Choose image",
+  "@captureChooseImage": {
+    "description": "Button: pick an image from the system photo picker."
+  },
+  "captureChoosePdf": "Choose PDF",
+  "@captureChoosePdf": {
+    "description": "Button: pick a PDF from the system file picker."
+  },
+  "captureRecognizing": "Recognizing text…",
+  "@captureRecognizing": {
+    "description": "Progress label shown while OCR / PDF extraction runs."
+  },
+  "captureErrorTitle": "Could not read that",
+  "@captureErrorTitle": {
+    "description": "Error-state title when capture/extraction fails."
+  },
+  "captureRecognizedText": "Recognized text",
+  "@captureRecognizedText": {
+    "description": "Section header above the extracted text."
+  },
+  "captureRedactThis": "Redact this text",
+  "@captureRedactThis": {
+    "description": "Button: send the recognized text to the redaction editor."
+  },
+  "captureCaptureAnother": "Capture another",
+  "@captureCaptureAnother": {
+    "description": "Button: retake a camera capture."
+  },
+  "captureChooseAnother": "Choose another",
+  "@captureChooseAnother": {
+    "description": "Button: pick a different image/PDF."
+  },
+  "captureSourceCamera": "Camera scan",
+  "@captureSourceCamera": {
+    "description": "Source badge label for camera-captured text."
+  },
+  "captureSourceImage": "Imported image",
+  "@captureSourceImage": {
+    "description": "Source badge label for imported-image text."
+  },
+  "captureSourcePdf": "PDF",
+  "@captureSourcePdf": {
+    "description": "Source badge label for PDF-imported text."
+  },
+  "capturePageCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@capturePageCount": {
+    "description": "Page count shown for an imported PDF.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "captureRecognizedTextSemantics": "Recognized text, {count} characters",
+  "@captureRecognizedTextSemantics": {
+    "description": "Accessibility label for the recognized-text region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "pasteTitle": "Paste text",
+  "@pasteTitle": {
+    "description": "App-bar title for the paste-and-redact editor."
+  },
+  "pasteFieldLabel": "Text to redact",
+  "@pasteFieldLabel": {
+    "description": "Label for the editor text field."
+  },
+  "pasteFieldHint": "Paste or type text containing sensitive information…",
+  "@pasteFieldHint": {
+    "description": "Hint for the editor text field."
+  },
+  "pasteDetect": "Detect",
+  "@pasteDetect": {
+    "description": "Button: run detection over the entered text."
+  },
+  "pasteDetecting": "Detecting…",
+  "@pasteDetecting": {
+    "description": "Button label while detection runs."
+  },
+  "pasteNoEntities": "No sensitive entities detected.",
+  "@pasteNoEntities": {
+    "description": "Shown when detection found nothing."
+  },
+  "pasteEntitiesDetected": "{count, plural, =1{1 entity detected} other{{count} entities detected}}",
+  "@pasteEntitiesDetected": {
+    "description": "Count of detected entities.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pasteRedactedPreview": "Redacted preview",
+  "@pasteRedactedPreview": {
+    "description": "Section header above the redacted preview."
+  },
+  "pasteCopy": "Copy",
+  "@pasteCopy": {
+    "description": "Tooltip: copy the redacted preview."
+  },
+  "pasteCopied": "Copied",
+  "@pasteCopied": {
+    "description": "Snackbar confirming the preview was copied."
+  },
+  "pasteSaveToVault": "Save to vault",
+  "@pasteSaveToVault": {
+    "description": "Button: persist the redacted document to the vault."
+  },
+  "pasteSavedToVault": "Saved to vault",
+  "@pasteSavedToVault": {
+    "description": "Snackbar confirming the document was saved."
+  },
+  "pasteNothingToSave": "Nothing to save",
+  "@pasteNothingToSave": {
+    "description": "Snackbar when there is nothing to persist."
+  },
+  "pasteOperatorError": "Could not apply that operator to this text.",
+  "@pasteOperatorError": {
+    "description": "Error when a reversible operator fails on the input."
+  },
+  "operatorRedact": "Redact",
+  "@operatorRedact": {
+    "description": "Operator name: irreversible redaction."
+  },
+  "operatorMask": "Mask",
+  "@operatorMask": {
+    "description": "Operator name: partial masking."
+  },
+  "operatorReplace": "Replace",
+  "@operatorReplace": {
+    "description": "Operator name: replace with a label."
+  },
+  "operatorToken": "Token",
+  "@operatorToken": {
+    "description": "Operator name: vault-backed random token."
+  },
+  "operatorEncrypt": "Encrypt",
+  "@operatorEncrypt": {
+    "description": "Operator name: inline ciphertext."
+  },
+  "operatorFpe": "FPE",
+  "@operatorFpe": {
+    "description": "Operator name: format-preserving encryption."
   }
 }

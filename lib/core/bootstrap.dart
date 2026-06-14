@@ -8,8 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flavors/flavor.dart';
 import 'router.dart';
+import '../features/input/file_selector_pdf_source.dart';
+import '../features/input/flutter_pdf_text_extractor.dart';
 import '../features/input/input_providers.dart';
 import '../features/input/mlkit_text_recognizer.dart';
+import '../features/input/pdfx_page_rasterizer.dart';
 import '../features/input/system_image_source.dart';
 import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
@@ -37,6 +40,13 @@ Future<void> bootstrap(Flavor flavor) async {
         // seams so headless tests use fakes; device-verified (VERIFICATION.md).
         ocrRecognizerProvider.overrideWithValue(MlKitTextRecognizer()),
         imageInputSourceProvider.overrideWithValue(SystemImageSource()),
+        // Phase 4b PDF import: pick (file_selector) → extract text layer
+        // (flutter_pdf_text) → rasterize scanned pages (pdfx) into the OCR seam.
+        pdfSourceProvider.overrideWithValue(const FileSelectorPdfSource()),
+        pdfTextExtractorProvider.overrideWithValue(
+          const FlutterPdfTextExtractor(),
+        ),
+        pdfPageRasterizerProvider.overrideWithValue(const PdfxPageRasterizer()),
       ],
       child: const DocuMinkApp(),
     ),

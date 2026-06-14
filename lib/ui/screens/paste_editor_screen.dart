@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/anonymization/operator.dart';
 import '../../features/editor/paste_editor_controller.dart';
+import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
 import '../widgets/entity_chip.dart';
@@ -52,9 +53,10 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
     final state = ref.watch(pasteEditorControllerProvider);
     final controller = ref.read(pasteEditorControllerProvider.notifier);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Paste text')),
+      appBar: AppBar(title: Text(l10n.pasteTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppTokens.spacingMd),
@@ -64,11 +66,10 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
               onChanged: controller.setInput,
               minLines: 4,
               maxLines: 10,
-              decoration: const InputDecoration(
-                labelText: 'Text to redact',
-                hintText:
-                    'Paste or type text containing sensitive information…',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.pasteFieldLabel,
+                hintText: l10n.pasteFieldHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: AppTokens.spacingMd),
@@ -85,8 +86,8 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                   : const Icon(Icons.search),
               label: Text(
                 state.status == EditorStatus.detecting
-                    ? 'Detecting…'
-                    : 'Detect',
+                    ? l10n.pasteDetecting
+                    : l10n.pasteDetect,
               ),
             ),
             const SizedBox(height: AppTokens.spacingMd),
@@ -100,8 +101,8 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
             if (state.status == EditorStatus.ready) ...[
               Text(
                 state.entityCount == 0
-                    ? 'No sensitive entities detected.'
-                    : '${state.entityCount} ${state.entityCount == 1 ? "entity" : "entities"} detected',
+                    ? l10n.pasteNoEntities
+                    : l10n.pasteEntitiesDetected(state.entityCount),
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: AppTokens.spacingSm),
@@ -120,21 +121,21 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Redacted preview',
+                        l10n.pasteRedactedPreview,
                         style: theme.textTheme.titleMedium,
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.copy_outlined),
-                      tooltip: 'Copy',
+                      tooltip: l10n.pasteCopy,
                       onPressed: () async {
                         await Clipboard.setData(
                           ClipboardData(text: state.previewText),
                         );
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text('Copied')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.pasteCopied)),
+                        );
                       },
                     ),
                   ],
@@ -163,13 +164,15 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          id != null ? 'Saved to vault' : 'Nothing to save',
+                          id != null
+                              ? l10n.pasteSavedToVault
+                              : l10n.pasteNothingToSave,
                         ),
                       ),
                     );
                   },
                   icon: const Icon(Icons.save_outlined),
-                  label: const Text('Save to vault'),
+                  label: Text(l10n.pasteSaveToVault),
                 ),
               ],
             ],
@@ -195,6 +198,7 @@ class _EntityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppTokens.spacingMd),
@@ -211,7 +215,7 @@ class _EntityRow extends StatelessWidget {
               children: [
                 for (final op in editorOperators)
                   ChoiceChip(
-                    label: Text(_opLabel(op)),
+                    label: Text(_opLabel(l10n, op)),
                     selected: selected == op,
                     onSelected: (_) => onChanged(op),
                   ),
@@ -223,12 +227,12 @@ class _EntityRow extends StatelessWidget {
     );
   }
 
-  static String _opLabel(Operator op) => switch (op) {
-    Operator.redact => 'Redact',
-    Operator.mask => 'Mask',
-    Operator.replace => 'Replace',
-    Operator.tokenRandom => 'Token',
-    Operator.encrypt => 'Encrypt',
-    Operator.fpe => 'FPE',
+  static String _opLabel(AppLocalizations l10n, Operator op) => switch (op) {
+    Operator.redact => l10n.operatorRedact,
+    Operator.mask => l10n.operatorMask,
+    Operator.replace => l10n.operatorReplace,
+    Operator.tokenRandom => l10n.operatorToken,
+    Operator.encrypt => l10n.operatorEncrypt,
+    Operator.fpe => l10n.operatorFpe,
   };
 }

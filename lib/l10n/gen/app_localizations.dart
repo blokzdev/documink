@@ -111,6 +111,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On-device, private, and reversible.'**
   String get homeSubtitle;
+
+  /// App-bar title for the camera-scan capture screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get captureScanTitle;
+
+  /// App-bar title for the image/PDF import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get captureImportTitle;
+
+  /// Idle-state guidance on the scan screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture a document with the camera, then redact the recognized text.'**
+  String get captureScanPrompt;
+
+  /// Idle-state guidance on the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an image or PDF to extract and redact its text.'**
+  String get captureImportPrompt;
+
+  /// Button: open the camera to capture a page.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture page'**
+  String get captureCapturePage;
+
+  /// Secondary button on the scan screen: pick an existing photo instead of capturing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get captureChooseFromGallery;
+
+  /// Button: pick an image from the system photo picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get captureChooseImage;
+
+  /// Button: pick a PDF from the system file picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDF'**
+  String get captureChoosePdf;
+
+  /// Progress label shown while OCR / PDF extraction runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognizing text…'**
+  String get captureRecognizing;
+
+  /// Error-state title when capture/extraction fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read that'**
+  String get captureErrorTitle;
+
+  /// Section header above the extracted text.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognized text'**
+  String get captureRecognizedText;
+
+  /// Button: send the recognized text to the redaction editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Redact this text'**
+  String get captureRedactThis;
+
+  /// Button: retake a camera capture.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture another'**
+  String get captureCaptureAnother;
+
+  /// Button: pick a different image/PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another'**
+  String get captureChooseAnother;
+
+  /// Source badge label for camera-captured text.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera scan'**
+  String get captureSourceCamera;
+
+  /// Source badge label for imported-image text.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported image'**
+  String get captureSourceImage;
+
+  /// Source badge label for PDF-imported text.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get captureSourcePdf;
+
+  /// Page count shown for an imported PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String capturePageCount(int count);
+
+  /// Accessibility label for the recognized-text region.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognized text, {count} characters'**
+  String captureRecognizedTextSemantics(int count);
+
+  /// App-bar title for the paste-and-redact editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste text'**
+  String get pasteTitle;
+
+  /// Label for the editor text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Text to redact'**
+  String get pasteFieldLabel;
+
+  /// Hint for the editor text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or type text containing sensitive information…'**
+  String get pasteFieldHint;
+
+  /// Button: run detection over the entered text.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect'**
+  String get pasteDetect;
+
+  /// Button label while detection runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Detecting…'**
+  String get pasteDetecting;
+
+  /// Shown when detection found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No sensitive entities detected.'**
+  String get pasteNoEntities;
+
+  /// Count of detected entities.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 entity detected} other{{count} entities detected}}'**
+  String pasteEntitiesDetected(int count);
+
+  /// Section header above the redacted preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Redacted preview'**
+  String get pasteRedactedPreview;
+
+  /// Tooltip: copy the redacted preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get pasteCopy;
+
+  /// Snackbar confirming the preview was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get pasteCopied;
+
+  /// Button: persist the redacted document to the vault.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to vault'**
+  String get pasteSaveToVault;
+
+  /// Snackbar confirming the document was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to vault'**
+  String get pasteSavedToVault;
+
+  /// Snackbar when there is nothing to persist.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to save'**
+  String get pasteNothingToSave;
+
+  /// Error when a reversible operator fails on the input.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not apply that operator to this text.'**
+  String get pasteOperatorError;
+
+  /// Operator name: irreversible redaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Redact'**
+  String get operatorRedact;
+
+  /// Operator name: partial masking.
+  ///
+  /// In en, this message translates to:
+  /// **'Mask'**
+  String get operatorMask;
+
+  /// Operator name: replace with a label.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get operatorReplace;
+
+  /// Operator name: vault-backed random token.
+  ///
+  /// In en, this message translates to:
+  /// **'Token'**
+  String get operatorToken;
+
+  /// Operator name: inline ciphertext.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypt'**
+  String get operatorEncrypt;
+
+  /// Operator name: format-preserving encryption.
+  ///
+  /// In en, this message translates to:
+  /// **'FPE'**
+  String get operatorFpe;
 }
 
 class _AppLocalizationsDelegate
