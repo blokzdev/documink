@@ -9,6 +9,26 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — Phase 4 audit + polish + a reusable `/phase-audit` command
+
+- **Context:** end-of-Phase-4 review (3-agent sweep: code audit + web research + repo-convention
+  scan). Goal: close loose ends and create a repeatable end-of-phase loop.
+- **`/phase-audit` command** (`.claude/commands/phase-audit.md`): encodes the loop (scope diff →
+  sweep → optional research → run touched gates → safe polish → update VERIFICATION/DECISIONS/
+  README/STATUS) against the repo's real gates, CI jobs, and `.agents/rules`.
+- **Real fix:** `ShareIntentCoordinator` had unguarded async paths — a shared-image OCR failure (or
+  a malformed cold-start intent) threw as an unhandled async error. Now guarded (drop the share,
+  keep listening; never crash) + tests.
+- **Governance:** refreshed the stale `.claude/STATUS.md` (was "V0 complete"); added the missing
+  `blueprint.md` §15 **#30** (the `--force-jit` rule) so the long-standing `§15 #30` citations in
+  CLAUDE.md/README/pubspec resolve; recorded device-correctness checks in `VERIFICATION.md`.
+- **Scope decision (maintainer asked why "comprehensive" wasn't the default):** comprehensive is the
+  right end state, but split into **two coherent PRs** for commit-hygiene — PR-1 (this) = Phase-4
+  polish + command; **PR-2** = app-wide i18n completion (whole-screen, not half) +
+  `InputSourceKind.sharedText` naming fix + extract duplicated test fakes to `test/support/`.
+- **Tracked, not coded blindly:** EXIF/HEIC/`content://`/large-image are device-verified first
+  (avoid speculative plugins); shared-image original retention; carried NTH nits.
+
 ## 2026-06-14 — V1 Phase 4c-2: original retention data-flow + secure viewer (HIGH-STAKES) ⚠ review
 
 The UI/data-flow/native half of Phase 4c, on top of the 4c-1 core.

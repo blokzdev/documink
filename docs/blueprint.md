@@ -1307,6 +1307,7 @@ This list prevents known failure modes. Violating any of these requires explicit
 27. **Don't run multi-agent Mink architectures** — ADR-012 commits to single-agent scoped-context. MIRIX's multi-agent memory pattern was adapted to a single-agent deterministic router for on-device tractability; see memory.md §4. If a PR proposes separate agents per memory type, reject with reference to ADR-012.
 28. **Don't add or modify Tier 4 models without updating `docs/models.md`** — the catalog, quantization per family, SHA-256 hashes, license bundles, and hosting routes all live there. If you add a new model to the manifest, update models.md in the same PR. See models.md §9 for catalog-specific "don't do" rules.
 29. **Don't host Tier 4 models on documink.ai for Android V1** — Play Asset Delivery is the primary distribution path (cost-free, Play-signed, mobile-native). Our own infrastructure only serves the signed `manifest.json` itself. See models.md §2.
+30. **Don't run `build_runner` without `--force-jit` on Dart 3.10** — our dep tree pulls Build Hooks transitively (drift → sqlite3 → native_toolchain_c); the AOT codegen path fails with `'dart compile' does not support build hooks`. Always `dart run build_runner build --force-jit --delete-conflicting-outputs`. Do **not** downgrade deps or switch channels to dodge it. Tracking dart-lang/build#4343; full standing instruction in `.agents/rules/dart-toolchain.md` and CLAUDE.md "Known constraints".
 
 ---
 

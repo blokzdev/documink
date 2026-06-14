@@ -89,6 +89,14 @@ device:
   text" → detection + operators → save to vault.
 - ☐ **Gallery from scan** — the Scan screen's "Choose from gallery" opens the picker and OCRs the
   chosen photo (same path as Import). *(lib/features/input/system_image_source.dart)*
+- ☐ **EXIF / orientation OCR** *(audit/research)* — a **rotated** camera/gallery photo (90°/180°)
+  still OCRs correctly. If rotated photos give garbled/empty text, ML Kit `fromFilePath` isn't
+  honoring EXIF on this path → add EXIF-aware rotation (e.g. read orientation, pass
+  `InputImageRotation`) before adding any plugin.
+- ☐ **HEIC decode** *(audit/research)* — a HEIC/HEIF image (default on some Samsung cameras) OCRs;
+  if `image_picker` returns HEIC-as-`.jpg` and ML Kit fails to decode, force JPEG / convert.
+- ☐ **Large-image memory** *(audit/research)* — a 12+ MP photo OCRs without OOM/jank; downscale
+  before OCR if needed.
 
 **PDF import (Phase 4b)** — `InputIngestionService.importPdf()` + capture UI are headless-tested
 with fakes; the native adapters need a device:
@@ -113,6 +121,12 @@ with a fake receiver; the native `ACTION_SEND` receipt needs a device:
 - ☐ **Share text** — from another app (e.g. a browser/notes) → DocuMink opens the editor seeded with
   the text and auto-detects. *(receive_sharing_intent; AndroidManifest SEND text/plain)*
 - ☐ **Share image** — share a photo → OCR runs → editor seeded with the recognized text.
+- ☐ **Shared image `content://` path** *(audit/research)* — confirm `receive_sharing_intent` hands us
+  a real filesystem path (not a raw `content://` URI) so ML Kit `fromFilePath` can read it; if not,
+  copy the URI to app cache before OCR. A failure now degrades gracefully (the coordinator drops the
+  share rather than crashing), but the share simply won't open until this is confirmed.
+- ☐ **Malformed/failed share** *(audit)* — a share that fails OCR or is unreadable does **not** crash
+  the app (coordinator guards all async paths); the share is silently dropped.
 - ☐ **Share while locked** — share when the vault is locked → app shows the unlock screen, then routes
   to the editor **after** unlocking (the held-pending path). Nothing routes while locked.
 - ☐ **Warm relaunch (singleTop)** — sharing again while DocuMink is already running routes the new
