@@ -39,6 +39,13 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 ## Build status
 
+**Current:** V1 in progress. The full headless / pure-Dart + crypto core of V1 is complete, and
+native phases now ship **behind seams** (pure-Dart orchestration + fakes here; real adapters wired
+at bootstrap, device-verified). **Phase 4 (input handlers) is complete** (4a camera/image, 4b PDF,
+4d share-intent, 4c encrypted-original retention + biometric reveal). Two post-Phase-4 follow-ups
+also landed: a reusable **`/phase-audit`** end-of-phase loop + governance refresh (PR #56), and an
+**app-wide i18n completion + shared test-fakes** cleanup (PR #58). Chronological history follows.
+
 **V0 complete.** Phase 1 — Flutter scaffold (three flavors dev/staging/prod, Riverpod + go_router + drift codegen, strict lints). Phase 2 — CI/CD guardrails (analyze, test, apk-size, license-scan, analytics-scan, verify-model-hashes, codegen-freshness; pre-commit hooks). Phase 3 — Architecture Decision Records (ADR-001…ADR-017) committed under `docs/adr/`.
 
 **V1 Phase 1 (core data layer & encrypted vault) — ✅ complete** (sub-PRs 1a–1d merged):
@@ -94,12 +101,12 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **L2 (merged)** — **shared UI kit + Home/Unlock**: `AppEmptyState`, `SectionHeader`, and a richer `PrimaryActionCard` (tonal icon badge + title/description + chevron, full-card ripple); **Home** gains a brandmark header + tagline + elevated action cards (centred, max-width); **Unlock** leads with the brandmark. Existing empty-states/section-headers refactored onto the kit.
 - **L1 (merged)** — **design-system foundation**: an Ink-Indigo design language — refined light/dark `ColorScheme` (indigo `#4F46E5` + teal accent), a crafted type scale (+ monospace for redaction), and centralized **component themes** (AppBar, Card, buttons, inputs, chips, list tiles, dialogs, snackbars). Adds a per-PII-type **entity colour system** and an in-app vector **brandmark** (CustomPaint, no assets). Every screen re-skins for free; visual tuning is device-verified (`VERIFICATION.md`). L2–L5 elevate the shared widget kit + each screen.
 
-**V1 Phase 4 (input handlers) — in progress (build-behind-seams):**
+**V1 Phase 4 (input handlers) — ✅ complete (build-behind-seams):**
 - **4a (merged)** — **camera scan + image import → OCR → redact**: a new `lib/features/input/` layer models the native bits as seams (`OcrRecognizer`, `ImageInputSource`) with fail-loud safe defaults; the pure-Dart `InputIngestionService` (camera/picker → OCR → `IngestedText`) and the `CaptureScreen` (scan/import modes → recognized-text review → seeds the redaction editor) are **headless-tested with fakes**. Real adapters `MlKitTextRecognizer` (`google_mlkit_text_recognition`) + `SystemImageSource` (`image_picker`) are wired at bootstrap and **device-verified** (`VERIFICATION.md`); AndroidManifest adds the CAMERA permission + bundles the ML Kit Latin OCR model.
 - **4b (merged)** — **PDF import + input-flow polish**: `importPdf()` extracts a PDF's text layer page-by-page (`flutter_pdf_text`/Apache PDFBox) and **falls back to OCR for scanned pages** by rasterizing them (`pdfx`) into the *existing* OCR seam; `file_selector` picks the file. Three new seams (`PdfSource`/`PdfTextExtractor`/`PdfPageRasterizer`) keep the orchestration headless-testable; real adapters wired at bootstrap, device-verified. Polish: the capture + paste-editor screens are now **localized** (ARB/`AppLocalizations`), a **source badge** + multi-page/scanned-page **warnings** surface on review, the Scan screen offers **"Choose from gallery"**, and the recognized-text region gets **a11y `Semantics`**. A follow-up hardened the scanned-PDF path (rasterized page-images, which hold PII, are **deleted after OCR** via an injected `TempFileDisposer`).
 - **4d (merged)** — **inbound share-sheet intent**: other apps share text/images INTO DocuMink (`ACTION_SEND`). A `ShareIntentReceiver` seam (`receive_sharing_intent`, Apache-2.0) feeds a pure-Dart `ShareIntentCoordinator` that routes received text → the redaction editor and OCRs shared images first — **holding any share that arrives while the vault is locked until it unlocks**. Headless-tested with fakes (incl. the locked→unlocked flush); native receipt device-verified. **Completes the Phase 4 input handlers** (camera, paste, image, PDF, share).
 
-**V1 Phase 4c (encrypted original-document retention + biometric reveal) — high-stakes, in progress:**
+**V1 Phase 4c (encrypted original-document retention + biometric reveal) — high-stakes, ✅ complete:**
 - **4c-1 (merged)** — the **headless crypto/schema core**: `TokenCrypto.encryptBytes/decryptBytes` (AES-256-GCM under the vault DEK, AAD = document id); a new **`document_originals`** table storing the encrypted original as a BLOB **inside the SQLCipher DB**, added via the repo's **first drift migration** (schemaVersion 1→2, tested against the real `onUpgrade`); `OriginalsRepository` (save/fetch/decrypt, deletion wired into the document delete cascade); `OriginalRevealService` (biometric-gated decrypt, audited `document_original_revealed`); an **opt-in setting** (`keepOriginalProvider`, default off). Fully unit-tested.
 - **4c-2 (this PR)** — **data-flow + secure viewer**: the original source file is threaded through ingestion → a `pendingOriginalProvider` → the editor's save, which retains it encrypted **only when the opt-in is on**; the document detail gains a **"View original · biometric"** action → a transient `OriginalViewerScreen` (`Image.memory` for images, `pdfx` for PDFs) with **FLAG_SECURE** (a first-party `ScreenSecurity` platform-channel seam — no new plugin) + ImageCache/lifecycle hygiene; a Settings **"Keep encrypted original"** toggle and a one-time, dismissible in-context "keep the original?" nudge. Image view + data-flow headless-tested; PDF render + FLAG_SECURE + real biometric device-verified. **Completes Phase 4c.**
 
@@ -141,3 +148,11 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
    git config core.hooksPath .githooks
    ```
    *Note: For Windows developers, this relies on Git-for-Windows evaluating shell scripts (`sh.exe`), which is the default configuration.*
+
+## License
+
+DocuMink is **proprietary — all rights reserved** (see [`LICENSE`](LICENSE)). The source is public
+for transparency and review only; no rights are granted to use, copy, modify, or redistribute it.
+Bundled third-party dependencies remain under their own open-source licenses (Apache-2.0 / MIT /
+BSD / ISC / …). The "DocuMink" name, logo, and the `documink.ai` domain are trademarks and are not
+licensed.

@@ -1,0 +1,39 @@
+DocuMink — Proprietary License
+Copyright (c) 2026 DocuMink. All rights reserved.
+
+This repository and its contents (the "Software") are made publicly available
+for transparency, review, and evaluation only. Publishing the source does not
+place it in the public domain and grants no license to use it.
+
+NO LICENSE IS GRANTED. Except as expressly permitted in writing by the copyright
+holder, you may NOT use, copy, reproduce, modify, adapt, translate, create
+derivative works of, merge, publish, distribute, sublicense, sell, rent, lease,
+or otherwise exploit the Software, in whole or in part, by any means, in any
+form, for any purpose (commercial or non-commercial).
+
+Viewing the Software in this repository, and any limited copying that is an
+unavoidable technical consequence of viewing it (e.g. your browser or git client
+caching files for the sole purpose of displaying them), is permitted. No other
+copying is permitted.
+
+THIRD-PARTY COMPONENTS. The Software depends on third-party open-source packages,
+models, and assets that are licensed separately by their respective owners (e.g.
+Apache-2.0, MIT, BSD, ISC). Nothing in this license alters, supersedes, or
+restricts your rights or obligations under those third-party licenses, which
+continue to govern those components.
+
+TRADEMARKS. "DocuMink", the DocuMink name and logo, and the documink.ai domain
+are trademarks and brand assets of the copyright holder. This license grants no
+right to use them. No trademark rights are granted, whether by implication,
+estoppel, or otherwise.
+
+NO WARRANTY. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+LIMITATION OF LIABILITY. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR
+OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For licensing inquiries, contact the copyright holder.
