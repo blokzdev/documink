@@ -9,6 +9,23 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5a: UI app-shell foundation
+
+Spec doesn't dictate UI implementation details; recommended choices:
+
+- **Runtime theming** via `themeModeProvider` (`Notifier<ThemeMode>`, default `system`, AppBar
+  quick-toggle cycles system→light→dark). **In-memory for now**; persistence lands with the Settings
+  screen (Phase 5e) — no need to introduce a settings store yet.
+- **Router as a provider** (`routerProvider` + `createRouter()` factory) instead of a single global
+  `GoRouter`, so widget tests get an isolated router (no navigation state leaking between tests).
+  `Routes` centralizes path constants.
+- **Placeholder destinations** for routes whose full screens land in later chunks (Phase 4 native
+  input, 5b editor, 5e settings, etc.) — keeps navigation real and widget-testable now without
+  faking. Each placeholder names the phase that will replace it.
+- **`context.push`** (not `go`) for Home actions so there's a back stack.
+- Widget tests run headless; **visual correctness, FLAG_SECURE, and a11y remain device-verified**
+  (VERIFICATION.md).
+
 ## 2026-06-14 — Enablement: testable APK, Play Store signing, verification/setup governance
 
 Maintainer-directed (the specs don't cover build/release plumbing). Decisions:
