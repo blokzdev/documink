@@ -291,5 +291,26 @@
   "originalViewerTitle": "Original document",
   "@originalViewerTitle": {"description": "Secure original-document viewer title."},
   "originalViewerUnsupported": "Unsupported document type",
-  "@originalViewerUnsupported": {"description": "Viewer fallback for non-image/PDF."}
+  "@originalViewerUnsupported": {"description": "Viewer fallback for non-image/PDF."},
+
+  "templatePickerTitle": "New Project",
+  "@templatePickerTitle": {"description": "Template picker app-bar title."},
+  "templatePickerSubtitle": "Start from a Verified template — each sets up sensible redaction defaults, custom detectors, and a Mink persona for its domain.",
+  "@templatePickerSubtitle": {"description": "Template picker intro text."},
+  "templatePickerLoadError": "Could not load templates",
+  "@templatePickerLoadError": {"description": "Error state when the signed templates catalog fails to load/verify."},
+  "templatePreviewDefaults": "Redaction defaults",
+  "@templatePreviewDefaults": {"description": "Preview section: the template's default policy."},
+  "templatePreviewCustomEntities": "Custom detectors",
+  "@templatePreviewCustomEntities": {"description": "Preview section: the template's seeded custom entity types."},
+  "templatePreviewPersona": "Mink persona",
+  "@templatePreviewPersona": {"description": "Preview section: the template's Mink persona."},
+  "templatePreviewNoDefaults": "Safe defaults — tune in Project settings",
+  "@templatePreviewNoDefaults": {"description": "Shown when a template has no explicit default policy (e.g. blank)."},
+  "templateProjectNameLabel": "Project name",
+  "@templateProjectNameLabel": {"description": "Label for the new-project name field."},
+  "templateCreateProject": "Create Project",
+  "@templateCreateProject": {"description": "Button: create a project from the selected template."},
+  "templateProjectCreated": "Project created",
+  "@templateProjectCreated": {"description": "Snackbar confirming the project was created."}
 }

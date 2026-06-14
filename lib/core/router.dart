@@ -13,6 +13,7 @@ import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
 import '../ui/screens/settings_screen.dart';
+import '../ui/screens/template_picker_screen.dart';
 import '../ui/screens/vault_browser_screen.dart';
 import '../ui/screens/vault_unlock_screen.dart';
 import 'routes.dart';
@@ -62,11 +63,7 @@ GoRouter createRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.newProject,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'New Project',
-          message: 'Project creation UI arrives in a later Phase 5 chunk.',
-          icon: Icons.create_new_folder_outlined,
-        ),
+        builder: (context, state) => const TemplatePickerScreen(),
       ),
       GoRoute(
         path: Routes.chat,
