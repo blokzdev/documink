@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/datetime_format.dart';
 import '../../features/audit/audit_log_repository.dart';
 import '../../features/audit/audit_providers.dart';
 import '../widgets/app_empty_state.dart';
@@ -47,19 +48,24 @@ class _EntryTile extends StatelessWidget {
 
   final AuditEntry entry;
 
+  IconData get _eventIcon => switch (entry.eventType) {
+    'document_saved' => Icons.save_outlined,
+    'document_reveal' => Icons.lock_open_outlined,
+    'document_deleted' => Icons.delete_outline,
+    'document_exported' => Icons.ios_share_outlined,
+    _ => Icons.receipt_long_outlined,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final when = DateTime.fromMillisecondsSinceEpoch(entry.createdAt);
-    final stamp = when
-        .toIso8601String()
-        .replaceFirst('T', ' ')
-        .substring(0, 19);
+    final scheme = Theme.of(context).colorScheme;
+    final stamp = formatTimestamp(entry.createdAt);
+    final tint = entry.success ? scheme.primary : scheme.error;
     return ListTile(
-      leading: Icon(
-        entry.success ? Icons.check_circle_outline : Icons.error_outline,
-        color: entry.success
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.error,
+      leading: CircleAvatar(
+        backgroundColor: tint.withValues(alpha: 0.14),
+        foregroundColor: tint,
+        child: Icon(_eventIcon, size: 20),
       ),
       title: Text(entry.eventType),
       subtitle: Text(stamp),

@@ -9,6 +9,16 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 UI elevation L5: Settings & Audit + motion/a11y (closes the arc)
+
+- Settings rows grouped into `_SettingsGroup` cards under `SectionHeader`s, centred under
+  `maxContentWidth`. Audit entries get a per-event-type icon in a tinted avatar (success/fail tint).
+- App-wide `pageTransitionsTheme` (Zoom on Android, Cupertino on iOS) for cohesive navigation motion.
+- a11y: `SectionHeader` marked `Semantics(header: true)`; icon buttons already carry tooltips;
+  buttons ≥48 dp via the L1 theme. Full TalkBack/dynamic-type/contrast review remains device-verified
+  (VERIFICATION.md).
+- The 5-PR design-elevation arc (L1–L5) is complete; all 261 tests stay green throughout.
+
 ## 2026-06-14 — V1 UI elevation L4: vault browser + document detail
 
 - `StatusBadge` (colour-coded pill) + a tiny `formatTimestamp` (no `intl`) in `lib/core/`.

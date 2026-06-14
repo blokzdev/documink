@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/flavors/flavor.dart';
 import '../../core/routes.dart';
 import '../theme/theme_mode_controller.dart';
+import '../theme/tokens.dart';
 import '../widgets/section_header.dart';
 
 /// Settings (Phase 5c). Appearance (theme) is live now; security/privacy/AI
@@ -21,65 +22,91 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: SafeArea(
-        child: ListView(
-          children: [
-            const SectionHeader('Appearance'),
-            RadioGroup<ThemeMode>(
-              groupValue: themeMode,
-              onChanged: (m) =>
-                  ref.read(themeModeProvider.notifier).set(m ?? themeMode),
-              child: Column(
-                children: [
-                  for (final mode in ThemeMode.values)
-                    RadioListTile<ThemeMode>(
-                      value: mode,
-                      title: Text(_themeLabel(mode)),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppTokens.maxContentWidth,
+            ),
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: AppTokens.spacingLg),
+              children: [
+                const SectionHeader('Appearance'),
+                _SettingsGroup(
+                  child: RadioGroup<ThemeMode>(
+                    groupValue: themeMode,
+                    onChanged: (m) => ref
+                        .read(themeModeProvider.notifier)
+                        .set(m ?? themeMode),
+                    child: Column(
+                      children: [
+                        for (final mode in ThemeMode.values)
+                          RadioListTile<ThemeMode>(
+                            value: mode,
+                            title: Text(_themeLabel(mode)),
+                          ),
+                      ],
                     ),
-                ],
-              ),
-            ),
-            const Divider(),
+                  ),
+                ),
 
-            const SectionHeader('Security'),
-            const ListTile(
-              leading: Icon(Icons.lock_clock_outlined),
-              title: Text('Auto-lock'),
-              subtitle: Text('Configured after vault unlock (later phase)'),
-              enabled: false,
-            ),
-            const ListTile(
-              leading: Icon(Icons.fingerprint),
-              title: Text('Biometric unlock'),
-              subtitle: Text('Available on device (later phase)'),
-              enabled: false,
-            ),
-            const Divider(),
+                const SectionHeader('Security'),
+                const _SettingsGroup(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.lock_clock_outlined),
+                        title: Text('Auto-lock'),
+                        subtitle: Text(
+                          'Configured after vault unlock (later phase)',
+                        ),
+                        enabled: false,
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.fingerprint),
+                        title: Text('Biometric unlock'),
+                        subtitle: Text('Available on device (later phase)'),
+                        enabled: false,
+                      ),
+                    ],
+                  ),
+                ),
 
-            const SectionHeader('Privacy'),
-            ListTile(
-              leading: const Icon(Icons.receipt_long_outlined),
-              title: const Text('Audit log'),
-              subtitle: const Text('View privacy-relevant actions'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(Routes.auditLog),
-            ),
-            const ListTile(
-              leading: Icon(Icons.label_outline),
-              title: Text('Custom entity types'),
-              subtitle: Text('Define your own detectors (later phase)'),
-              enabled: false,
-            ),
-            const Divider(),
+                const SectionHeader('Privacy'),
+                _SettingsGroup(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.receipt_long_outlined),
+                        title: const Text('Audit log'),
+                        subtitle: const Text('View privacy-relevant actions'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.auditLog),
+                      ),
+                      const ListTile(
+                        leading: Icon(Icons.label_outline),
+                        title: Text('Custom entity types'),
+                        subtitle: Text(
+                          'Define your own detectors (later phase)',
+                        ),
+                        enabled: false,
+                      ),
+                    ],
+                  ),
+                ),
 
-            const SectionHeader('About'),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('DocuMink'),
-              subtitle: Text(
-                'Privacy-first, on-device redaction · ${flavor.name} build',
-              ),
+                const SectionHeader('About'),
+                _SettingsGroup(
+                  child: ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('DocuMink'),
+                    subtitle: Text(
+                      'Privacy-first, on-device redaction · ${flavor.name} build',
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -90,4 +117,17 @@ class SettingsScreen extends ConsumerWidget {
     ThemeMode.light => 'Light',
     ThemeMode.dark => 'Dark',
   };
+}
+
+/// A settings section wrapped in a rounded card with consistent margins.
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppTokens.spacingMd),
+    child: Card(child: child),
+  );
 }

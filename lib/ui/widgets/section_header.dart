@@ -18,12 +18,15 @@ class SectionHeader extends StatelessWidget {
         AppTokens.spacingMd,
         AppTokens.spacingSm,
       ),
-      child: Text(
-        title.toUpperCase(),
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: theme.colorScheme.primary,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
+      child: Semantics(
+        header: true,
+        child: Text(
+          title.toUpperCase(),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.8,
+          ),
         ),
       ),
     );
