@@ -332,4 +332,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templateProjectCreated => 'Project created';
+
+  @override
+  String get projectsTitle => 'Projects';
+
+  @override
+  String get projectsNewTooltip => 'New Project';
+
+  @override
+  String get projectsAllDocuments => 'All documents';
+
+  @override
+  String get projectsAllDocumentsSubtitle => 'Everything across projects';
+
+  @override
+  String get projectsSectionYours => 'Your projects';
+
+  @override
+  String get projectsEmptyTitle => 'No projects yet';
+
+  @override
+  String get projectsEmptyMessage =>
+      'Create a Project to scope documents, detectors, and Mink to one context.';
+
+  @override
+  String get projectsLoadError => 'Could not load projects';
+
+  @override
+  String get projectsActiveBadge => 'Active';
+
+  @override
+  String get projectsArchive => 'Archive';
+
+  @override
+  String get projectsArchived => 'Project archived';
+
+  @override
+  String projectsTemplateLine(String template, String date) {
+    return '$template · updated $date';
+  }
 }

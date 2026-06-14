@@ -40,6 +40,12 @@ class HomeScreen extends ConsumerWidget {
       route: Routes.newProject,
     ),
     _HomeAction(
+      icon: Icons.folder_special_outlined,
+      label: 'Projects',
+      description: 'Browse and switch projects',
+      route: Routes.projects,
+    ),
+    _HomeAction(
       icon: Icons.chat_bubble_outline,
       label: 'Chat with Mink',
       description: 'Your on-device assistant',

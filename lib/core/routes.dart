@@ -8,6 +8,7 @@ class Routes {
   static const paste = '/paste';
   static const import = '/import';
   static const newProject = '/projects/new';
+  static const projects = '/projects';
   static const chat = '/chat';
   static const vault = '/vault';
   static const settings = '/settings';

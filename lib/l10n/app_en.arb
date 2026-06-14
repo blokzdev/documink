@@ -312,5 +312,33 @@
   "templateCreateProject": "Create Project",
   "@templateCreateProject": {"description": "Button: create a project from the selected template."},
   "templateProjectCreated": "Project created",
-  "@templateProjectCreated": {"description": "Snackbar confirming the project was created."}
+  "@templateProjectCreated": {"description": "Snackbar confirming the project was created."},
+
+  "projectsTitle": "Projects",
+  "@projectsTitle": {"description": "Projects list app-bar title."},
+  "projectsNewTooltip": "New Project",
+  "@projectsNewTooltip": {"description": "Tooltip for the new-project action."},
+  "projectsAllDocuments": "All documents",
+  "@projectsAllDocuments": {"description": "Tile that clears the active project (whole-workspace view)."},
+  "projectsAllDocumentsSubtitle": "Everything across projects",
+  "@projectsAllDocumentsSubtitle": {"description": "Subtitle for the all-documents tile."},
+  "projectsSectionYours": "Your projects",
+  "@projectsSectionYours": {"description": "Section header above the project list."},
+  "projectsEmptyTitle": "No projects yet",
+  "@projectsEmptyTitle": {"description": "Empty-state title for the project list."},
+  "projectsEmptyMessage": "Create a Project to scope documents, detectors, and Mink to one context.",
+  "@projectsEmptyMessage": {"description": "Empty-state message for the project list."},
+  "projectsLoadError": "Could not load projects",
+  "@projectsLoadError": {"description": "Error-state title for the project list."},
+  "projectsActiveBadge": "Active",
+  "@projectsActiveBadge": {"description": "Badge marking the currently active project."},
+  "projectsArchive": "Archive",
+  "@projectsArchive": {"description": "Menu action: archive a project."},
+  "projectsArchived": "Project archived",
+  "@projectsArchived": {"description": "Snackbar confirming a project was archived."},
+  "projectsTemplateLine": "{template} · updated {date}",
+  "@projectsTemplateLine": {
+    "description": "Project card subtitle: template id and last-updated date.",
+    "placeholders": {"template": {"type": "String"}, "date": {"type": "String"}}
+  }
 }
