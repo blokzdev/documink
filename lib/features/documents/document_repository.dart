@@ -12,6 +12,7 @@ import '../anonymization/anonymization_service.dart';
 import '../anonymization/operator.dart';
 import '../audit/audit_log_repository.dart';
 import '../detection/detection_pipeline.dart';
+import '../projects/active_project_provider.dart';
 
 /// Persists anonymized documents into the unlocked vault: a `documents` row, its
 /// detected `entities`, and the reversible `tokens` (blueprint §3.1), all in one
@@ -52,13 +53,16 @@ class DocumentRepository {
     return defaultWorkspaceId;
   }
 
-  /// Saves a redacted text document. Returns the new document id.
+  /// Saves a redacted text document. Returns the new document id. When
+  /// [projectId] is given the document is scoped to that Project (§6.7
+  /// isolation); null keeps it workspace-global.
   Future<String> saveAnonymizedText({
     required String name,
     required String originalText,
     required DetectionResult detection,
     required Map<String, Operator> operators,
     required AnonymizationOutcome outcome,
+    String? projectId,
   }) async {
     final workspaceId = await ensureDefaultWorkspace();
     final now = _clock().millisecondsSinceEpoch;
@@ -74,6 +78,7 @@ class DocumentRepository {
             DocumentsCompanion.insert(
               id: documentId,
               workspaceId: workspaceId,
+              projectId: Value(projectId),
               name: name,
               type: 'text',
               sourceHash: sourceHash,
@@ -142,11 +147,18 @@ class DocumentRepository {
     return documentId;
   }
 
-  /// All documents in the default workspace, newest first.
-  Future<List<Document>> listDocuments() async {
+  /// Documents in the default workspace, newest first. When [projectId] is given
+  /// only that Project's documents are returned (§6.7 isolation); null returns
+  /// the whole workspace (the global view).
+  Future<List<Document>> listDocuments({String? projectId}) async {
     final workspaceId = await ensureDefaultWorkspace();
     return (_db.select(_db.documents)
           ..where((d) => d.workspaceId.equals(workspaceId))
+          ..where(
+            (d) => projectId == null
+                ? const Constant(true)
+                : d.projectId.equals(projectId),
+          )
           ..orderBy([(d) => OrderingTerm.desc(d.createdAt)]))
         .get();
   }
@@ -217,11 +229,15 @@ final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
   return DocumentRepository(ref.read(vaultServiceProvider.notifier).database);
 });
 
-/// The saved documents in the vault (newest first). Auto-disposes so it refetches
-/// each time the vault browser is opened.
-final documentsListProvider = FutureProvider.autoDispose<List<Document>>(
-  (ref) => ref.watch(documentRepositoryProvider).listDocuments(),
-);
+/// The saved documents in the vault (newest first), scoped to the active Project
+/// (null = the whole workspace). Auto-disposes so it refetches each time the
+/// vault browser is opened, and refetches when the active Project changes.
+final documentsListProvider = FutureProvider.autoDispose<List<Document>>((ref) {
+  final projectId = ref.watch(activeProjectProvider);
+  return ref
+      .watch(documentRepositoryProvider)
+      .listDocuments(projectId: projectId);
+});
 
 /// A single saved document by id.
 final documentByIdProvider = FutureProvider.autoDispose
