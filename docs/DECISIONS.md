@@ -20,6 +20,17 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P12b: MemoryRepository (Core + Episodic, guarded)
+
+- **Active-V1 types only.** Implemented Core + Episodic (memory.md §2.1/§2.2); Knowledge Vault is the
+  existing `tokens` table; Semantic/Procedural/Resource are schema-only until V1.2 activation (§2.4-2.6).
+- **Every write passes `MemoryWriteGuard.assertNoPlaintext`** before insert (Core scans the `value`;
+  Episodic scans `{summary, details}`), so 12a's invariant is enforced at the persistence boundary.
+- **Scope-aware recall** (current Project + workspace globals) mirrors the §6.7 isolation pattern used
+  for custom entities; Episodic recall adds `since`/`episodeType`/`limit`, newest-first (§2.2).
+- Values stored as JSON (`value_json`/`details_json`/`token_refs_json`); domain entries decode them.
+  `forget{Core,Episodic}` for deletion. Router (tool-call dispatch) is 12c.
+
 ## 2026-06-14 — V1 P12a: Mink memory PII-safe write guard (HIGH-STAKES — fuller logging)
 
 - **The invariant.** memory.md §3 requires raw PII/PHI plaintext to *never* enter memory tables.
