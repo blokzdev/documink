@@ -72,6 +72,36 @@ class TokenCrypto {
     );
     return Uint8List.fromList(mac.bytes);
   }
+
+  /// Encrypts arbitrary [bytes] (e.g. an original document file) with AES-256-GCM
+  /// under the DEK, binding the ciphertext to [aad] (use the owning document id).
+  /// Returns `nonce‖cipherText‖mac`. A fresh random 96-bit nonce is used per
+  /// call (handled by `package:cryptography`). Suitable for the document-sized
+  /// blobs we retain (≤ ~25 MB held in memory; no streaming needed).
+  Future<Uint8List> encryptBytes(Uint8List bytes, {required String aad}) async {
+    final box = await AesGcm.with256bits().encrypt(
+      bytes,
+      secretKey: SecretKey(dek),
+      aad: utf8.encode(aad),
+    );
+    return box.concatenation();
+  }
+
+  /// Reverses [encryptBytes]. Throws [SecretBoxAuthenticationError] if the blob
+  /// was tampered with, the DEK is wrong, or [aad] does not match.
+  Future<Uint8List> decryptBytes(Uint8List blob, {required String aad}) async {
+    final box = SecretBox.fromConcatenation(
+      blob,
+      nonceLength: _nonceLength,
+      macLength: _macLength,
+    );
+    final clear = await AesGcm.with256bits().decrypt(
+      box,
+      secretKey: SecretKey(dek),
+      aad: utf8.encode(aad),
+    );
+    return Uint8List.fromList(clear);
+  }
 }
 
 /// Thin persistence layer over the `tokens` table that stores encrypted tokens

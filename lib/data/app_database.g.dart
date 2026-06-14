@@ -1570,6 +1570,478 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   }
 }
 
+class $DocumentOriginalsTable extends DocumentOriginals
+    with TableInfo<$DocumentOriginalsTable, DocumentOriginal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentOriginalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<String> documentId = GeneratedColumn<String>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES documents (id)',
+    ),
+  );
+  static const VerificationMeta _mimeMeta = const VerificationMeta('mime');
+  @override
+  late final GeneratedColumn<String> mime = GeneratedColumn<String>(
+    'mime',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ciphertextMeta = const VerificationMeta(
+    'ciphertext',
+  );
+  @override
+  late final GeneratedColumn<Uint8List> ciphertext = GeneratedColumn<Uint8List>(
+    'ciphertext',
+    aliasedName,
+    false,
+    type: DriftSqlType.blob,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keyVersionMeta = const VerificationMeta(
+    'keyVersion',
+  );
+  @override
+  late final GeneratedColumn<int> keyVersion = GeneratedColumn<int>(
+    'key_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    documentId,
+    mime,
+    sizeBytes,
+    ciphertext,
+    keyVersion,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'document_originals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DocumentOriginal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('mime')) {
+      context.handle(
+        _mimeMeta,
+        mime.isAcceptableOrUnknown(data['mime']!, _mimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mimeMeta);
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    if (data.containsKey('ciphertext')) {
+      context.handle(
+        _ciphertextMeta,
+        ciphertext.isAcceptableOrUnknown(data['ciphertext']!, _ciphertextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ciphertextMeta);
+    }
+    if (data.containsKey('key_version')) {
+      context.handle(
+        _keyVersionMeta,
+        keyVersion.isAcceptableOrUnknown(data['key_version']!, _keyVersionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyVersionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DocumentOriginal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DocumentOriginal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_id'],
+      )!,
+      mime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mime'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      ciphertext: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}ciphertext'],
+      )!,
+      keyVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}key_version'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DocumentOriginalsTable createAlias(String alias) {
+    return $DocumentOriginalsTable(attachedDatabase, alias);
+  }
+}
+
+class DocumentOriginal extends DataClass
+    implements Insertable<DocumentOriginal> {
+  final String id;
+  final String documentId;
+  final String mime;
+  final int sizeBytes;
+  final Uint8List ciphertext;
+  final int keyVersion;
+  final int createdAt;
+  const DocumentOriginal({
+    required this.id,
+    required this.documentId,
+    required this.mime,
+    required this.sizeBytes,
+    required this.ciphertext,
+    required this.keyVersion,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['document_id'] = Variable<String>(documentId);
+    map['mime'] = Variable<String>(mime);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    map['ciphertext'] = Variable<Uint8List>(ciphertext);
+    map['key_version'] = Variable<int>(keyVersion);
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  DocumentOriginalsCompanion toCompanion(bool nullToAbsent) {
+    return DocumentOriginalsCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      mime: Value(mime),
+      sizeBytes: Value(sizeBytes),
+      ciphertext: Value(ciphertext),
+      keyVersion: Value(keyVersion),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory DocumentOriginal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DocumentOriginal(
+      id: serializer.fromJson<String>(json['id']),
+      documentId: serializer.fromJson<String>(json['documentId']),
+      mime: serializer.fromJson<String>(json['mime']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      ciphertext: serializer.fromJson<Uint8List>(json['ciphertext']),
+      keyVersion: serializer.fromJson<int>(json['keyVersion']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'documentId': serializer.toJson<String>(documentId),
+      'mime': serializer.toJson<String>(mime),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'ciphertext': serializer.toJson<Uint8List>(ciphertext),
+      'keyVersion': serializer.toJson<int>(keyVersion),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  DocumentOriginal copyWith({
+    String? id,
+    String? documentId,
+    String? mime,
+    int? sizeBytes,
+    Uint8List? ciphertext,
+    int? keyVersion,
+    int? createdAt,
+  }) => DocumentOriginal(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    mime: mime ?? this.mime,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    ciphertext: ciphertext ?? this.ciphertext,
+    keyVersion: keyVersion ?? this.keyVersion,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  DocumentOriginal copyWithCompanion(DocumentOriginalsCompanion data) {
+    return DocumentOriginal(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      mime: data.mime.present ? data.mime.value : this.mime,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      ciphertext: data.ciphertext.present
+          ? data.ciphertext.value
+          : this.ciphertext,
+      keyVersion: data.keyVersion.present
+          ? data.keyVersion.value
+          : this.keyVersion,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentOriginal(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('mime: $mime, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('ciphertext: $ciphertext, ')
+          ..write('keyVersion: $keyVersion, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    documentId,
+    mime,
+    sizeBytes,
+    $driftBlobEquality.hash(ciphertext),
+    keyVersion,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DocumentOriginal &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.mime == this.mime &&
+          other.sizeBytes == this.sizeBytes &&
+          $driftBlobEquality.equals(other.ciphertext, this.ciphertext) &&
+          other.keyVersion == this.keyVersion &&
+          other.createdAt == this.createdAt);
+}
+
+class DocumentOriginalsCompanion extends UpdateCompanion<DocumentOriginal> {
+  final Value<String> id;
+  final Value<String> documentId;
+  final Value<String> mime;
+  final Value<int> sizeBytes;
+  final Value<Uint8List> ciphertext;
+  final Value<int> keyVersion;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const DocumentOriginalsCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.mime = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.ciphertext = const Value.absent(),
+    this.keyVersion = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DocumentOriginalsCompanion.insert({
+    required String id,
+    required String documentId,
+    required String mime,
+    required int sizeBytes,
+    required Uint8List ciphertext,
+    required int keyVersion,
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       documentId = Value(documentId),
+       mime = Value(mime),
+       sizeBytes = Value(sizeBytes),
+       ciphertext = Value(ciphertext),
+       keyVersion = Value(keyVersion),
+       createdAt = Value(createdAt);
+  static Insertable<DocumentOriginal> custom({
+    Expression<String>? id,
+    Expression<String>? documentId,
+    Expression<String>? mime,
+    Expression<int>? sizeBytes,
+    Expression<Uint8List>? ciphertext,
+    Expression<int>? keyVersion,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (mime != null) 'mime': mime,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (ciphertext != null) 'ciphertext': ciphertext,
+      if (keyVersion != null) 'key_version': keyVersion,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DocumentOriginalsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? documentId,
+    Value<String>? mime,
+    Value<int>? sizeBytes,
+    Value<Uint8List>? ciphertext,
+    Value<int>? keyVersion,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return DocumentOriginalsCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      mime: mime ?? this.mime,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      ciphertext: ciphertext ?? this.ciphertext,
+      keyVersion: keyVersion ?? this.keyVersion,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<String>(documentId.value);
+    }
+    if (mime.present) {
+      map['mime'] = Variable<String>(mime.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (ciphertext.present) {
+      map['ciphertext'] = Variable<Uint8List>(ciphertext.value);
+    }
+    if (keyVersion.present) {
+      map['key_version'] = Variable<int>(keyVersion.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentOriginalsCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('mime: $mime, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('ciphertext: $ciphertext, ')
+          ..write('keyVersion: $keyVersion, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $EntitiesTable extends Entities with TableInfo<$EntitiesTable, Entity> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -9138,6 +9610,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WorkspacesTable workspaces = $WorkspacesTable(this);
   late final $ProjectsTable projects = $ProjectsTable(this);
   late final $DocumentsTable documents = $DocumentsTable(this);
+  late final $DocumentOriginalsTable documentOriginals =
+      $DocumentOriginalsTable(this);
   late final $EntitiesTable entities = $EntitiesTable(this);
   late final $TokensTable tokens = $TokensTable(this);
   late final $CustomEntityTypesTable customEntityTypes =
@@ -9156,6 +9630,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $MinkSemanticRelationshipsTable(this);
   late final $MinkProceduralMemoryTable minkProceduralMemory =
       $MinkProceduralMemoryTable(this);
+  late final Index idxDocumentOriginalsDocument = Index(
+    'idx_document_originals_document',
+    'CREATE UNIQUE INDEX idx_document_originals_document ON document_originals (document_id)',
+  );
   late final Index idxEntitiesDocument = Index(
     'idx_entities_document',
     'CREATE INDEX idx_entities_document ON entities (document_id)',
@@ -9196,6 +9674,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     workspaces,
     projects,
     documents,
+    documentOriginals,
     entities,
     tokens,
     customEntityTypes,
@@ -9209,6 +9688,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     minkSemanticMemory,
     minkSemanticRelationships,
     minkProceduralMemory,
+    idxDocumentOriginalsDocument,
     idxEntitiesDocument,
     idxTokensFingerprint,
     idxChatMessagesSession,
@@ -11883,6 +12363,30 @@ final class $$DocumentsTableReferences
     );
   }
 
+  static MultiTypedResultKey<$DocumentOriginalsTable, List<DocumentOriginal>>
+  _documentOriginalsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.documentOriginals,
+        aliasName: $_aliasNameGenerator(
+          db.documents.id,
+          db.documentOriginals.documentId,
+        ),
+      );
+
+  $$DocumentOriginalsTableProcessedTableManager get documentOriginalsRefs {
+    final manager = $$DocumentOriginalsTableTableManager(
+      $_db,
+      $_db.documentOriginals,
+    ).filter((f) => f.documentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _documentOriginalsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$EntitiesTable, List<Entity>> _entitiesRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -12001,6 +12505,31 @@ class $$DocumentsTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> documentOriginalsRefs(
+    Expression<bool> Function($$DocumentOriginalsTableFilterComposer f) f,
+  ) {
+    final $$DocumentOriginalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.documentOriginals,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentOriginalsTableFilterComposer(
+            $db: $db,
+            $table: $db.documentOriginals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 
   Expression<bool> entitiesRefs(
@@ -12218,6 +12747,32 @@ class $$DocumentsTableAnnotationComposer
     return composer;
   }
 
+  Expression<T> documentOriginalsRefs<T extends Object>(
+    Expression<T> Function($$DocumentOriginalsTableAnnotationComposer a) f,
+  ) {
+    final $$DocumentOriginalsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.documentOriginals,
+          getReferencedColumn: (t) => t.documentId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DocumentOriginalsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.documentOriginals,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> entitiesRefs<T extends Object>(
     Expression<T> Function($$EntitiesTableAnnotationComposer a) f,
   ) {
@@ -12260,6 +12815,7 @@ class $$DocumentsTableTableManager
           PrefetchHooks Function({
             bool workspaceId,
             bool projectId,
+            bool documentOriginalsRefs,
             bool entitiesRefs,
           })
         > {
@@ -12339,10 +12895,18 @@ class $$DocumentsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({workspaceId = false, projectId = false, entitiesRefs = false}) {
+              ({
+                workspaceId = false,
+                projectId = false,
+                documentOriginalsRefs = false,
+                entitiesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
-                  explicitlyWatchedTables: [if (entitiesRefs) db.entities],
+                  explicitlyWatchedTables: [
+                    if (documentOriginalsRefs) db.documentOriginals,
+                    if (entitiesRefs) db.entities,
+                  ],
                   addJoins:
                       <
                         T extends TableManagerState<
@@ -12390,6 +12954,27 @@ class $$DocumentsTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (documentOriginalsRefs)
+                        await $_getPrefetchedData<
+                          Document,
+                          $DocumentsTable,
+                          DocumentOriginal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DocumentsTableReferences
+                              ._documentOriginalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DocumentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).documentOriginalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.documentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (entitiesRefs)
                         await $_getPrefetchedData<
                           Document,
@@ -12434,8 +13019,386 @@ typedef $$DocumentsTableProcessedTableManager =
       PrefetchHooks Function({
         bool workspaceId,
         bool projectId,
+        bool documentOriginalsRefs,
         bool entitiesRefs,
       })
+    >;
+typedef $$DocumentOriginalsTableCreateCompanionBuilder =
+    DocumentOriginalsCompanion Function({
+      required String id,
+      required String documentId,
+      required String mime,
+      required int sizeBytes,
+      required Uint8List ciphertext,
+      required int keyVersion,
+      required int createdAt,
+      Value<int> rowid,
+    });
+typedef $$DocumentOriginalsTableUpdateCompanionBuilder =
+    DocumentOriginalsCompanion Function({
+      Value<String> id,
+      Value<String> documentId,
+      Value<String> mime,
+      Value<int> sizeBytes,
+      Value<Uint8List> ciphertext,
+      Value<int> keyVersion,
+      Value<int> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$DocumentOriginalsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $DocumentOriginalsTable,
+          DocumentOriginal
+        > {
+  $$DocumentOriginalsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DocumentsTable _documentIdTable(_$AppDatabase db) =>
+      db.documents.createAlias(
+        $_aliasNameGenerator(db.documentOriginals.documentId, db.documents.id),
+      );
+
+  $$DocumentsTableProcessedTableManager get documentId {
+    final $_column = $_itemColumn<String>('document_id')!;
+
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_documentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$DocumentOriginalsTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentOriginalsTable> {
+  $$DocumentOriginalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mime => $composableBuilder(
+    column: $table.mime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get keyVersion => $composableBuilder(
+    column: $table.keyVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DocumentsTableFilterComposer get documentId {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentOriginalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentOriginalsTable> {
+  $$DocumentOriginalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mime => $composableBuilder(
+    column: $table.mime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get keyVersion => $composableBuilder(
+    column: $table.keyVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DocumentsTableOrderingComposer get documentId {
+    final $$DocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentOriginalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentOriginalsTable> {
+  $$DocumentOriginalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mime =>
+      $composableBuilder(column: $table.mime, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get keyVersion => $composableBuilder(
+    column: $table.keyVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$DocumentsTableAnnotationComposer get documentId {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentOriginalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocumentOriginalsTable,
+          DocumentOriginal,
+          $$DocumentOriginalsTableFilterComposer,
+          $$DocumentOriginalsTableOrderingComposer,
+          $$DocumentOriginalsTableAnnotationComposer,
+          $$DocumentOriginalsTableCreateCompanionBuilder,
+          $$DocumentOriginalsTableUpdateCompanionBuilder,
+          (DocumentOriginal, $$DocumentOriginalsTableReferences),
+          DocumentOriginal,
+          PrefetchHooks Function({bool documentId})
+        > {
+  $$DocumentOriginalsTableTableManager(
+    _$AppDatabase db,
+    $DocumentOriginalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentOriginalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentOriginalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentOriginalsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> documentId = const Value.absent(),
+                Value<String> mime = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<Uint8List> ciphertext = const Value.absent(),
+                Value<int> keyVersion = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentOriginalsCompanion(
+                id: id,
+                documentId: documentId,
+                mime: mime,
+                sizeBytes: sizeBytes,
+                ciphertext: ciphertext,
+                keyVersion: keyVersion,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String documentId,
+                required String mime,
+                required int sizeBytes,
+                required Uint8List ciphertext,
+                required int keyVersion,
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentOriginalsCompanion.insert(
+                id: id,
+                documentId: documentId,
+                mime: mime,
+                sizeBytes: sizeBytes,
+                ciphertext: ciphertext,
+                keyVersion: keyVersion,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DocumentOriginalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({documentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (documentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.documentId,
+                                referencedTable:
+                                    $$DocumentOriginalsTableReferences
+                                        ._documentIdTable(db),
+                                referencedColumn:
+                                    $$DocumentOriginalsTableReferences
+                                        ._documentIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DocumentOriginalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocumentOriginalsTable,
+      DocumentOriginal,
+      $$DocumentOriginalsTableFilterComposer,
+      $$DocumentOriginalsTableOrderingComposer,
+      $$DocumentOriginalsTableAnnotationComposer,
+      $$DocumentOriginalsTableCreateCompanionBuilder,
+      $$DocumentOriginalsTableUpdateCompanionBuilder,
+      (DocumentOriginal, $$DocumentOriginalsTableReferences),
+      DocumentOriginal,
+      PrefetchHooks Function({bool documentId})
     >;
 typedef $$EntitiesTableCreateCompanionBuilder =
     EntitiesCompanion Function({
@@ -19042,6 +20005,8 @@ class $AppDatabaseManager {
       $$ProjectsTableTableManager(_db, _db.projects);
   $$DocumentsTableTableManager get documents =>
       $$DocumentsTableTableManager(_db, _db.documents);
+  $$DocumentOriginalsTableTableManager get documentOriginals =>
+      $$DocumentOriginalsTableTableManager(_db, _db.documentOriginals);
   $$EntitiesTableTableManager get entities =>
       $$EntitiesTableTableManager(_db, _db.entities);
   $$TokensTableTableManager get tokens =>

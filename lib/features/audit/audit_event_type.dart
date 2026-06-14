@@ -4,6 +4,7 @@ class AuditEventType {
   const AuditEventType._();
 
   static const String decode = 'decode';
+  static const String documentOriginalRevealed = 'document_original_revealed';
   static const String export = 'export';
   static const String syncPush = 'sync_push';
   static const String syncPull = 'sync_pull';
