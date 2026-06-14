@@ -1,4 +1,5 @@
 import 'package:documink/core/flavors/flavor.dart';
+import 'package:documink/l10n/gen/app_localizations.dart';
 import 'package:documink/ui/screens/settings_screen.dart';
 import 'package:documink/ui/theme/theme_mode_controller.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,11 @@ Future<ProviderContainer> _pump(WidgetTester tester) async {
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: SettingsScreen()),
+      child: const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SettingsScreen(),
+      ),
     ),
   );
   return container;

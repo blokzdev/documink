@@ -13,6 +13,7 @@ import '../../features/documents/original_reveal_service.dart';
 import '../../features/documents/originals_repository.dart';
 import '../../features/documents/reveal_service.dart';
 import '../../features/export/export_service.dart';
+import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
 import '../widgets/app_error_state.dart';
@@ -58,9 +59,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       _revealed = revealed;
     });
     if (revealed == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).documentAuthFailed),
+        ),
+      );
     }
   }
 
@@ -70,9 +73,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         .reveal(widget.documentId);
     if (!mounted) return;
     if (revealed == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).documentAuthFailed),
+        ),
+      );
       return;
     }
     await Navigator.of(context).push(
@@ -84,21 +89,20 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   }
 
   Future<void> _delete() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete document?'),
-        content: const Text(
-          'This permanently removes the document and its tokens from the vault.',
-        ),
+        title: Text(l10n.documentDeleteConfirmTitle),
+        content: Text(l10n.documentDeleteConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.documentDelete),
           ),
         ],
       ),
@@ -135,6 +139,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
           ],
         );
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     await showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -143,7 +148,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.notes_outlined),
-              title: const Text('Copy redacted text'),
+              title: Text(l10n.documentCopyText),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _copyExport(export.text, 'text', doc.id);
@@ -151,7 +156,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.data_object_outlined),
-              title: const Text('Copy metadata (JSON)'),
+              title: Text(l10n.documentCopyJson),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _copyExport(export.jsonMetadata, 'json', doc.id);
@@ -170,9 +175,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       await Clipboard.setData(ClipboardData(text: content));
     } catch (_) {}
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Copied')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).commonCopied)),
+      );
     }
     await ref
         .read(auditLogRepositoryProvider)
@@ -197,20 +202,21 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final hasOriginal =
         ref.watch(_hasOriginalProvider(widget.documentId)).valueOrNull ?? false;
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Document'),
+        title: Text(l10n.documentTitle),
         actions: [
           if (doc != null && redacted != null)
             IconButton(
               icon: const Icon(Icons.ios_share_outlined),
-              tooltip: 'Export',
+              tooltip: l10n.documentExport,
               onPressed: () => _export(doc, redacted),
             ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Delete',
+            tooltip: l10n.documentDelete,
             onPressed: _delete,
           ),
         ],
@@ -219,13 +225,13 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         child: docAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => AppErrorState(
-            title: 'Could not load the document',
+            title: l10n.documentLoadError,
             onRetry: () =>
                 ref.invalidate(documentByIdProvider(widget.documentId)),
           ),
           data: (doc) {
             if (doc == null) {
-              return const Center(child: Text('Document not found.'));
+              return Center(child: Text(l10n.documentNotFound));
             }
             final redacted = _redactedText(doc.metadataJson);
             return Center(
@@ -254,7 +260,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                     ),
                     const SizedBox(height: AppTokens.spacingLg),
                     Text(
-                      'Redacted content',
+                      l10n.documentRedactedContent,
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppTokens.spacingSm),
@@ -268,7 +274,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                         ),
                       ),
                       child: SelectableText(
-                        redacted ?? '(no preview stored)',
+                        redacted ?? l10n.documentNoPreview,
                         key: const Key('document-redacted-text'),
                         style: AppTypography.mono(context),
                       ),
@@ -278,9 +284,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                       FilledButton.tonalIcon(
                         onPressed: _revealing ? null : _reveal,
                         icon: const Icon(Icons.lock_open_outlined),
-                        label: Text(
-                          'Reveal original values ($tokenCount) · biometric',
-                        ),
+                        label: Text(l10n.documentRevealValues(tokenCount)),
                       ),
                     ],
                     if (hasOriginal) ...[
@@ -289,7 +293,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                         key: const Key('view-original'),
                         onPressed: _viewOriginal,
                         icon: const Icon(Icons.image_outlined),
-                        label: const Text('View original · biometric'),
+                        label: Text(l10n.documentViewOriginal),
                       ),
                     ],
                     AnimatedSwitcher(

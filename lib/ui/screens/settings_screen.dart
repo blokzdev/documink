@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/flavors/flavor.dart';
 import '../../core/routes.dart';
 import '../../features/documents/keep_original_setting.dart';
+import '../../l10n/gen/app_localizations.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
 import '../widgets/section_header.dart';
@@ -20,9 +21,10 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final flavor = ref.watch(currentFlavorProvider);
     final keepOriginal = ref.watch(keepOriginalProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -32,7 +34,7 @@ class SettingsScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.only(bottom: AppTokens.spacingLg),
               children: [
-                const SectionHeader('Appearance'),
+                SectionHeader(l10n.settingsSectionAppearance),
                 _SettingsGroup(
                   child: RadioGroup<ThemeMode>(
                     groupValue: themeMode,
@@ -44,61 +46,56 @@ class SettingsScreen extends ConsumerWidget {
                         for (final mode in ThemeMode.values)
                           RadioListTile<ThemeMode>(
                             value: mode,
-                            title: Text(_themeLabel(mode)),
+                            title: Text(_themeLabel(l10n, mode)),
                           ),
                       ],
                     ),
                   ),
                 ),
 
-                const SectionHeader('Security'),
-                const _SettingsGroup(
+                SectionHeader(l10n.settingsSectionSecurity),
+                _SettingsGroup(
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.lock_clock_outlined),
-                        title: Text('Auto-lock'),
-                        subtitle: Text(
-                          'Configured after vault unlock (later phase)',
-                        ),
+                        leading: const Icon(Icons.lock_clock_outlined),
+                        title: Text(l10n.settingsAutoLock),
+                        subtitle: Text(l10n.settingsAutoLockSubtitle),
                         enabled: false,
                       ),
                       ListTile(
-                        leading: Icon(Icons.fingerprint),
-                        title: Text('Biometric unlock'),
-                        subtitle: Text('Available on device (later phase)'),
+                        leading: const Icon(Icons.fingerprint),
+                        title: Text(l10n.settingsBiometricUnlock),
+                        subtitle: Text(l10n.settingsBiometricUnlockSubtitle),
                         enabled: false,
                       ),
                     ],
                   ),
                 ),
 
-                const SectionHeader('Privacy'),
+                SectionHeader(l10n.settingsSectionPrivacy),
                 _SettingsGroup(
                   child: Column(
                     children: [
                       ListTile(
                         leading: const Icon(Icons.receipt_long_outlined),
-                        title: const Text('Audit log'),
-                        subtitle: const Text('View privacy-relevant actions'),
+                        title: Text(l10n.settingsAuditLog),
+                        subtitle: Text(l10n.settingsAuditLogSubtitle),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.auditLog),
                       ),
                       ListTile(
                         leading: const Icon(Icons.label_outline),
-                        title: const Text('Custom entity types'),
-                        subtitle: const Text('Define your own detectors'),
+                        title: Text(l10n.settingsCustomEntities),
+                        subtitle: Text(l10n.settingsCustomEntitiesSubtitle),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.customEntities),
                       ),
                       SwitchListTile(
                         key: const Key('keep-original-toggle'),
                         secondary: const Icon(Icons.lock_outline),
-                        title: const Text('Keep encrypted original'),
-                        subtitle: const Text(
-                          'Store the source image/PDF, encrypted — reveal it '
-                          'later with biometrics',
-                        ),
+                        title: Text(l10n.settingsKeepOriginal),
+                        subtitle: Text(l10n.settingsKeepOriginalSubtitle),
                         value: keepOriginal,
                         onChanged: (v) =>
                             ref.read(keepOriginalProvider.notifier).set(v),
@@ -107,14 +104,12 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
 
-                const SectionHeader('About'),
+                SectionHeader(l10n.settingsSectionAbout),
                 _SettingsGroup(
                   child: ListTile(
                     leading: const Icon(Icons.info_outline),
-                    title: const Text('DocuMink'),
-                    subtitle: Text(
-                      'Privacy-first, on-device redaction · ${flavor.name} build',
-                    ),
+                    title: Text(l10n.settingsAboutTitle),
+                    subtitle: Text(l10n.settingsAboutSubtitle(flavor.name)),
                   ),
                 ),
               ],
@@ -125,10 +120,10 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  String _themeLabel(ThemeMode mode) => switch (mode) {
-    ThemeMode.system => 'System default',
-    ThemeMode.light => 'Light',
-    ThemeMode.dark => 'Dark',
+  String _themeLabel(AppLocalizations l10n, ThemeMode mode) => switch (mode) {
+    ThemeMode.system => l10n.settingsThemeSystem,
+    ThemeMode.light => l10n.settingsThemeLight,
+    ThemeMode.dark => l10n.settingsThemeDark,
   };
 }
 

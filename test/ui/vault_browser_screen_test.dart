@@ -3,6 +3,7 @@ import 'package:documink/features/anonymization/anonymization_providers.dart';
 import 'package:documink/features/anonymization/operator.dart';
 import 'package:documink/features/detection/detection_providers.dart';
 import 'package:documink/features/documents/document_repository.dart';
+import 'package:documink/l10n/gen/app_localizations.dart';
 import 'package:documink/ui/screens/document_detail_screen.dart';
 import 'package:documink/ui/screens/vault_browser_screen.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,11 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(home: child),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: child,
+        ),
       ),
     );
     await tester.pumpAndSettle();

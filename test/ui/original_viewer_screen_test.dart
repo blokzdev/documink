@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:documink/features/security/screen_security.dart';
+import 'package:documink/l10n/gen/app_localizations.dart';
 import 'package:documink/ui/screens/original_viewer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,8 @@ void main() {
       ProviderScope(
         overrides: [screenSecurityProvider.overrideWithValue(security)],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: OriginalViewerScreen(bytes: _png1x1, mime: 'image/png'),
         ),
       ),
