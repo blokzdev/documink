@@ -113,6 +113,13 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppTokens.radiusMd),
         ),
       ),
+
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 }
