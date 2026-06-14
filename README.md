@@ -84,7 +84,9 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 **V1 Project system (§6) — manifest + permission enforcement:**
 - `ProjectManifest` parses the §6.1 declarative config (permissions, default policy → `AnonymizationPolicy`, custom-entity seeds, persona); `ProjectPermissions` is **deny-by-default** (bool / `requires_biometric` / absent). `ToolPermissionRegistry` maps every Mink tool to its required permission (§5 table) and decides allow / allow-with-biometric / deny — the project-isolation enforcement point for Mink tool dispatch.
 
-**Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (4–5 input/UI, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 13–14 template/inference UI, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
+**Enablement (build & release):** a manual **Build APK (manual)** workflow (`workflow_dispatch`) produces a sideloadable debug-signed APK artifact for phone testing; a **Release (signed AAB)** workflow signs an App Bundle from upload-key secrets on `v*` tags (Play App Signing). Release signing is scaffolded in `android/app/build.gradle.kts` (debug fallback when secrets absent). See **`SETUP.md`** for the one-time keystore/secrets steps and **`VERIFICATION.md`** for the on-device checklist. (Phase 4↔5 build order swapped — UI before native input; see `docs/roadmap.md`.)
+
+**Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (5 UI then 4 input, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 13–14 template/inference UI, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
 
 ## Development setup
 

@@ -1,0 +1,28 @@
+# Manual, on-demand APK build for sideloading / phone testing.
+# Runs ONLY when triggered from the Actions tab (workflow_dispatch) so it does
+# not consume Action minutes on every push/PR. Produces a debug-signed prod APK
+# (fine for sideloading; Play Store releases use release.yml).
+name: Build APK (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.38.6'
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --flavor prod --release -t lib/main_prod.dart
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documink-prod-release-apk
+          path: build/app/outputs/flutter-apk/app-prod-release.apk
+          retention-days: 14
+          if-no-files-found: error

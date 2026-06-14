@@ -113,3 +113,23 @@ This repo's gates need the Flutter toolchain. In Claude Code web sessions the co
 bare; `tool/setup_web_env.sh` (wired via the SessionStart hook in `.claude/settings.json`)
 installs pinned Flutter 3.38.6. If it failed (e.g. network policy blocked the download),
 gates cannot run — say so; run them on the Windows dev box or in CI instead.
+
+**What runs headless here vs not:** `flutter analyze`, `flutter test` (**including widget
+tests** — UI logic/structure/navigation is testable headless), and the CI scanners run in
+this container. There is **no Android SDK, emulator, or device**, so anything needing native
+platform channels, the encrypted-SQLite build, real rendering, models, or hardware (camera,
+biometric, Keystore, ML Kit/ONNX, Tier-4 runtime, sync transport, signed APK/AAB build)
+**cannot** be verified here.
+
+## Device verification & setup tracking
+
+- **`VERIFICATION.md`** (repo root) is the running checklist of on-device/native checks the
+  maintainer runs on the side. **Standing rule:** whenever a phase defers anything to a device
+  (a gated/skipped test, a native adapter wired at bootstrap, rendering/a11y, models, signed
+  builds), **add a checklist item to `VERIFICATION.md` in the same PR** — never claim a deferred
+  check "passed". Keep items grouped by area with *what / where / device needed*.
+- **`SETUP.md`** (repo root) is the maintainer-facing runbook for anything the agent needs the
+  human to do (secrets/keys the agent must never hold: keystores, signing, Play Store, service
+  accounts). **Keep it current** whenever build/release/secret requirements change, with exact
+  Windows PowerShell commands. The agent never creates or commits keystores, passwords, or
+  service-account files.

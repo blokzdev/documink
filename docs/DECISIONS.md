@@ -9,6 +9,32 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — Enablement: testable APK, Play Store signing, verification/setup governance
+
+Maintainer-directed (the specs don't cover build/release plumbing). Decisions:
+
+- **Sideloadable test APK via a separate manual workflow.** New
+  `.github/workflows/build-apk.yml` is **`workflow_dispatch`-only** so it doesn't burn Action
+  minutes on every PR (maintainer's call). It uploads the debug-signed `app-prod-release.apk`
+  as an artifact. `ci.yml`'s `apk-size-check` is untouched (stays the per-PR size gate, no upload).
+- **Play App Signing + upload key** for Play Store (recommended path). `build.gradle.kts` gains a
+  `release` signingConfig that reads `android/key.properties` (local) or `ANDROID_*` env/secrets
+  (CI), **falling back to debug signing when absent** so secret-less builds (apk-size-check, fork
+  PRs) still compile. New `release.yml` builds a signed AAB on `v*` tags. The agent **never creates
+  or commits keystores/passwords** — the maintainer generates and holds them on their Windows box;
+  `SETUP.md` is the runbook (exact PowerShell). ⚠ review (security-adjacent: signing/secrets) — no
+  invariant weakened; no secret material in the repo (gitignored).
+- **`VERIFICATION.md` introduced** as the running on-device/native verification checklist, seeded
+  from the deferred-items audit; **`SETUP.md`** as the maintainer runbook. `CLAUDE.md` gains a
+  standing rule to append to VERIFICATION.md whenever a phase defers a device check and to keep
+  SETUP.md current. Clarifies that widget tests run headless (UI phases partially gated here).
+- **Phase 4 ↔ 5 execution-order swap.** Build UI/UX scaffolding (Phase 5) before native input
+  handlers (Phase 4): the UI is widget-testable headless and is the scaffold inputs plug into;
+  Phase 4 is mostly native. **Phase numbers kept stable** (avoid breaking "Phase 5 bootstrap"
+  cross-references); documented as a note in `roadmap.md`.
+
+---
+
 ## 2026-06-13 — Governance: self-merge autonomous loop (Option C)
 
 - **Context:** Maintainer instruction to run the roadmap end-to-end: drive CI green, self-merge

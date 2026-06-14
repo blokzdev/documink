@@ -1,0 +1,10 @@
+# Template for android/key.properties (release upload-key signing).
+# Copy to android/key.properties and fill in YOUR values. NEVER commit the real
+# file — it is gitignored. See SETUP.md for how to generate the keystore.
+#
+#   Copy-Item android\key.properties.example android\key.properties   (PowerShell)
+#
+storeFile=C:\\Users\\you\\documink-upload-keystore.jks
+storePassword=CHANGE_ME
+keyAlias=documink-upload
+keyPassword=CHANGE_ME
