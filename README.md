@@ -71,9 +71,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 
 **V1 in progress — Phase 12 (Mink memory, memory.md §3), high-stakes:**
 - **12a (merged)** — the PII-safe write-path invariant (memory.md §3.3): `TokenRef` (Form A) + `<<tok_…>>` inline markers (Form B) + `isTokenRefMap`; `MemoryPiiScanner` runs the detection pipeline over would-be memory content, recursively walking JSON and **excluding token references**, flagging any unreferenced PII; `MemoryWriteGuard.assertNoPlaintext` rejects leaks with a structured `MemoryPiiLeakError`.
-- **12b (this PR)** — `MemoryRepository` for the active-V1 types (Core + Episodic): every write passes the guard; recall is scope-aware (current Project + workspace globals); Episodic recall supports `since`/`episodeType`/`limit`, newest-first. `forget` deletes. Next: 12c — the deterministic recall router (tool-call dispatch, no LLM).
+- **12b (merged)** — `MemoryRepository` for the active-V1 types (Core + Episodic): every write passes the guard; recall is scope-aware (current Project + workspace globals); Episodic recall supports `since`/`episodeType`/`limit`, newest-first. `forget` deletes.
+- **12c (this PR)** — `MemoryRouter`: the deterministic (no-LLM) dispatcher mapping Mink's memory tool calls (`remember`/`recall_core`/`recall_episodic`/`forget`) to the repository; a rejected write (unreferenced PII) surfaces as a failed `MemoryToolResult` rather than throwing. **Completes V1 Phase 12 (Mink memory, active-V1: Core + Episodic + PII-safe write path).**
 
-**Next: V1 Phase 12c — deterministic memory router**; native/UI phases (4–5, 7–8) on a device session.
+**Next: V1 Phase 15 — audit log** (every tool call audited, privacy invariant #7, pure Dart); native/UI phases (4–5, 7–8) on a device session.
 
 ## Development setup
 

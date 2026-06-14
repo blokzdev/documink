@@ -5,6 +5,7 @@ import '../detection/detection_providers.dart';
 import 'memory_guard.dart';
 import 'memory_pii_scanner.dart';
 import 'memory_repository.dart';
+import 'memory_router.dart';
 
 /// Scans would-be memory content for unreferenced PII using the shared
 /// detection pipeline (memory.md §3.3).
@@ -23,4 +24,9 @@ final memoryRepositoryProvider = Provider<MemoryRepository>(
     ref.watch(appDatabaseProvider),
     ref.watch(memoryWriteGuardProvider),
   ),
+);
+
+/// The deterministic router dispatching Mink's memory tool calls (memory.md §4).
+final memoryRouterProvider = Provider<MemoryRouter>(
+  (ref) => MemoryRouter(ref.watch(memoryRepositoryProvider)),
 );
