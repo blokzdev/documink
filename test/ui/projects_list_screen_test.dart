@@ -48,6 +48,12 @@ void main() {
           path: '/projects/new',
           builder: (_, __) => const Scaffold(body: Center(child: Text('NEW'))),
         ),
+        GoRoute(
+          path: '/projects/:id',
+          builder: (_, state) => Scaffold(
+            body: Center(child: Text('DETAIL ${state.pathParameters['id']}')),
+          ),
+        ),
       ],
     );
     await tester.pumpWidget(
@@ -69,9 +75,7 @@ void main() {
     expect(find.byKey(const Key('all-documents')), findsOneWidget);
   });
 
-  testWidgets('lists projects; tapping one activates it and opens the vault', (
-    tester,
-  ) async {
+  testWidgets('lists projects; tapping one opens its detail', (tester) async {
     final repo = container.read(projectRepositoryProvider);
     final id = await repo.create(
       name: 'Medical',
@@ -86,7 +90,19 @@ void main() {
     await tester.tap(find.byKey(Key('project-$id')));
     await tester.pumpAndSettle();
 
-    expect(container.read(activeProjectProvider), id);
+    expect(find.text('DETAIL $id'), findsOneWidget);
+  });
+
+  testWidgets('"All documents" clears the active project and opens the vault', (
+    tester,
+  ) async {
+    container.read(activeProjectProvider.notifier).set('something');
+    await pump(tester);
+
+    await tester.tap(find.byKey(const Key('all-documents')));
+    await tester.pumpAndSettle();
+
+    expect(container.read(activeProjectProvider), isNull);
     expect(find.text('VAULT'), findsOneWidget);
   });
 

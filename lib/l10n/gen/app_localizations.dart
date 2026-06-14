@@ -735,6 +735,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{template} · updated {date}'**
   String projectsTemplateLine(String template, String date);
+
+  /// Project detail tab: documents.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get projectDetailDocumentsTab;
+
+  /// Project detail tab: settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get projectDetailSettingsTab;
+
+  /// Error state for the project detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this project'**
+  String get projectDetailLoadError;
+
+  /// Shown when the project is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Project not found.'**
+  String get projectDetailNotFound;
+
+  /// Empty state for a project's documents tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents in this project yet'**
+  String get projectDetailNoDocuments;
+
+  /// Toggle: make this the active project.
+  ///
+  /// In en, this message translates to:
+  /// **'Active project'**
+  String get projectDetailActive;
+
+  /// Subtitle for the active-project toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'New captures and saves go to this project'**
+  String get projectDetailActiveSubtitle;
+
+  /// Settings section: Mink permissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get projectSectionPermissions;
+
+  /// Settings section: default anonymization policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Default redaction policy'**
+  String get projectSectionPolicy;
+
+  /// Settings section: Mink persona.
+  ///
+  /// In en, this message translates to:
+  /// **'Mink persona'**
+  String get projectSectionPersona;
+
+  /// Hint for the persona field.
+  ///
+  /// In en, this message translates to:
+  /// **'Persona id (e.g. medical_records_conservative)'**
+  String get projectPersonaHint;
+
+  /// Button: save the persona.
+  ///
+  /// In en, this message translates to:
+  /// **'Save persona'**
+  String get projectPersonaSave;
+
+  /// Snackbar after a settings change is persisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings updated'**
+  String get projectSettingsSaved;
+
+  /// Policy dropdown option: no explicit operator (use fallback).
+  ///
+  /// In en, this message translates to:
+  /// **'Default (—)'**
+  String get projectPolicyInherit;
+
+  /// Decode permission: denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get projectDecodeOff;
+
+  /// Decode permission: granted.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get projectDecodeOn;
+
+  /// Decode permission: granted but biometric-gated.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric'**
+  String get projectDecodeBiometric;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Read documents'**
+  String get permReadDocuments;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect PII'**
+  String get permDetectPii;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymize'**
+  String get permAnonymize;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal originals (decode)'**
+  String get permDecode;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewrite content'**
+  String get permRewriteContent;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand content'**
+  String get permExpandContent;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get permExport;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify project settings'**
+  String get permModifyProjectSettings;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-project search'**
+  String get permCrossProjectSearch;
+
+  /// Permission label.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the web'**
+  String get permSearchWeb;
 }
 
 class _AppLocalizationsDelegate

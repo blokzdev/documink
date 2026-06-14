@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/app_database.dart';
 import '../../services/database_providers.dart';
+import '../documents/document_repository.dart';
 import 'project_repository.dart';
 import 'template_manifest.dart';
 import 'template_service.dart';
@@ -29,6 +30,14 @@ final projectsListProvider = FutureProvider.autoDispose<List<Project>>(
 final projectByIdProvider = FutureProvider.autoDispose.family<Project?, String>(
   (ref, id) => ref.watch(projectRepositoryProvider).getById(id),
 );
+
+/// The documents belonging to a specific Project (newest first), for the project
+/// detail screen — scoped by id rather than the active selection.
+final projectDocumentsProvider = FutureProvider.autoDispose
+    .family<List<Document>, String>(
+      (ref, id) =>
+          ref.watch(documentRepositoryProvider).listDocuments(projectId: id),
+    );
 
 /// Loads + verifies the bundled, Ed25519-signed Verified-templates catalog.
 final templateServiceProvider = Provider<TemplateService>(

@@ -151,10 +151,7 @@ class _ProjectCard extends ConsumerWidget {
             ),
           ],
         ),
-        onTap: () {
-          ref.read(activeProjectProvider.notifier).set(project.id);
-          context.push(Routes.vault);
-        },
+        onTap: () => context.push(Routes.projectDetail(project.id)),
       ),
     );
   }
