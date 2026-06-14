@@ -603,6 +603,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unsupported document type'**
   String get originalViewerUnsupported;
+
+  /// Template picker app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Project'**
+  String get templatePickerTitle;
+
+  /// Template picker intro text.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a Verified template — each sets up sensible redaction defaults, custom detectors, and a Mink persona for its domain.'**
+  String get templatePickerSubtitle;
+
+  /// Error state when the signed templates catalog fails to load/verify.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load templates'**
+  String get templatePickerLoadError;
+
+  /// Preview section: the template's default policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Redaction defaults'**
+  String get templatePreviewDefaults;
+
+  /// Preview section: the template's seeded custom entity types.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom detectors'**
+  String get templatePreviewCustomEntities;
+
+  /// Preview section: the template's Mink persona.
+  ///
+  /// In en, this message translates to:
+  /// **'Mink persona'**
+  String get templatePreviewPersona;
+
+  /// Shown when a template has no explicit default policy (e.g. blank).
+  ///
+  /// In en, this message translates to:
+  /// **'Safe defaults — tune in Project settings'**
+  String get templatePreviewNoDefaults;
+
+  /// Label for the new-project name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Project name'**
+  String get templateProjectNameLabel;
+
+  /// Button: create a project from the selected template.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Project'**
+  String get templateCreateProject;
+
+  /// Snackbar confirming the project was created.
+  ///
+  /// In en, this message translates to:
+  /// **'Project created'**
+  String get templateProjectCreated;
 }
 
 class _AppLocalizationsDelegate

@@ -300,4 +300,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get originalViewerUnsupported => 'Unsupported document type';
+
+  @override
+  String get templatePickerTitle => 'New Project';
+
+  @override
+  String get templatePickerSubtitle =>
+      'Start from a Verified template — each sets up sensible redaction defaults, custom detectors, and a Mink persona for its domain.';
+
+  @override
+  String get templatePickerLoadError => 'Could not load templates';
+
+  @override
+  String get templatePreviewDefaults => 'Redaction defaults';
+
+  @override
+  String get templatePreviewCustomEntities => 'Custom detectors';
+
+  @override
+  String get templatePreviewPersona => 'Mink persona';
+
+  @override
+  String get templatePreviewNoDefaults =>
+      'Safe defaults — tune in Project settings';
+
+  @override
+  String get templateProjectNameLabel => 'Project name';
+
+  @override
+  String get templateCreateProject => 'Create Project';
+
+  @override
+  String get templateProjectCreated => 'Project created';
 }
