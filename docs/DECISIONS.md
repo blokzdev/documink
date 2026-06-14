@@ -9,6 +9,36 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 4c-1: encrypted original-document core (HIGH-STAKES — fuller logging) ⚠ review
+
+The headless crypto/schema core for retaining original documents encrypted, revealable via biometric
+(design logged earlier; built per the approved plan). UI/data-flow/viewer is 4c-2.
+
+- **Blob crypto:** added `TokenCrypto.encryptBytes/decryptBytes(Uint8List, {aad})` — AES-256-GCM under
+  the vault **DEK**, **AAD = documentId** (binds a blob to its document; a relabelled/swapped blob
+  fails auth), `nonce‖ct‖mac` form, fresh random 96-bit nonce per call. ≤25 MB in RAM (research:
+  no streaming needed). Reuses the exact primitive the token crypto already uses.
+- **Storage (maintainer-chosen): BLOB inside the SQLCipher DB.** New `document_originals` table
+  `(id, documentId→Documents FK [unique], mime, sizeBytes, ciphertext BLOB, keyVersion, createdAt)`.
+  Double-encrypted (our AES-GCM + SQLCipher). Chosen over external file for atomic cascade-delete,
+  no orphans, and uniform CRDT-sync later (research preferred external-file for >1 MB perf — accepted
+  the DB-growth trade-off for integrity/sync simplicity; documents are modest).
+- **First DB migration:** `schemaVersion` 1→2 + `onUpgrade` (`if (from<2) createTable(documentOriginals)`).
+  Regenerated `app_database.g.dart`. **Migration test** exercises the real `onUpgrade(1→2)` callback
+  (simulate v1 by dropping the table + user_version=1, re-run, assert table recreated + prior rows
+  intact). Did **not** stand up drift's full schema-snapshot harness — no committed v1 snapshot
+  existed; the focused callback test is honest coverage. (Follow-up: adopt `drift_dev schema dump`
+  snapshots when the next migration lands.)
+- **Repository + cascade:** `OriginalsRepository` (save/replace [one row per doc] / fetch / decrypt);
+  deletion wired into `DocumentRepository.deleteDocument`'s transaction (cascade).
+- **Reveal:** `OriginalRevealService` mirrors `RevealService` — `Authenticator` gate → decrypt →
+  `RevealedOriginal(bytes, mime)`; audits `document_original_revealed` (success/deny + size/mime); no
+  prompt when there's no original; plaintext never persisted/logged. Added the audit constant.
+- **Opt-in:** `keepOriginalProvider` over `SettingsStore` (non-PII), **default off**.
+- **Scope:** capturing the original (data-flow), the secure viewer (Image.memory/pdfx), FLAG_SECURE,
+  the Settings toggle + contextual notice are **4c-2** — originals can't be created from the UI yet;
+  the core is proven in isolation. Flagged ⚠ for `security-review`.
+
 ## 2026-06-14 — V1 Phase 4d: inbound share-sheet intent (completes Phase 4 input)
 
 - **Scope:** other apps share text/images INTO DocuMink (`ACTION_SEND`). Last Phase 4 input handler;

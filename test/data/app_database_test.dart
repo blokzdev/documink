@@ -25,6 +25,7 @@ void main() {
     'workspaces',
     'projects',
     'documents',
+    'document_originals',
     'entities',
     'tokens',
     'custom_entity_types',
@@ -42,6 +43,7 @@ void main() {
 
   const expectedIndexes = {
     'idx_tokens_fingerprint',
+    'idx_document_originals_document',
     'idx_entities_document',
     'idx_chat_messages_session',
     'idx_episodic_time',
@@ -61,7 +63,7 @@ void main() {
     return rows.map((r) => r.read<String>('name')).toSet();
   }
 
-  test('creates exactly the 16 relational tables (no vec0 table)', () async {
+  test('creates exactly the 17 relational tables (no vec0 table)', () async {
     final tables = await objectNames('table');
     expect(tables, containsAll(expectedTables));
     expect(tables, isNot(contains('mink_embeddings')));

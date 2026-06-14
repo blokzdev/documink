@@ -174,6 +174,10 @@ class DocumentRepository {
       await (_db.delete(
         _db.entities,
       )..where((e) => e.documentId.equals(documentId))).go();
+      // Encrypted original (Phase 4c), if any, is removed in the same cascade.
+      await (_db.delete(
+        _db.documentOriginals,
+      )..where((o) => o.documentId.equals(documentId))).go();
       await (_db.delete(
         _db.documents,
       )..where((d) => d.id.equals(documentId))).go();

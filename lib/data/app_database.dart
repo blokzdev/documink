@@ -69,6 +69,29 @@ class Documents extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// Encrypted original source file kept for a document (Phase 4c, opt-in). One row
+// per document (unique document_id). `ciphertext` is the AES-256-GCM blob
+// (nonce‖ct‖mac) of the original bytes under the vault DEK with AAD = document_id;
+// the DB itself is SQLCipher-encrypted on top. Deleted in the document's delete
+// cascade. Added in schema v2.
+@TableIndex(
+  name: 'idx_document_originals_document',
+  columns: {#documentId},
+  unique: true,
+)
+class DocumentOriginals extends Table {
+  TextColumn get id => text()(); // ULID
+  TextColumn get documentId => text().references(Documents, #id)();
+  TextColumn get mime => text()(); // 'image/jpeg','image/png','application/pdf'
+  IntColumn get sizeBytes => integer()(); // plaintext byte length
+  BlobColumn get ciphertext => blob()(); // AES-256-GCM nonce‖ct‖mac, AAD=doc id
+  IntColumn get keyVersion => integer()();
+  IntColumn get createdAt => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @TableIndex(name: 'idx_entities_document', columns: {#documentId})
 class Entities extends Table {
   TextColumn get id => text()();
@@ -325,6 +348,7 @@ class MinkProceduralMemory extends Table {
     Workspaces,
     Projects,
     Documents,
+    DocumentOriginals,
     Entities,
     Tokens,
     CustomEntityTypes,
@@ -346,12 +370,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      // v1 → v2: add the encrypted original-document table (Phase 4c).
+      if (from < 2) {
+        await m.createTable(documentOriginals);
+      }
     },
     beforeOpen: (details) async {
       // Enforce foreign keys on every connection (prod + tests). For the
