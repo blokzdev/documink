@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "signed_at": "2026-06-14T00:00:00Z",
+  "templates": [
+    {
+      "template_id": "personal",
+      "name": "Personal",
+      "description": "Receipts, forms, IDs, and utility bills. Friendly and permissive, with reversible defaults so you can recover values later.",
+      "domain": "personal",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "token_random",
+        "EMAIL": "mask",
+        "PHONE": "mask",
+        "SSN": "redact",
+        "CREDIT_CARD": "fpe",
+        "LOCATION": "token_random",
+        "DATE_OF_BIRTH": "redact"
+      },
+      "custom_entity_types": [],
+      "mink_persona": "personal_assistant_friendly",
+      "mink_system_prompt_addendum": "You are operating in a Personal Project. Keep things approachable. Prefer reversible anonymization (tokens) for everyday documents the user may need to recover.",
+      "expected_file_types": ["pdf", "image"]
+    },
+    {
+      "template_id": "medical",
+      "name": "Medical",
+      "description": "Clinical notes, insurance forms, and prescriptions. Conservative PHI defaults; content rewriting is disabled.",
+      "domain": "healthcare",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "token_random",
+        "MRN": "fpe",
+        "DATE_OF_BIRTH": "redact",
+        "SSN": "redact",
+        "PHONE": "mask",
+        "EMAIL": "mask",
+        "LOCATION": "token_random"
+      },
+      "custom_entity_types": [
+        {
+          "label": "PROVIDER_NPI",
+          "regex": "\\b\\d{10}\\b",
+          "validator": "none",
+          "default_operator": "fpe"
+        }
+      ],
+      "mink_persona": "medical_records_conservative",
+      "mink_system_prompt_addendum": "You are operating in a Medical Records Project. Be conservative and precise. Never fabricate clinical details. Prefer reversible anonymization (FPE or tokens) over irreversible redaction for data the user may need to recover. You may not rewrite or expand document content here.",
+      "expected_file_types": ["pdf", "image"]
+    },
+    {
+      "template_id": "legal",
+      "name": "Legal",
+      "description": "Agreements, discovery, and client correspondence. Strict anonymization defaults.",
+      "domain": "legal",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "token_random",
+        "EMAIL": "token_random",
+        "PHONE": "mask",
+        "SSN": "redact",
+        "LOCATION": "token_random",
+        "IBAN": "fpe",
+        "DATE": "replace"
+      },
+      "custom_entity_types": [
+        {
+          "label": "CASE_NUMBER",
+          "regex": "\\b\\d{2,4}-[A-Z]{2,4}-\\d{3,6}\\b",
+          "validator": "none",
+          "default_operator": "token_random"
+        }
+      ],
+      "mink_persona": "legal_precise_conservative",
+      "mink_system_prompt_addendum": "You are operating in a Legal Project. Be precise and conservative. Do not infer legal conclusions. Prefer reversible anonymization so privilege and identities can be restored when authorized.",
+      "expected_file_types": ["pdf", "image"]
+    },
+    {
+      "template_id": "tax",
+      "name": "Tax",
+      "description": "Returns, statements, and tax forms. Format-preserving defaults for identifiers you must keep well-formed.",
+      "domain": "finance",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "SSN": "fpe",
+        "CREDIT_CARD": "fpe",
+        "IBAN": "fpe",
+        "PERSON": "token_random",
+        "EMAIL": "mask",
+        "DATE": "replace"
+      },
+      "custom_entity_types": [
+        {
+          "label": "EIN",
+          "regex": "\\b\\d{2}-\\d{7}\\b",
+          "validator": "none",
+          "default_operator": "fpe"
+        }
+      ],
+      "mink_persona": "tax_precise",
+      "mink_system_prompt_addendum": "You are operating in a Tax Project. Identifiers must stay well-formed — prefer format-preserving encryption (FPE) for ID and account numbers so downstream forms still validate.",
+      "expected_file_types": ["pdf", "image"]
+    },
+    {
+      "template_id": "research",
+      "name": "Research",
+      "description": "Source material and interviews. Defaults tuned to protect sources.",
+      "domain": "research",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "token_random",
+        "EMAIL": "token_random",
+        "PHONE": "redact",
+        "LOCATION": "token_random",
+        "DATE": "replace"
+      },
+      "custom_entity_types": [],
+      "mink_persona": "research_source_protective",
+      "mink_system_prompt_addendum": "You are operating in a Research Project. Protect source identities. Prefer consistent tokens so the same source reads consistently across documents while remaining de-identified.",
+      "expected_file_types": ["pdf", "image"]
+    },
+    {
+      "template_id": "creative",
+      "name": "Creative",
+      "description": "Drafts, manuscripts, and outlines. Permissive — rewriting and expansion are enabled.",
+      "domain": "creative",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": true,
+        "rewrite_content": true,
+        "expand_content": true,
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "replace",
+        "LOCATION": "replace",
+        "EMAIL": "mask"
+      },
+      "custom_entity_types": [],
+      "mink_persona": "creative_collaborator",
+      "mink_system_prompt_addendum": "You are operating in a Creative Project. Be a collaborative writing partner. You may rewrite and expand content here. Use readable pseudonyms (replace) rather than opaque tokens so drafts stay readable.",
+      "expected_file_types": ["pdf", "image", "text"]
+    },
+    {
+      "template_id": "engineering",
+      "name": "Engineering",
+      "description": "RFCs, incident reports, and code reviews. Custom entities for internal identifiers; rewriting enabled.",
+      "domain": "engineering",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": true,
+        "rewrite_content": true,
+        "expand_content": true,
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {
+        "PERSON": "token_random",
+        "EMAIL": "mask",
+        "IP_ADDRESS": "redact",
+        "URL": "mask"
+      },
+      "custom_entity_types": [
+        {
+          "label": "INTERNAL_TICKET",
+          "regex": "\\b[A-Z]{2,6}-\\d{1,6}\\b",
+          "validator": "none",
+          "default_operator": "replace"
+        },
+        {
+          "label": "SERVER_HOSTNAME",
+          "regex": "\\b[a-z0-9-]+\\.(?:internal|corp|local)\\b",
+          "validator": "none",
+          "default_operator": "mask"
+        }
+      ],
+      "mink_persona": "engineering_pragmatic",
+      "mink_system_prompt_addendum": "You are operating in an Engineering Project. Be pragmatic and concise. You may rewrite and expand content. Redact internal hostnames and IPs; keep ticket identifiers readable via replacement.",
+      "expected_file_types": ["pdf", "image", "text"]
+    },
+    {
+      "template_id": "blank",
+      "name": "Blank",
+      "description": "A minimal starting point. Detection and anonymization are on with safe defaults; tune everything in Project settings.",
+      "domain": "general",
+      "manifest_schema_version": 1,
+      "permissions": {
+        "read_documents": true,
+        "detect_pii": true,
+        "anonymize": true,
+        "decode": "requires_biometric",
+        "export": true,
+        "modify_project_settings": true
+      },
+      "default_policy": {},
+      "custom_entity_types": [],
+      "mink_persona": "general_assistant",
+      "mink_system_prompt_addendum": "You are operating in a general-purpose Project. Use safe defaults and ask the user when a redaction choice is ambiguous.",
+      "expected_file_types": ["pdf", "image", "text"]
+    }
+  ]
+}

@@ -9,6 +9,39 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 P14b-1: Verified-templates backend (signed, bundled)
+
+- **Context:** Phase 14b ships the 8 Verified Project templates as an
+  Ed25519-signed catalog (blueprint §6.3/§6.4). The Phase-9 model manifest
+  already has the exact infra (signed `{alg,key_id,signature,body}` wrapper +
+  pinned-key verify + dev signing script + bundled asset).
+- **Options:** (A) fork `ManifestVerifier`'s Ed25519 verification for templates;
+  (B) extract a shared verification core both manifests use.
+- **Choice:** **B.** New `lib/features/security/signed_manifest.dart`
+  (`verifyEd25519SignedManifest(signedJson, {pinnedPublicKeyBase64}) → body`),
+  consumed by both the refactored `ManifestVerifier` (Phase 9, unchanged public
+  API/exception) and the new `TemplateService`. One audited signature path.
+- **Rationale:** never fork a security-sensitive verification routine; the
+  refactor is directly in service of adding the second consumer (in-scope), and
+  the existing `manifest_verifier_test` proves no regression.
+
+### Sub-decisions (14b-1)
+- **Distinct templates signing key.** `tool/scripts/sign_template_manifest.dart`
+  uses a dev seed distinct from the model key; the templates public key is pinned
+  in `TemplateService.defaultPublicKeyBase64`. Dev/review key — production pinned
+  at release, never committed (mirrors models.md §5).
+- **Bundled now, remote later.** `TemplateService` loads the bundled signed asset
+  (offline last-known-good). The signed **remote** refresh
+  (`documink.ai/templates`) and CRDT-synced personal templates are seams for
+  later slices (14b-2/14d) — tracked.
+- **Verified templates use only V1-supported validators.** Custom-entity seeds in
+  the 8 templates use `none`/`luhn` (e.g. `PROVIDER_NPI` carries `none` + an FPE
+  default), matching `CustomValidator`. A richer validator set (`luhn_npi`, etc.)
+  is a future enum extension; until then seeding falls back to `none` (14a).
+- **Picker UI is 14b-2.** This slice is the headless backend (service +
+  manifest + 8 templates + signing); the template picker + create-from-template
+  flow (creation Path A) is the next sub-PR.
+
 ## 2026-06-14 — V1 P14a: Projects core, and how Phase 14 is sliced
 
 - **Context:** Phase 14 (Projects & templates) is large and partly depends on phases not yet

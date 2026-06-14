@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
-
+import '../security/signed_manifest.dart';
 import 'model_manifest.dart';
 
 /// Raised when a signed manifest fails verification or is malformed. The app
@@ -21,9 +20,7 @@ class ManifestVerificationException implements Exception {
 /// string, so verification is independent of any JSON re-serialization.
 class ManifestVerifier {
   ManifestVerifier({String? pinnedPublicKeyBase64})
-    : _publicKeyBytes = base64.decode(
-        pinnedPublicKeyBase64 ?? defaultPublicKeyBase64,
-      );
+    : _pinnedPublicKeyBase64 = pinnedPublicKeyBase64 ?? defaultPublicKeyBase64;
 
   /// The pinned manifest **public** key (Ed25519, base64). This is a
   /// development/review key; the production key is pinned at release. Key
@@ -31,52 +28,22 @@ class ManifestVerifier {
   static const String defaultPublicKeyBase64 =
       'ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=';
 
-  final List<int> _publicKeyBytes;
-  final Ed25519 _algorithm = Ed25519();
+  final String _pinnedPublicKeyBase64;
 
   /// Verifies [signedJson] and returns the parsed [ModelManifest]. Throws
   /// [ManifestVerificationException] on any signature/format failure — never
-  /// returns an unverified manifest.
+  /// returns an unverified manifest. Delegates signature verification to the
+  /// shared [verifyEd25519SignedManifest] core (the single audited path used by
+  /// both the model and templates manifests).
   Future<ModelManifest> verifyAndParse(String signedJson) async {
-    final Map<String, dynamic> outer;
+    final String body;
     try {
-      outer = jsonDecode(signedJson) as Map<String, dynamic>;
-    } catch (_) {
-      throw const ManifestVerificationException('signed manifest is not JSON');
-    }
-
-    if (outer['alg'] != 'ed25519') {
-      throw ManifestVerificationException(
-        'unsupported signature algorithm: ${outer['alg']}',
+      body = await verifyEd25519SignedManifest(
+        signedJson,
+        pinnedPublicKeyBase64: _pinnedPublicKeyBase64,
       );
-    }
-    final signatureB64 = outer['signature'];
-    final body = outer['body'];
-    if (signatureB64 is! String || body is! String) {
-      throw const ManifestVerificationException(
-        'malformed signed manifest (missing signature/body)',
-      );
-    }
-
-    final publicKey = SimplePublicKey(
-      _publicKeyBytes,
-      type: KeyPairType.ed25519,
-    );
-    final List<int> signatureBytes;
-    try {
-      signatureBytes = base64.decode(signatureB64);
-    } catch (_) {
-      throw const ManifestVerificationException('signature is not base64');
-    }
-
-    final valid = await _algorithm.verify(
-      utf8.encode(body),
-      signature: Signature(signatureBytes, publicKey: publicKey),
-    );
-    if (!valid) {
-      throw const ManifestVerificationException(
-        'signature verification failed (pinned key mismatch or tampered body)',
-      );
+    } on SignedManifestException catch (e) {
+      throw ManifestVerificationException(e.message);
     }
 
     try {
