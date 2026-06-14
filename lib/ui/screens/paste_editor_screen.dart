@@ -94,6 +94,22 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                     key: const Key('redacted-preview'),
                   ),
                 ),
+                const SizedBox(height: AppTokens.spacingMd),
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    final id = await controller.save();
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          id != null ? 'Saved to vault' : 'Nothing to save',
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('Save to vault'),
+                ),
               ],
             ],
           ],
