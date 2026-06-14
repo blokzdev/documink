@@ -108,8 +108,15 @@ with fakes; the native adapters need a device:
 - ☐ **No PII page-images linger** — after a scanned-PDF import, the app cache dir
   (`getTemporaryDirectory()`) holds **no leftover `pdf_page_*.png`** files; OCR still succeeds.
   (Delete-after-use is unit-asserted via a fake disposer; this confirms the real deletion on device.)
-- ☐ **Inbound share-sheet intent** *(tracked follow-up — next PR)* — receiving text/images shared
-  from another app into DocuMink.
+**Inbound share-sheet intent (Phase 4d)** — `ShareIntentCoordinator` routing is headless-tested
+with a fake receiver; the native `ACTION_SEND` receipt needs a device:
+- ☐ **Share text** — from another app (e.g. a browser/notes) → DocuMink opens the editor seeded with
+  the text and auto-detects. *(receive_sharing_intent; AndroidManifest SEND text/plain)*
+- ☐ **Share image** — share a photo → OCR runs → editor seeded with the recognized text.
+- ☐ **Share while locked** — share when the vault is locked → app shows the unlock screen, then routes
+  to the editor **after** unlocking (the held-pending path). Nothing routes while locked.
+- ☐ **Warm relaunch (singleTop)** — sharing again while DocuMink is already running routes the new
+  share (the `getMediaStream()` path), not just the cold-start one.
 
 ## Settings persistence (Phase 5d)
 

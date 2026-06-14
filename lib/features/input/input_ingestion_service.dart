@@ -66,6 +66,19 @@ class InputIngestionService {
     );
   }
 
+  /// Wrap text shared from another app (no OCR — it's already text).
+  IngestedText ingestSharedText(String text) => IngestedText(
+    text: text,
+    source: InputSourceKind.sharedText,
+    warnings: text.trim().isEmpty
+        ? const ['The shared text was empty.']
+        : const [],
+  );
+
+  /// OCR an image shared from another app — reuses the camera/import OCR path.
+  Future<IngestedText> ingestSharedImage(String path) =>
+      _ingestImage(PickedImage(path: path), InputSourceKind.sharedText);
+
   /// Pick a PDF, extract its text layer page-by-page, and OCR any scanned
   /// (text-less) pages by rasterizing them through the existing
   /// [OcrRecognizer]. Returns null if the user cancels.

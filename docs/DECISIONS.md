@@ -9,6 +9,31 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 4d: inbound share-sheet intent (completes Phase 4 input)
+
+- **Scope:** other apps share text/images INTO DocuMink (`ACTION_SEND`). Last Phase 4 input handler;
+  done before the high-stakes Phase 4c (maintainer-chosen order).
+- **Plugin:** `receive_sharing_intent ^1.8.1` (**Apache-2.0**, license-clean; resolves on the pinned
+  toolchain — dry-run verified; scanner green). Chosen over `share_handler` (MIT) as the more
+  established option; both were pre-vetted. Exposes `getInitialMedia()` (cold start) +
+  `getMediaStream()` (warm/singleTop) + `reset()`.
+- **Reuse:** received text → the editor's existing `initialText` seam; received image → the existing
+  `_ingestImage` OCR path (new `ingestSharedText`/`ingestSharedImage` on `InputIngestionService`).
+  `InputSourceKind.sharedText` already existed.
+- **Held-until-unlocked (privacy + correctness):** the editor needs the unlocked vault and PII must
+  not route into a locked app, so `ShareIntentCoordinator` holds a share received while locked and
+  flushes it on the `appUnlockedProvider` locked→unlocked transition. The coordinator is pure-Dart
+  and unit-tested (navigation injected as a callback, not the GoRouter; unlock state injected).
+- **Route both text & image to the editor** (images OCR'd first) rather than a separate shared-image
+  "recognized text review" screen — consistent + minimal for V1; richer review can come later.
+- **Root wiring:** `DocuMinkApp` became a `ConsumerStatefulWidget` to own the coordinator lifecycle
+  (start after first frame; `ref.listenManual(appUnlockedProvider)` to flush; dispose the stream sub).
+- **V1 takes the first shared item;** `SEND_MULTIPLE` batch beyond the first is V3.
+- **Build fix:** `receive_sharing_intent` 1.8.1's Android module compiles Java at 1.8 but Kotlin at
+  17; AGP 8 + Kotlin 2.x fail that intra-module mismatch. Set
+  `kotlin.jvm.target.validation.mode=warning` in `android/gradle.properties` (our own modules stay
+  uniformly 17). The mixed target is benign on minSdk 26 (D8 desugars); revisit when the plugin aligns.
+
 ## 2026-06-14 — Design intent: encrypted original-document retention + reveal (Phase 4c) ⚠ review
 
 - **Context (maintainer-requested):** while discussing the rasterized-page temp file, the maintainer
