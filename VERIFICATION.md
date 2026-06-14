@@ -34,6 +34,10 @@ an item here in the same PR.
   salt + wrapped KEK via Android Keystore (and Windows DPAPI on V2). Unit tests use
   an in-memory fake. *(lib/services/secure_key_store.dart)*
 - ☐ **Best-effort key zeroization** behaves as documented on a real run (managed-Dart caveat).
+- ☐ **Vault unlock UX on device** (Phase 5e) — first-run create (passphrase + confirm) →
+  `initialize` against the real **encrypted** DB; relaunch → unlock; wrong passphrase rejected;
+  auto-lock after timeout returns to the unlock screen; router gate blocks all screens while locked.
+  Headless tests use the plain executor; this confirms the SQLCipher-backed path end-to-end.
 
 ## Detection (Phase 2)
 

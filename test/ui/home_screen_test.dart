@@ -1,12 +1,17 @@
 import 'package:documink/core/bootstrap.dart';
 import 'package:documink/core/flavors/flavor.dart';
+import 'package:documink/services/vault_providers.dart';
 import 'package:documink/ui/theme/theme_mode_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 ProviderContainer _container() => ProviderContainer(
-  overrides: [currentFlavorProvider.overrideWithValue(Flavor.dev)],
+  overrides: [
+    currentFlavorProvider.overrideWithValue(Flavor.dev),
+    // Bypass the vault gate so the app lands on Home.
+    appUnlockedProvider.overrideWithValue(true),
+  ],
 );
 
 Future<ProviderContainer> _pumpApp(WidgetTester tester) async {
