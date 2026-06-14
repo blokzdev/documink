@@ -43,6 +43,12 @@ class HomeScreen extends ConsumerWidget {
       description: 'Your on-device assistant',
       route: Routes.chat,
     ),
+    _HomeAction(
+      icon: Icons.folder_outlined,
+      label: 'My documents',
+      description: 'Browse your saved vault',
+      route: Routes.vault,
+    ),
   ];
 
   @override
