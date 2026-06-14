@@ -20,6 +20,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P6a: custom entity types core
+
+- **Naming.** drift already generates a `CustomEntityType` data class for the table; the domain model
+  is `CustomEntityDefinition` to avoid collision (validator/operator as enums, examples as a list;
+  the repository maps to/from the string/JSON drift row).
+- **Validators.** roadmap §6 specifies `luhn` | `none`; implemented both (blueprint §4 also mentions
+  `luhn_npi` — deferred until a concrete NPI rule is needed; `CustomValidator` is extensible).
+- **Form validation** also checks that provided **examples match the pattern and pass the validator**
+  (catches author mistakes early) — beyond the bare roadmap list.
+- **Recognizer priority** default 5 (above raw Tier 1 structured but below contextual tiers); tunable.
+  Zero-width matches are skipped (would violate the `DetectedSpan` end>start invariant).
+- **ReDoS safety deferred to 6b.** 6a compiles patterns vetted by the validator; the *live preview*
+  sandbox with isolate timeout (untrusted pattern × adversarial input) is its own chunk. Pipeline
+  execution of stored patterns runs in the detection isolate.
+
 ## 2026-06-14 — V1 P9c: profiler persistence + orchestration (completes Phase 9)
 
 - **Persistence shape (decision).** §4.7 lists several `llm_*` `vault_meta` fields. Stored as a
