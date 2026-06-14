@@ -9,6 +9,25 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5f: reversible operators in the editor
+
+- **Token-Random + Encrypt added; FPE held back.** FF1 requires a minimum numeric domain and throws
+  on arbitrary text, so offering it per-label generically would crash on non-numeric entities. FPE
+  belongs with per-type applicability (numeric labels only) — deferred to a later chunk. Token-Random
+  and Encrypt handle arbitrary strings safely.
+- **Preview-only; tokens not persisted.** Computing the preview mints `TokenRecord`s (random
+  surrogate + ciphertext) but does **not** write them to the `tokens` table — persistence (required
+  for later decode/reversal) happens at save/export, a later phase. Documented so reviewers know the
+  preview's surrogates aren't yet reversible-from-storage.
+- **Editor is always behind the unlock gate** (Phase 5e), so routing the preview through the
+  vault-backed `AnonymizationService` is safe; a failed anonymize keeps the prior preview and surfaces
+  a generic error rather than crashing.
+- **Picker → wrapping `ChoiceChip`s** (was `SegmentedButton`) because five options overflow a row;
+  chips wrap and stay tappable/accessible.
+- **Shared `test/support/test_vault.dart`** provides an unlocked in-memory vault (Phase-1c seam:
+  fake `SecureKeyStore` + plain `NativeDatabase`) so the editor's vault-backed path is fully
+  headless-tested.
+
 ## 2026-06-14 — V1 Phase 5e: vault unlock UX (HIGH-STAKES — fuller logging)
 
 The passphrase gate is the UI over the Phase-1 `VaultService`; no new crypto, no change to key

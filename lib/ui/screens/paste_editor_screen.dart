@@ -56,6 +56,13 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
               label: const Text('Detect'),
             ),
             const SizedBox(height: AppTokens.spacingMd),
+            if (state.error != null) ...[
+              Text(
+                state.error!,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+              const SizedBox(height: AppTokens.spacingSm),
+            ],
             if (state.status == EditorStatus.ready) ...[
               Text(
                 state.entityCount == 0
@@ -122,13 +129,16 @@ class _EntityRow extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: AppTokens.spacingSm),
-            SegmentedButton<Operator>(
-              segments: [
+            Wrap(
+              spacing: AppTokens.spacingSm,
+              children: [
                 for (final op in editorOperators)
-                  ButtonSegment(value: op, label: Text(_opLabel(op))),
+                  ChoiceChip(
+                    label: Text(_opLabel(op)),
+                    selected: selected == op,
+                    onSelected: (_) => onChanged(op),
+                  ),
               ],
-              selected: {selected},
-              onSelectionChanged: (s) => onChanged(s.first),
             ),
           ],
         ),
@@ -140,6 +150,8 @@ class _EntityRow extends StatelessWidget {
     Operator.redact => 'Redact',
     Operator.mask => 'Mask',
     Operator.replace => 'Replace',
-    _ => op.policyName,
+    Operator.tokenRandom => 'Token',
+    Operator.encrypt => 'Encrypt',
+    Operator.fpe => 'FPE',
   };
 }
