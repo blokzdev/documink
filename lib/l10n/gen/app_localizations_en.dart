@@ -454,4 +454,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permSearchWeb => 'Search the web';
+
+  @override
+  String get wizardTitle => 'New Project — guided';
+
+  @override
+  String get wizardStepBasics => 'Basics';
+
+  @override
+  String get wizardStepData => 'Sensitive data';
+
+  @override
+  String get wizardStepPermissions => 'Permissions';
+
+  @override
+  String get wizardStepReview => 'Review';
+
+  @override
+  String get wizardName => 'Project name';
+
+  @override
+  String get wizardDomain => 'Domain';
+
+  @override
+  String get wizardDataPrompt =>
+      'Which sensitive data will this project handle?';
+
+  @override
+  String get wizardDefaultAction => 'Default action for the selected types';
+
+  @override
+  String get wizardPermRewrite => 'Let Mink rewrite content';
+
+  @override
+  String get wizardPermExpand => 'Let Mink expand content';
+
+  @override
+  String get wizardPermExport => 'Allow export';
+
+  @override
+  String get wizardPermDecodeBiometric =>
+      'Require biometrics to reveal originals';
+
+  @override
+  String wizardReviewSummary(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count data types',
+      one: '1 data type',
+      zero: 'no data types',
+    );
+    return '$name · $_temp0';
+  }
+
+  @override
+  String get wizardNext => 'Next';
+
+  @override
+  String get wizardBack => 'Back';
+
+  @override
+  String get wizardCreate => 'Create Project';
+
+  @override
+  String get wizardBuildFromScratch => 'Build from scratch (guided)';
 }

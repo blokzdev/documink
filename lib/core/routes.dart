@@ -8,6 +8,7 @@ class Routes {
   static const paste = '/paste';
   static const import = '/import';
   static const newProject = '/projects/new';
+  static const newProjectWizard = '/projects/new/wizard';
   static const projects = '/projects';
 
   /// Project detail, e.g. `/projects/<id>`.

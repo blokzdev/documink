@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/custom_entities/custom_entity_definition.dart';
 import '../services/vault_providers.dart';
 import '../ui/screens/audit_log_screen.dart';
+import '../ui/screens/blank_wizard_screen.dart';
 import '../ui/screens/capture_screen.dart';
 import '../ui/screens/custom_entity_form_screen.dart';
 import '../ui/screens/custom_entity_types_screen.dart';
@@ -66,6 +67,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.newProject,
         builder: (context, state) => const TemplatePickerScreen(),
+      ),
+      GoRoute(
+        path: Routes.newProjectWizard,
+        builder: (context, state) => const BlankWizardScreen(),
       ),
       GoRoute(
         path: Routes.projects,
