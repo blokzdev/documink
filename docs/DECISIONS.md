@@ -20,6 +20,21 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1: Project manifest + tool-permission enforcement (§5/§6)
+
+- **Deny-by-default.** `ProjectPermissions.level()` returns `denied` for absent/unknown keys, and
+  `ToolPermissionRegistry.evaluate()` denies unknown tools — the safe default for the project-isolation
+  invariant. Permission values parse as bool (`granted`/`denied`) or `requires_biometric`.
+- **Single source of truth for tool→permission** (the §5 table) in `ToolPermissionRegistry.tools`;
+  biometric is forced when either the tool is flagged biometric (e.g. `decode_token`) **or** the
+  permission level is `requires_biometric` (e.g. `decode`). This is the enforcement point the Mink
+  ToolRegistry dispatch (a later, LLM-runtime phase) will call before executing any tool.
+- **Manifest custom-entity seeds kept raw** (`List<Map>`) rather than parsed into
+  `CustomEntityDefinition`, because manifests use validators like `luhn_npi` outside the current
+  `CustomValidator` set and ids/workspace are assigned at project-creation time. `default_policy`
+  bridges to `AnonymizationPolicy` for direct use.
+- Pure Dart; the Project-creation flow + Settings UI are UI-phase tasks.
+
 ## 2026-06-14 — V1 P8b: CRDT conflict resolution (§9.4)
 
 - **Auto-resolution primitives** match the spec: `lwwWinner` (LWW on scalars, newer `updatedAt` wins,

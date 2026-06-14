@@ -81,7 +81,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 - **8a (merged)** — `SyncEnvelope`: AES-256-GCM seal/open of CRDT sync deltas under the MK-derived `syncKey` (§9.1 "never sync plaintext"). Versioned wire format (`version‖nonce‖ct‖mac`); the **delta id + origin device id are bound as AAD** so a delta can't be relabelled, replayed, or re-attributed. The delta payload is opaque (cr-sqlite CBOR at runtime).
 - **8b (this PR)** — CRDT conflict resolution (§9.4): `lwwWinner` (Last-Writer-Wins on scalars, deterministic device-id tiebreak) + `setUnion` (collection merge) primitives, and `SyncConflictDetector` that surfaces **hard conflicts** cr-sqlite would silently LWW — two devices creating the same custom-entity identity (`workspace,project,label`) with diverging definitions → Settings → Sync Conflicts. The native transport (cr-sqlite, BYOC Drive, mDNS/WebSocket) is a device-session task.
 
-**Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (4–5 input/UI, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
+**V1 Project system (§6) — manifest + permission enforcement:**
+- `ProjectManifest` parses the §6.1 declarative config (permissions, default policy → `AnonymizationPolicy`, custom-entity seeds, persona); `ProjectPermissions` is **deny-by-default** (bool / `requires_biometric` / absent). `ToolPermissionRegistry` maps every Mink tool to its required permission (§5 table) and decides allow / allow-with-biometric / deny — the project-isolation enforcement point for Mink tool dispatch.
+
+**Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (4–5 input/UI, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 13–14 template/inference UI, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
 
 ## Development setup
 
