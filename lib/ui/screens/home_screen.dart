@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/routes.dart';
+import '../../l10n/gen/app_localizations.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
 import '../widgets/brand_mark.dart';
@@ -56,6 +57,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -82,13 +84,10 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 const BrandLockup(markSize: 36),
                 const SizedBox(height: AppTokens.spacingLg),
-                Text(
-                  'Redact with confidence',
-                  style: theme.textTheme.headlineSmall,
-                ),
+                Text(l10n.homeTagline, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: AppTokens.spacingXs),
                 Text(
-                  'On-device, private, and reversible.',
+                  l10n.homeSubtitle,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

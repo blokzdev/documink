@@ -9,6 +9,18 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5: i18n scaffolding (closes Phase 5)
+
+- `flutter_localizations` (sdk) + `intl ^0.20.2` + `gen_l10n` (`generate: true`, `l10n.yaml`).
+- **Generated localizations are committed** (`output-dir: lib/l10n/gen`) so `analyze`/`flutter test`
+  need no separate generation step; `synthetic-package` key dropped (deprecated/no-effect in 3.38).
+- `MaterialApp.router` wired with `AppLocalizations.localizationsDelegates` + `supportedLocales` +
+  `onGenerateTitle`. **Representative** strings localized (app title, Home tagline/subtitle) — this is
+  *scaffolding*: the structure is ready and English-only for V1; remaining strings migrate
+  incrementally (not churned now to avoid breaking text-based widget tests).
+- Only `HomeScreen` consumes `AppLocalizations`, and it's only pumped via `DocuMinkApp` (which has the
+  delegates) — other screen tests using a bare `MaterialApp` are unaffected.
+
 ## 2026-06-14 — V1 UI elevation L6: resilience & polish
 
 Maintainer asked to keep polishing blind with confident, headless-safe refinements (and to record

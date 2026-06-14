@@ -31,6 +31,8 @@ void main() {
     await _pumpApp(tester);
 
     expect(find.bySemanticsLabel('DocuMink'), findsOneWidget);
+    // Localized tagline (via AppLocalizations delegates wired in DocuMinkApp).
+    expect(find.text('Redact with confidence'), findsOneWidget);
     for (final label in const [
       'Scan',
       'Paste text',
