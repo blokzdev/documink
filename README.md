@@ -77,7 +77,10 @@ See `.agents/rules` subfolder for workspace-wide conventions (serialized by Anti
 **V1 Phase 15 (audit log) — in progress:**
 - **15a (this PR)** — `AuditLogRepository`: append-only `record(...)` for the full event-type set (`AuditEventType`: decode/export/sync/vault_unlock/biometric_failed/mink_tool_call/tier_change/…), newest-first `query` filterable by event type(s) + time range with `limit`/`offset` pagination, and RFC-4180 **CSV export**. Privacy invariant #7 (audit every privacy-relevant action). The Settings → Audit Log UI is a UI-phase task.
 
-**Next: V1 Phase 15 UI + remaining native/UI phases (4–5, 7–8) on a device session.**
+**V1 Phase 8 (sync) — crypto core started:**
+- **8a (this PR)** — `SyncEnvelope`: AES-256-GCM seal/open of CRDT sync deltas under the MK-derived `syncKey` (§9.1 "never sync plaintext"). Versioned wire format (`version‖nonce‖ct‖mac`); the **delta id + origin device id are bound as AAD** so a delta can't be relabelled, replayed, or re-attributed. The delta payload is opaque (cr-sqlite CBOR at runtime). The native transport (cr-sqlite, BYOC Drive, mDNS/WebSocket) is a device-session task.
+
+**Status:** the full headless-testable pure-Dart/crypto core of V1 is complete. Remaining phases (4–5 input/UI, 7 export rendering, 8 transport, 10–11 Tier-4 runtime, 16–17 a11y/release) are native/UI/model and need a device or Windows box to build and validate.
 
 ## Development setup
 

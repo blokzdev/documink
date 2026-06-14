@@ -20,6 +20,24 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 - **Rationale:** Explicit standing maintainer instruction. Deviation-protocol still binds for
   spec conflicts / security-invariant risks (resolve-and-log-prominently instead of block).
 
+## 2026-06-14 — V1 P8a: sync delta envelope crypto (HIGH-STAKES — fuller logging)
+
+- **Scope.** Only the encryption envelope for CRDT deltas — the headless-testable, security-relevant
+  slice of Phase 8. The native transport (cr-sqlite delta generation, BYOC Google Drive, mDNS +
+  WebSocket/TLS) is deferred to a device session.
+- **Faithful to spec, no new crypto.** §9.1/§9.2 mandate "never sync plaintext" + "AES-GCM-encrypted
+  CRDT deltas" under MK-derived transport keys. `SyncEnvelope` uses **AES-256-GCM** (the same blessed
+  primitive as the vault) under the existing **`syncKey`** (KeyService HKDF `documink:sync:v1`,
+  previously reserved). Reuses the `cryptography` package — no new dependency, no invented scheme.
+- **Decisions the spec didn't pin (logged):** (1) wire format `version(1)‖nonce(12)‖ct‖mac(16)` with a
+  version byte for forward-compat; (2) **AAD binds `(deltaId, deviceId)`** (0x00-delimited, injective)
+  so a delta blob can't be relabelled to another `<ulid>` filename, replayed, or re-attributed to a
+  different origin device without failing authentication. This strengthens the no-plaintext-sync
+  invariant; it does not weaken any existing one, so proceeding under the autonomy contract (logged
+  here + called out in the PR).
+- **Payload opacity.** The delta bytes are treated as opaque (cr-sqlite's CBOR delta at runtime); the
+  envelope neither parses nor depends on their structure.
+
 ## 2026-06-14 — V1 P15a: audit log repository + CSV export
 
 - **Append-only** `record(...)` (plain `insert`, never update/delete) over the existing `audit_log`
