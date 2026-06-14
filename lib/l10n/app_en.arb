@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "DocuMink",
+  "@appTitle": {
+    "description": "The application name / window title."
+  },
+  "homeTagline": "Redact with confidence",
+  "@homeTagline": {
+    "description": "Home screen headline."
+  },
+  "homeSubtitle": "On-device, private, and reversible.",
+  "@homeSubtitle": {
+    "description": "Home screen sub-headline."
+  }
+}

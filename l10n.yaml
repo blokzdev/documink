@@ -1,0 +1,8 @@
+# Flutter gen_l10n config (Phase 5 i18n scaffolding).
+# Generated localizations are committed (synthetic-package: false) so analyze /
+# flutter test work without a separate generation step.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-dir: lib/l10n/gen
+nullable-getter: false

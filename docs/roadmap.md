@@ -189,7 +189,11 @@ Commit ADRs under `docs/adr/`:
 >   inline Detect progress, a11y semantic labels on chips/badges.
 >
 > Built headless (structure widget-tested); aesthetics are device-verified (`VERIFICATION.md`).
-> **i18n scaffolding (above) is the remaining item to close Phase 5.**
+>
+> **i18n scaffolding done (2026-06-14):** `flutter_localizations` + `gen_l10n` + `intl` wired
+> (`l10n.yaml`, `lib/l10n/app_en.arb`, committed `lib/l10n/gen/`); `MaterialApp` delegates +
+> `supportedLocales` set; representative Home strings localized. English-only for V1, structure ready
+> for V3 multilingual — **Phase 5 complete.**
 
 ### Phase 6 — Custom entity types
 
