@@ -167,10 +167,13 @@ Commit ADRs under `docs/adr/`:
 >   `file_selector` picking; behind `PdfSource`/`PdfTextExtractor`/`PdfPageRasterizer` seams.
 >   Plus input-flow polish: localized capture + editor strings, source badge + multi-page/scanned
 >   warnings, gallery option in scan mode, a11y `Semantics`.
-> - **Tracked follow-ups (remaining Phase 4):**
->   - **Inbound share-sheet intent** (receive text/images shared from other apps).
->   - **Phase 4c — encrypted original-document retention + reveal** (maintainer-requested, 2026-06-14;
->     high-stakes — see below). Logged in `docs/DECISIONS.md`.
+> - **4d (shipped):** **inbound share-sheet intent** — other apps share text/images INTO DocuMink
+>   (`ACTION_SEND`). Behind a `ShareIntentReceiver` seam (`receive_sharing_intent`); a pure-Dart
+>   `ShareIntentCoordinator` routes received text → the editor and OCRs shared images first, **holding
+>   any share that arrives while locked until the vault unlocks**. Headless-tested with fakes; native
+>   receipt device-verified. **Phase 4 input handlers complete** (camera, paste, image, PDF, share).
+> - **Tracked follow-up:** **Phase 4c — encrypted original-document retention + reveal**
+>   (maintainer-requested, 2026-06-14; high-stakes — see below). Logged in `docs/DECISIONS.md`.
 
 ### Phase 4 — Input handlers
 

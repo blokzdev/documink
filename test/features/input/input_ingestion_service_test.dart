@@ -278,6 +278,33 @@ void main() {
     });
   });
 
+  group('shared input', () {
+    test('ingestSharedText wraps text (no OCR) tagged sharedText', () {
+      final ocr = _FakeOcr('unused');
+      final result = _service(ocr: ocr).ingestSharedText('Shared note.');
+
+      expect(result.text, 'Shared note.');
+      expect(result.source, InputSourceKind.sharedText);
+      expect(result.warnings, isEmpty);
+      expect(ocr.calls, isEmpty); // text is not OCR'd
+    });
+
+    test('ingestSharedText warns on empty text', () {
+      final result = _service().ingestSharedText('   ');
+      expect(result.isEmpty, isTrue);
+      expect(result.warnings, isNotEmpty);
+    });
+
+    test('ingestSharedImage OCRs the path tagged sharedText', () async {
+      final ocr = _FakeOcr('Recognized from shared image');
+      final result = await _service(ocr: ocr).ingestSharedImage('/tmp/s.jpg');
+
+      expect(result.text, 'Recognized from shared image');
+      expect(result.source, InputSourceKind.sharedText);
+      expect(ocr.calls, ['/tmp/s.jpg']);
+    });
+  });
+
   group('unwired seams fail loudly rather than returning empty', () {
     test('image + OCR seams', () async {
       expect(

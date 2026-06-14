@@ -13,12 +13,15 @@ import '../features/input/flutter_pdf_text_extractor.dart';
 import '../features/input/input_providers.dart';
 import '../features/input/mlkit_text_recognizer.dart';
 import '../features/input/pdfx_page_rasterizer.dart';
+import '../features/input/receive_sharing_intent_share_receiver.dart';
+import '../features/input/share_intent_coordinator.dart';
 import '../features/input/system_image_source.dart';
 import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
 import '../services/settings_store.dart';
 import '../services/shared_preferences_settings_store.dart';
 import '../services/vault_providers.dart';
+import 'routes.dart';
 import '../ui/theme/app_theme.dart';
 import '../ui/theme/theme_mode_controller.dart';
 
@@ -47,17 +50,57 @@ Future<void> bootstrap(Flavor flavor) async {
           const FlutterPdfTextExtractor(),
         ),
         pdfPageRasterizerProvider.overrideWithValue(const PdfxPageRasterizer()),
+        // Phase 4 inbound share-sheet intent (receive text/images from other
+        // apps). Behind the ShareIntentReceiver seam; faked in tests.
+        shareIntentReceiverProvider.overrideWithValue(
+          const ReceiveSharingIntentShareReceiver(),
+        ),
       ],
       child: const DocuMinkApp(),
     ),
   );
 }
 
-class DocuMinkApp extends ConsumerWidget {
+class DocuMinkApp extends ConsumerStatefulWidget {
   const DocuMinkApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DocuMinkApp> createState() => _DocuMinkAppState();
+}
+
+class _DocuMinkAppState extends ConsumerState<DocuMinkApp> {
+  ShareIntentCoordinator? _shareCoordinator;
+
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame the router exists; wire inbound shares → editor,
+    // holding any share that arrives while the vault is locked until unlock.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final router = ref.read(routerProvider);
+      final coordinator = ShareIntentCoordinator(
+        receiver: ref.read(shareIntentReceiverProvider),
+        ingestion: ref.read(inputIngestionServiceProvider),
+        isUnlocked: () => ref.read(appUnlockedProvider),
+        navigateToEditor: (text) => router.push(Routes.paste, extra: text),
+      );
+      _shareCoordinator = coordinator;
+      ref.listenManual(appUnlockedProvider, (_, unlocked) {
+        if (unlocked) coordinator.onUnlocked();
+      });
+      coordinator.start();
+    });
+  }
+
+  @override
+  void dispose() {
+    _shareCoordinator?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

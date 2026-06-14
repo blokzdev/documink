@@ -75,6 +75,10 @@ dependencies:
   flutter_pdf_text: ^0.9.0
   pdfx: ^2.9.2
   file_selector: ^1.1.0
+  # Inbound share-sheet intent (Phase 4): receive text/images shared from other
+  # apps. Behind the ShareIntentReceiver seam (lib/features/input); the real
+  # adapter is wired at bootstrap, faked in tests. Device-only at runtime.
+  receive_sharing_intent: ^1.8.1
 
 
 dev_dependencies:

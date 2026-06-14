@@ -6,6 +6,7 @@ import 'ocr_recognizer.dart';
 import 'pdf_page_rasterizer.dart';
 import 'pdf_source.dart';
 import 'pdf_text_extractor.dart';
+import 'share_intent_receiver.dart';
 import 'temp_file_disposer.dart';
 
 /// On-device text recognizer. Defaults to the always-failing
@@ -45,6 +46,13 @@ final pdfPageRasterizerProvider = Provider<PdfPageRasterizer>(
 /// recording fake to assert cleanup.
 final tempFileDisposerProvider = Provider<TempFileDisposer>(
   (ref) => const IoTempFileDisposer(),
+);
+
+/// Receives inbound `ACTION_SEND` shares. Defaults to [NoShareIntentReceiver];
+/// bootstrap overrides it with the real `receive_sharing_intent` adapter, tests
+/// with a fake.
+final shareIntentReceiverProvider = Provider<ShareIntentReceiver>(
+  (ref) => const NoShareIntentReceiver(),
 );
 
 /// The pure-Dart ingestion orchestrator, composed from the seams above.
