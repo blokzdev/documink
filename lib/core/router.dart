@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/custom_entities/custom_entity_definition.dart';
 import '../services/vault_providers.dart';
 import '../ui/screens/audit_log_screen.dart';
+import '../ui/screens/capture_screen.dart';
 import '../ui/screens/custom_entity_form_screen.dart';
 import '../ui/screens/custom_entity_types_screen.dart';
 import '../ui/screens/document_detail_screen.dart';
@@ -46,23 +47,18 @@ GoRouter createRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.scan,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Scan',
-          message: 'Camera capture & OCR arrive with Phase 4 (native input).',
-          icon: Icons.document_scanner_outlined,
-        ),
+        builder: (context, state) =>
+            const CaptureScreen(mode: CaptureMode.scan),
       ),
       GoRoute(
         path: Routes.paste,
-        builder: (context, state) => const PasteEditorScreen(),
+        builder: (context, state) =>
+            PasteEditorScreen(initialText: state.extra as String?),
       ),
       GoRoute(
         path: Routes.import,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Import',
-          message: 'Image & PDF import arrive with Phase 4 (native input).',
-          icon: Icons.file_open_outlined,
-        ),
+        builder: (context, state) =>
+            const CaptureScreen(mode: CaptureMode.import),
       ),
       GoRoute(
         path: Routes.newProject,

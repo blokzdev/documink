@@ -54,8 +54,8 @@ void main() {
     await tester.tap(find.text('Import'));
     await tester.pumpAndSettle();
 
-    // Placeholder destination for the import route (Phase 4 native input).
-    expect(find.textContaining('Phase 4'), findsOneWidget);
+    // Import now routes to the Phase 4 capture screen (image → OCR → redact).
+    expect(find.text('Choose image'), findsOneWidget);
   });
 
   testWidgets('Settings action pushes the settings screen', (tester) async {

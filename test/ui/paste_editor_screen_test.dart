@@ -79,4 +79,23 @@ void main() {
 
     expect(find.text('No sensitive entities detected.'), findsOneWidget);
   });
+
+  testWidgets('initialText (from an input source) seeds and auto-detects', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [vault.override],
+        child: const MaterialApp(
+          home: PasteEditorScreen(initialText: 'Reach alice@example.com.'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Detection ran automatically on the seeded text.
+    expect(find.textContaining('detected'), findsOneWidget);
+    expect(find.textContaining('EMAIL'), findsOneWidget);
+    expect(previewText(tester), contains('[REDACTED]'));
+  });
 }
