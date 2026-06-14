@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/vault_providers.dart';
+import '../ui/screens/audit_log_screen.dart';
 import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
@@ -88,6 +89,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.auditLog,
+        builder: (context, state) => const AuditLogScreen(),
       ),
     ],
   );

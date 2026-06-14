@@ -11,6 +11,7 @@ class Routes {
   static const chat = '/chat';
   static const vault = '/vault';
   static const settings = '/settings';
+  static const auditLog = '/settings/audit';
 
   /// Document detail, e.g. `/document/<id>`.
   static String document(String id) => '/document/$id';

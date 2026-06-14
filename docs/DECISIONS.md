@@ -9,6 +9,13 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — V1 Phase 5k: audit log viewer
+
+- Read-only Settings → Audit log over the existing `AuditLogRepository.query`; `auditEntriesProvider`
+  (auto-dispose, newest-first, limit 200). Shows event type / timestamp / success / biometric result
+  — IDs + metadata only, **never PII** (invariant #7). CSV export already exists in the repo; an
+  export button is a small later add. Enabled the previously-placeholder Settings row.
+
 ## 2026-06-14 — V1 Phase 5j: delete documents
 
 - **Manual cascade in one transaction** (tokens → entities → document) since the schema FKs don't
