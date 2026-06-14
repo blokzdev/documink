@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/datetime_format.dart';
 import '../../core/routes.dart';
+import '../../data/app_database.dart';
 import '../../features/documents/document_repository.dart';
+import '../theme/tokens.dart';
 import '../widgets/app_empty_state.dart';
+import '../widgets/status_badge.dart';
 
-/// The vault browser: lists saved (redacted) documents (blueprint §Phase 5).
+/// The vault browser: saved (redacted) documents as cards (blueprint §Phase 5).
 class VaultBrowserScreen extends ConsumerWidget {
   const VaultBrowserScreen({super.key});
 
@@ -28,21 +32,85 @@ class VaultBrowserScreen extends ConsumerWidget {
                 message: 'Redact some text and tap “Save to vault”.',
               );
             }
-            return ListView.separated(
-              itemCount: docs.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, i) {
-                final doc = docs[i];
-                return ListTile(
-                  leading: const Icon(Icons.description_outlined),
-                  title: Text(doc.name),
-                  subtitle: Text(doc.status),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push(Routes.document(doc.id)),
-                );
-              },
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppTokens.maxContentWidth,
+                ),
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(AppTokens.spacingMd),
+                  itemCount: docs.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AppTokens.spacingSm),
+                  itemBuilder: (context, i) => _DocumentCard(docs[i]),
+                ),
+              ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _DocumentCard extends StatelessWidget {
+  const _DocumentCard(this.doc);
+
+  final Document doc;
+
+  IconData get _typeIcon => switch (doc.type) {
+    'image' => Icons.image_outlined,
+    'pdf' => Icons.picture_as_pdf_outlined,
+    _ => Icons.description_outlined,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: InkWell(
+        onTap: () => context.push(Routes.document(doc.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTokens.spacingMd),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusMd),
+                ),
+                child: Icon(
+                  _typeIcon,
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+              const SizedBox(width: AppTokens.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      doc.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      formatTimestamp(doc.createdAt),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppTokens.spacingSm),
+              StatusBadge(doc.status),
+            ],
+          ),
         ),
       ),
     );
