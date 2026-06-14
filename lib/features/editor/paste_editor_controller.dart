@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../anonymization/anonymization_policy.dart';
@@ -10,6 +12,9 @@ import '../detection/detection_pipeline.dart';
 import '../detection/detection_providers.dart';
 import '../detection/pii_span.dart';
 import '../documents/document_repository.dart';
+import '../documents/keep_original_setting.dart';
+import '../documents/originals_repository.dart';
+import '../documents/pending_original.dart';
 
 /// Operators offered in the paste editor. Irreversible transforms plus the
 /// vault-backed reversible ones (Token-Random, Encrypt) — available because the
@@ -152,7 +157,7 @@ class PasteEditorController extends Notifier<PasteEditorState> {
     if (detection == null || outcome == null || state.entityCount == 0) {
       return null;
     }
-    return ref
+    final documentId = await ref
         .read(documentRepositoryProvider)
         .saveAnonymizedText(
           name: name ?? 'Pasted text',
@@ -161,6 +166,33 @@ class PasteEditorController extends Notifier<PasteEditorState> {
           operators: state.operators,
           outcome: outcome,
         );
+    await _maybeRetainOriginal(documentId);
+    return documentId;
+  }
+
+  /// If the user opted in (`keepOriginalProvider`) and a source file is pending
+  /// (set when this editor was opened from a capture/import), encrypt and store
+  /// the original alongside the document (Phase 4c). Best-effort: a missing or
+  /// unreadable original never fails the save. The pending original is consumed.
+  Future<void> _maybeRetainOriginal(String documentId) async {
+    final pending = ref.read(pendingOriginalProvider);
+    if (pending == null) return;
+    try {
+      if (ref.read(keepOriginalProvider)) {
+        final bytes = await File(pending.path).readAsBytes();
+        await ref
+            .read(originalsRepositoryProvider)
+            .saveOriginal(
+              documentId: documentId,
+              bytes: bytes,
+              mime: pending.mime,
+            );
+      }
+    } catch (_) {
+      // Retaining the original is best-effort; never block the redaction save.
+    } finally {
+      ref.read(pendingOriginalProvider.notifier).state = null;
+    }
   }
 
   /// Computes the redacted preview via the vault-backed [AnonymizationService]

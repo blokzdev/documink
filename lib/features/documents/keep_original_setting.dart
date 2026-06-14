@@ -22,3 +22,23 @@ class KeepOriginalController extends Notifier<bool> {
     ref.read(settingsStoreProvider).setString(settingsKey, value.toString());
   }
 }
+
+/// Whether the one-time, in-context "keep the original?" hint has been shown and
+/// acted on/dismissed — so we nudge the opt-in once, not repeatedly.
+final keepOriginalHintSeenProvider =
+    NotifierProvider<KeepOriginalHintController, bool>(
+      KeepOriginalHintController.new,
+    );
+
+class KeepOriginalHintController extends Notifier<bool> {
+  static const settingsKey = 'seen_keep_original_hint';
+
+  @override
+  bool build() =>
+      ref.read(settingsStoreProvider).getString(settingsKey) == 'true';
+
+  void markSeen() {
+    state = true;
+    ref.read(settingsStoreProvider).setString(settingsKey, 'true');
+  }
+}

@@ -60,10 +60,22 @@ class InputIngestionService {
     return IngestedText(
       text: recognized,
       source: kind,
+      originalPath: picked.path,
+      mime: _imageMimeForPath(picked.path),
       warnings: recognized.trim().isEmpty
           ? const ['No text was recognized in the image.']
           : const [],
     );
+  }
+
+  /// Best-effort image MIME from the file extension (for original retention).
+  static String _imageMimeForPath(String path) {
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.heic') || lower.endsWith('.heif')) return 'image/heic';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    return 'image/jpeg';
   }
 
   /// Wrap text shared from another app (no OCR — it's already text).
@@ -124,6 +136,8 @@ class InputIngestionService {
       text: text,
       source: InputSourceKind.pdfImport,
       pageCount: pages.length,
+      originalPath: path,
+      mime: 'application/pdf',
       warnings: warnings,
     );
   }

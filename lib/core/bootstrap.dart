@@ -16,6 +16,7 @@ import '../features/input/pdfx_page_rasterizer.dart';
 import '../features/input/receive_sharing_intent_share_receiver.dart';
 import '../features/input/share_intent_coordinator.dart';
 import '../features/input/system_image_source.dart';
+import '../features/security/screen_security.dart';
 import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
 import '../services/settings_store.dart';
@@ -54,6 +55,10 @@ Future<void> bootstrap(Flavor flavor) async {
         // apps). Behind the ShareIntentReceiver seam; faked in tests.
         shareIntentReceiverProvider.overrideWithValue(
           const ReceiveSharingIntentShareReceiver(),
+        ),
+        // Phase 4c: real FLAG_SECURE toggling for the original-document viewer.
+        screenSecurityProvider.overrideWithValue(
+          const PlatformScreenSecurity(),
         ),
       ],
       child: const DocuMinkApp(),

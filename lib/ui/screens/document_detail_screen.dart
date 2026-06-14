@@ -9,18 +9,26 @@ import '../../data/app_database.dart';
 import '../../data/id_generator.dart';
 import '../../features/audit/audit_providers.dart';
 import '../../features/documents/document_repository.dart';
+import '../../features/documents/original_reveal_service.dart';
+import '../../features/documents/originals_repository.dart';
 import '../../features/documents/reveal_service.dart';
 import '../../features/export/export_service.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
 import '../widgets/app_error_state.dart';
 import '../widgets/status_badge.dart';
+import 'original_viewer_screen.dart';
 
 /// The reversible tokens for a document (drives whether to show Reveal).
 final _tokenCountProvider = FutureProvider.autoDispose.family<int, String>(
   (ref, id) async =>
       (await ref.watch(documentRepositoryProvider).tokensForDocument(id))
           .length,
+);
+
+/// Whether a document has a retained encrypted original (drives "View original").
+final _hasOriginalProvider = FutureProvider.autoDispose.family<bool, String>(
+  (ref, id) => ref.watch(originalsRepositoryProvider).hasOriginal(id),
 );
 
 /// View of a saved document: its redacted text, with a biometric-gated reveal of
@@ -54,6 +62,25 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
     }
+  }
+
+  Future<void> _viewOriginal() async {
+    final revealed = await ref
+        .read(originalRevealServiceProvider)
+        .reveal(widget.documentId);
+    if (!mounted) return;
+    if (revealed == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Authentication failed')));
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            OriginalViewerScreen(bytes: revealed.bytes, mime: revealed.mime),
+      ),
+    );
   }
 
   Future<void> _delete() async {
@@ -167,6 +194,8 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final redacted = doc == null ? null : _redactedText(doc.metadataJson);
     final tokenCount =
         ref.watch(_tokenCountProvider(widget.documentId)).valueOrNull ?? 0;
+    final hasOriginal =
+        ref.watch(_hasOriginalProvider(widget.documentId)).valueOrNull ?? false;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -252,6 +281,15 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                         label: Text(
                           'Reveal original values ($tokenCount) · biometric',
                         ),
+                      ),
+                    ],
+                    if (hasOriginal) ...[
+                      const SizedBox(height: AppTokens.spacingSm),
+                      OutlinedButton.icon(
+                        key: const Key('view-original'),
+                        onPressed: _viewOriginal,
+                        icon: const Icon(Icons.image_outlined),
+                        label: const Text('View original · biometric'),
                       ),
                     ],
                     AnimatedSwitcher(
