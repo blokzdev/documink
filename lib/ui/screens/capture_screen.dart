@@ -272,7 +272,7 @@ class _SourceBadge extends StatelessWidget {
         Icons.picture_as_pdf_outlined,
       ),
       InputSourceKind.sharedText => (
-        l10n.captureSourceImage,
+        l10n.captureSourceShared,
         Icons.share_outlined,
       ),
     };

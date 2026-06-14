@@ -185,13 +185,12 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Keep an encrypted copy of the original?',
+                            l10n.pasteKeepOriginalTitle,
                             style: theme.textTheme.titleSmall,
                           ),
                           const SizedBox(height: AppTokens.spacingXs),
                           Text(
-                            'It stays encrypted in your vault — reveal it later '
-                            'with biometrics.',
+                            l10n.pasteKeepOriginalBody,
                             style: theme.textTheme.bodyMedium,
                           ),
                           const SizedBox(height: AppTokens.spacingSm),
@@ -202,7 +201,7 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                                 onPressed: () => ref
                                     .read(keepOriginalHintSeenProvider.notifier)
                                     .markSeen(),
-                                child: const Text('Not now'),
+                                child: Text(l10n.pasteKeepOriginalNotNow),
                               ),
                               const SizedBox(width: AppTokens.spacingSm),
                               FilledButton(
@@ -216,7 +215,7 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                                       )
                                       .markSeen();
                                 },
-                                child: const Text('Keep'),
+                                child: Text(l10n.pasteKeepOriginalKeep),
                               ),
                             ],
                           ),

@@ -155,4 +155,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get operatorFpe => 'FPE';
+
+  @override
+  String get captureSourceShared => 'Shared';
+
+  @override
+  String get pasteKeepOriginalTitle =>
+      'Keep an encrypted copy of the original?';
+
+  @override
+  String get pasteKeepOriginalBody =>
+      'It stays encrypted in your vault — reveal it later with biometrics.';
+
+  @override
+  String get pasteKeepOriginalNotNow => 'Not now';
+
+  @override
+  String get pasteKeepOriginalKeep => 'Keep';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSectionAppearance => 'Appearance';
+
+  @override
+  String get settingsSectionSecurity => 'Security';
+
+  @override
+  String get settingsSectionPrivacy => 'Privacy';
+
+  @override
+  String get settingsSectionAbout => 'About';
+
+  @override
+  String get settingsThemeSystem => 'System default';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsAutoLock => 'Auto-lock';
+
+  @override
+  String get settingsAutoLockSubtitle =>
+      'Configured after vault unlock (later phase)';
+
+  @override
+  String get settingsBiometricUnlock => 'Biometric unlock';
+
+  @override
+  String get settingsBiometricUnlockSubtitle =>
+      'Available on device (later phase)';
+
+  @override
+  String get settingsAuditLog => 'Audit log';
+
+  @override
+  String get settingsAuditLogSubtitle => 'View privacy-relevant actions';
+
+  @override
+  String get settingsCustomEntities => 'Custom entity types';
+
+  @override
+  String get settingsCustomEntitiesSubtitle => 'Define your own detectors';
+
+  @override
+  String get settingsKeepOriginal => 'Keep encrypted original';
+
+  @override
+  String get settingsKeepOriginalSubtitle =>
+      'Store the source image/PDF, encrypted — reveal it later with biometrics';
+
+  @override
+  String get settingsAboutTitle => 'DocuMink';
+
+  @override
+  String settingsAboutSubtitle(String flavor) {
+    return 'Privacy-first, on-device redaction · $flavor build';
+  }
+
+  @override
+  String get documentTitle => 'Document';
+
+  @override
+  String get documentExport => 'Export';
+
+  @override
+  String get documentDelete => 'Delete';
+
+  @override
+  String get documentDeleteConfirmTitle => 'Delete document?';
+
+  @override
+  String get documentDeleteConfirmBody =>
+      'This permanently removes the document and its tokens from the vault.';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get documentCopyText => 'Copy redacted text';
+
+  @override
+  String get documentCopyJson => 'Copy metadata (JSON)';
+
+  @override
+  String get commonCopied => 'Copied';
+
+  @override
+  String documentRevealValues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Reveal original values ($count) · biometric',
+      one: 'Reveal 1 original value · biometric',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentViewOriginal => 'View original · biometric';
+
+  @override
+  String get documentAuthFailed => 'Authentication failed';
+
+  @override
+  String get documentLoadError => 'Could not load the document';
+
+  @override
+  String get documentNotFound => 'Document not found.';
+
+  @override
+  String get documentRedactedContent => 'Redacted content';
+
+  @override
+  String get documentNoPreview => '(no preview stored)';
+
+  @override
+  String get originalViewerTitle => 'Original document';
+
+  @override
+  String get originalViewerUnsupported => 'Unsupported document type';
 }

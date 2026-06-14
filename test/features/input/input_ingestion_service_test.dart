@@ -8,64 +8,7 @@ import 'package:documink/features/input/pdf_text_extractor.dart';
 import 'package:documink/features/input/temp_file_disposer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Fake OCR returning a fixed string (or throwing) for the given path.
-class _FakeOcr implements OcrRecognizer {
-  _FakeOcr(this._text, {this.throwError = false});
-  final String _text;
-  final bool throwError;
-  final List<String> calls = [];
-
-  @override
-  Future<String> recognizeImage(String imagePath) async {
-    calls.add(imagePath);
-    if (throwError) throw const OcrUnavailableException();
-    return _text;
-  }
-}
-
-/// Fake image source returning a fixed pick (or null = cancelled) per entry.
-class _FakeImageSource implements ImageInputSource {
-  _FakeImageSource({this.camera, this.gallery});
-  final PickedImage? camera;
-  final PickedImage? gallery;
-
-  @override
-  Future<PickedImage?> capturePhoto() async => camera;
-
-  @override
-  Future<PickedImage?> pickImage() async => gallery;
-}
-
-class _FakePdfSource implements PdfSource {
-  _FakePdfSource(this._path);
-  final String? _path;
-  @override
-  Future<String?> pickPdf() async => _path;
-}
-
-class _FakePdfTextExtractor implements PdfTextExtractor {
-  _FakePdfTextExtractor(this._pages);
-  final List<String> _pages;
-  @override
-  Future<List<String>> extractPages(String path) async => _pages;
-}
-
-/// Records which pages were rasterized; returns a synthetic image path.
-class _FakeRasterizer implements PdfPageRasterizer {
-  final List<int> rendered = [];
-  @override
-  Future<String> renderPageToImage(String path, int pageIndex) async {
-    rendered.add(pageIndex);
-    return '/tmp/page_$pageIndex.png';
-  }
-}
-
-/// Records the temp files asked to be disposed.
-class _FakeDisposer implements TempFileDisposer {
-  final List<String> disposed = [];
-  @override
-  Future<void> dispose(String path) async => disposed.add(path);
-}
+import '../../support/input_fakes.dart';
 
 /// Builds a service; unused seams default to fakes that are never invoked.
 InputIngestionService _service({
@@ -76,12 +19,12 @@ InputIngestionService _service({
   PdfPageRasterizer? pdfPageRasterizer,
   TempFileDisposer? tempFileDisposer,
 }) => InputIngestionService(
-  ocr: ocr ?? _FakeOcr(''),
-  imageSource: imageSource ?? _FakeImageSource(),
-  pdfSource: pdfSource ?? _FakePdfSource(null),
-  pdfTextExtractor: pdfTextExtractor ?? _FakePdfTextExtractor(const []),
-  pdfPageRasterizer: pdfPageRasterizer ?? _FakeRasterizer(),
-  tempFileDisposer: tempFileDisposer ?? _FakeDisposer(),
+  ocr: ocr ?? FakeOcr(''),
+  imageSource: imageSource ?? FakeImageSource(),
+  pdfSource: pdfSource ?? FakePdfSource(null),
+  pdfTextExtractor: pdfTextExtractor ?? FakePdfTextExtractor(const []),
+  pdfPageRasterizer: pdfPageRasterizer ?? FakeRasterizer(),
+  tempFileDisposer: tempFileDisposer ?? FakeDisposer(),
 );
 
 void main() {
@@ -89,10 +32,10 @@ void main() {
     test(
       'captureFromCamera OCRs the captured image into IngestedText',
       () async {
-        final ocr = _FakeOcr('John Doe lives at 1 Main St.');
+        final ocr = FakeOcr('John Doe lives at 1 Main St.');
         final service = _service(
           ocr: ocr,
-          imageSource: _FakeImageSource(
+          imageSource: FakeImageSource(
             camera: const PickedImage(path: '/tmp/a.jpg'),
           ),
         );
@@ -110,8 +53,8 @@ void main() {
 
     test('importImage OCRs the picked image and tags the source', () async {
       final service = _service(
-        ocr: _FakeOcr('Acme Corp invoice'),
-        imageSource: _FakeImageSource(
+        ocr: FakeOcr('Acme Corp invoice'),
+        imageSource: FakeImageSource(
           gallery: const PickedImage(path: '/tmp/b.png'),
         ),
       );
@@ -123,19 +66,19 @@ void main() {
     });
 
     test('returns null when the user cancels capture', () async {
-      final service = _service(imageSource: _FakeImageSource(camera: null));
+      final service = _service(imageSource: FakeImageSource(camera: null));
       expect(await service.captureFromCamera(), isNull);
     });
 
     test('returns null when the user cancels the picker', () async {
-      final service = _service(imageSource: _FakeImageSource(gallery: null));
+      final service = _service(imageSource: FakeImageSource(gallery: null));
       expect(await service.importImage(), isNull);
     });
 
     test('empty OCR yields a warning and an empty result', () async {
       final service = _service(
-        ocr: _FakeOcr('   '),
-        imageSource: _FakeImageSource(
+        ocr: FakeOcr('   '),
+        imageSource: FakeImageSource(
           camera: const PickedImage(path: '/tmp/c.jpg'),
         ),
       );
@@ -148,8 +91,8 @@ void main() {
 
     test('OCR failures propagate (never silently empty)', () async {
       final service = _service(
-        ocr: _FakeOcr('', throwError: true),
-        imageSource: _FakeImageSource(
+        ocr: FakeOcr('', throwError: true),
+        imageSource: FakeImageSource(
           camera: const PickedImage(path: '/tmp/d.jpg'),
         ),
       );
@@ -163,20 +106,20 @@ void main() {
 
   group('PDF ingestion', () {
     test('returns null when the user cancels the picker', () async {
-      final service = _service(pdfSource: _FakePdfSource(null));
+      final service = _service(pdfSource: FakePdfSource(null));
       expect(await service.importPdf(), isNull);
     });
 
     test(
       'uses the text layer and does NOT rasterize/OCR when present',
       () async {
-        final ocr = _FakeOcr('should-not-be-called');
-        final raster = _FakeRasterizer();
-        final disposer = _FakeDisposer();
+        final ocr = FakeOcr('should-not-be-called');
+        final raster = FakeRasterizer();
+        final disposer = FakeDisposer();
         final service = _service(
           ocr: ocr,
-          pdfSource: _FakePdfSource('/tmp/doc.pdf'),
-          pdfTextExtractor: _FakePdfTextExtractor(const ['Hello world.']),
+          pdfSource: FakePdfSource('/tmp/doc.pdf'),
+          pdfTextExtractor: FakePdfTextExtractor(const ['Hello world.']),
           pdfPageRasterizer: raster,
           tempFileDisposer: disposer,
         );
@@ -195,13 +138,13 @@ void main() {
     );
 
     test('OCRs a scanned (text-less) page via the rasterizer', () async {
-      final ocr = _FakeOcr('OCR text from page 1');
-      final raster = _FakeRasterizer();
-      final disposer = _FakeDisposer();
+      final ocr = FakeOcr('OCR text from page 1');
+      final raster = FakeRasterizer();
+      final disposer = FakeDisposer();
       final service = _service(
         ocr: ocr,
-        pdfSource: _FakePdfSource('/tmp/scan.pdf'),
-        pdfTextExtractor: _FakePdfTextExtractor(const ['']),
+        pdfSource: FakePdfSource('/tmp/scan.pdf'),
+        pdfTextExtractor: FakePdfTextExtractor(const ['']),
         pdfPageRasterizer: raster,
         tempFileDisposer: disposer,
       );
@@ -217,12 +160,12 @@ void main() {
     });
 
     test('deletes the rasterized page even when OCR throws', () async {
-      final raster = _FakeRasterizer();
-      final disposer = _FakeDisposer();
+      final raster = FakeRasterizer();
+      final disposer = FakeDisposer();
       final service = _service(
-        ocr: _FakeOcr('', throwError: true),
-        pdfSource: _FakePdfSource('/tmp/scan.pdf'),
-        pdfTextExtractor: _FakePdfTextExtractor(const ['']),
+        ocr: FakeOcr('', throwError: true),
+        pdfSource: FakePdfSource('/tmp/scan.pdf'),
+        pdfTextExtractor: FakePdfTextExtractor(const ['']),
         pdfPageRasterizer: raster,
         tempFileDisposer: disposer,
       );
@@ -238,13 +181,13 @@ void main() {
     test(
       'multi-page: page markers, mixed text-layer + OCR, page count',
       () async {
-        final ocr = _FakeOcr('scanned page two');
-        final raster = _FakeRasterizer();
+        final ocr = FakeOcr('scanned page two');
+        final raster = FakeRasterizer();
         final service = _service(
           ocr: ocr,
-          pdfSource: _FakePdfSource('/tmp/mixed.pdf'),
+          pdfSource: FakePdfSource('/tmp/mixed.pdf'),
           // Page 1 has a text layer; page 2 is scanned (empty).
-          pdfTextExtractor: _FakePdfTextExtractor(const ['Page one body.', '']),
+          pdfTextExtractor: FakePdfTextExtractor(const ['Page one body.', '']),
           pdfPageRasterizer: raster,
         );
 
@@ -262,10 +205,10 @@ void main() {
 
     test('warns when nothing could be extracted', () async {
       final service = _service(
-        ocr: _FakeOcr(''),
-        pdfSource: _FakePdfSource('/tmp/empty.pdf'),
-        pdfTextExtractor: _FakePdfTextExtractor(const ['']),
-        pdfPageRasterizer: _FakeRasterizer(),
+        ocr: FakeOcr(''),
+        pdfSource: FakePdfSource('/tmp/empty.pdf'),
+        pdfTextExtractor: FakePdfTextExtractor(const ['']),
+        pdfPageRasterizer: FakeRasterizer(),
       );
 
       final result = await service.importPdf();
@@ -280,7 +223,7 @@ void main() {
 
   group('shared input', () {
     test('ingestSharedText wraps text (no OCR) tagged sharedText', () {
-      final ocr = _FakeOcr('unused');
+      final ocr = FakeOcr('unused');
       final result = _service(ocr: ocr).ingestSharedText('Shared note.');
 
       expect(result.text, 'Shared note.');
@@ -296,7 +239,7 @@ void main() {
     });
 
     test('ingestSharedImage OCRs the path tagged sharedText', () async {
-      final ocr = _FakeOcr('Recognized from shared image');
+      final ocr = FakeOcr('Recognized from shared image');
       final result = await _service(ocr: ocr).ingestSharedImage('/tmp/s.jpg');
 
       expect(result.text, 'Recognized from shared image');
@@ -308,8 +251,8 @@ void main() {
   group('original-source fields (Phase 4c)', () {
     test('captured/imported image carries originalPath + mime', () async {
       final camera = await _service(
-        ocr: _FakeOcr('x'),
-        imageSource: _FakeImageSource(
+        ocr: FakeOcr('x'),
+        imageSource: FakeImageSource(
           camera: const PickedImage(path: '/tmp/a.jpg'),
         ),
       ).captureFromCamera();
@@ -317,8 +260,8 @@ void main() {
       expect(camera.mime, 'image/jpeg');
 
       final png = await _service(
-        ocr: _FakeOcr('x'),
-        imageSource: _FakeImageSource(
+        ocr: FakeOcr('x'),
+        imageSource: FakeImageSource(
           gallery: const PickedImage(path: '/tmp/b.PNG'),
         ),
       ).importImage();
@@ -327,8 +270,8 @@ void main() {
 
     test('imported PDF carries originalPath + application/pdf', () async {
       final result = await _service(
-        pdfSource: _FakePdfSource('/tmp/doc.pdf'),
-        pdfTextExtractor: _FakePdfTextExtractor(const ['text']),
+        pdfSource: FakePdfSource('/tmp/doc.pdf'),
+        pdfTextExtractor: FakePdfTextExtractor(const ['text']),
       ).importPdf();
       expect(result!.originalPath, '/tmp/doc.pdf');
       expect(result.mime, 'application/pdf');

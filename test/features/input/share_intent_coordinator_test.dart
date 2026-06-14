@@ -1,26 +1,12 @@
 import 'dart:async';
 
-import 'package:documink/features/input/image_input_source.dart';
 import 'package:documink/features/input/input_ingestion_service.dart';
 import 'package:documink/features/input/ocr_recognizer.dart';
-import 'package:documink/features/input/pdf_page_rasterizer.dart';
-import 'package:documink/features/input/pdf_source.dart';
-import 'package:documink/features/input/pdf_text_extractor.dart';
 import 'package:documink/features/input/share_intent_coordinator.dart';
 import 'package:documink/features/input/share_intent_receiver.dart';
-import 'package:documink/features/input/temp_file_disposer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeOcr implements OcrRecognizer {
-  _FakeOcr(this._text, {this.throwError = false});
-  final String _text;
-  final bool throwError;
-  @override
-  Future<String> recognizeImage(String imagePath) async {
-    if (throwError) throw const OcrUnavailableException();
-    return _text;
-  }
-}
+import '../../support/input_fakes.dart';
 
 /// A receiver whose initialShare() throws (a malformed cold-start intent).
 class _ThrowingReceiver implements ShareIntentReceiver {
@@ -30,41 +16,13 @@ class _ThrowingReceiver implements ShareIntentReceiver {
   Stream<SharedInput> shareStream() => const Stream.empty();
 }
 
-// Unused seams for the ingestion service in these tests.
-class _NoImageSource implements ImageInputSource {
-  @override
-  Future<PickedImage?> capturePhoto() async => null;
-  @override
-  Future<PickedImage?> pickImage() async => null;
-}
-
-class _NoPdfSource implements PdfSource {
-  @override
-  Future<String?> pickPdf() async => null;
-}
-
-class _NoPdfText implements PdfTextExtractor {
-  @override
-  Future<List<String>> extractPages(String path) async => const [];
-}
-
-class _NoRaster implements PdfPageRasterizer {
-  @override
-  Future<String> renderPageToImage(String path, int pageIndex) async => '';
-}
-
-class _NoDisposer implements TempFileDisposer {
-  @override
-  Future<void> dispose(String path) async {}
-}
-
 InputIngestionService _ingestion({OcrRecognizer? ocr}) => InputIngestionService(
-  ocr: ocr ?? _FakeOcr(''),
-  imageSource: _NoImageSource(),
-  pdfSource: _NoPdfSource(),
-  pdfTextExtractor: _NoPdfText(),
-  pdfPageRasterizer: _NoRaster(),
-  tempFileDisposer: _NoDisposer(),
+  ocr: ocr ?? FakeOcr(''),
+  imageSource: FakeImageSource(),
+  pdfSource: FakePdfSource(null),
+  pdfTextExtractor: FakePdfTextExtractor(const []),
+  pdfPageRasterizer: FakeRasterizer(),
+  tempFileDisposer: FakeDisposer(),
 );
 
 class _FakeReceiver implements ShareIntentReceiver {
@@ -126,7 +84,7 @@ void main() {
           value: '/tmp/x.jpg',
         ),
       ),
-      ingestion: _ingestion(ocr: _FakeOcr('text from image')),
+      ingestion: _ingestion(ocr: FakeOcr('text from image')),
       isUnlocked: () => true,
       navigateToEditor: navigated.add,
     );
@@ -183,7 +141,7 @@ void main() {
           value: '/tmp/x.jpg',
         ),
       ),
-      ingestion: _ingestion(ocr: _FakeOcr('', throwError: true)),
+      ingestion: _ingestion(ocr: FakeOcr('', throwError: true)),
       isUnlocked: () => true,
       navigateToEditor: navigated.add,
     );

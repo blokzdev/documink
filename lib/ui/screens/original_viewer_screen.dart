@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfx/pdfx.dart';
 
 import '../../features/security/screen_security.dart';
+import '../../l10n/gen/app_localizations.dart';
 
 /// Transient, biometric-gated viewer for a decrypted original document (Phase
 /// 4c). FLAG_SECURE is on while it's visible; on close it clears FLAG_SECURE,
@@ -64,8 +65,9 @@ class _OriginalViewerScreenState extends ConsumerState<OriginalViewerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Original document')),
+      appBar: AppBar(title: Text(l10n.originalViewerTitle)),
       body: SafeArea(
         child: _isImage
             ? InteractiveViewer(
@@ -78,7 +80,7 @@ class _OriginalViewerScreenState extends ConsumerState<OriginalViewerScreen>
               )
             : _pdf != null
             ? PdfView(controller: _pdf!)
-            : const Center(child: Text('Unsupported document type')),
+            : Center(child: Text(l10n.originalViewerUnsupported)),
       ),
     );
   }

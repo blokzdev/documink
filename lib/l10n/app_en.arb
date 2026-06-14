@@ -184,5 +184,112 @@
   "operatorFpe": "FPE",
   "@operatorFpe": {
     "description": "Operator name: format-preserving encryption."
-  }
+  },
+
+  "captureSourceShared": "Shared",
+  "@captureSourceShared": {
+    "description": "Source badge label for content shared from another app."
+  },
+
+  "pasteKeepOriginalTitle": "Keep an encrypted copy of the original?",
+  "@pasteKeepOriginalTitle": {
+    "description": "Title of the in-context keep-original opt-in hint."
+  },
+  "pasteKeepOriginalBody": "It stays encrypted in your vault — reveal it later with biometrics.",
+  "@pasteKeepOriginalBody": {
+    "description": "Body of the keep-original hint."
+  },
+  "pasteKeepOriginalNotNow": "Not now",
+  "@pasteKeepOriginalNotNow": {
+    "description": "Dismiss the keep-original hint without enabling it."
+  },
+  "pasteKeepOriginalKeep": "Keep",
+  "@pasteKeepOriginalKeep": {
+    "description": "Enable keeping the encrypted original."
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {"description": "Settings screen app-bar title."},
+  "settingsSectionAppearance": "Appearance",
+  "@settingsSectionAppearance": {"description": "Settings section header."},
+  "settingsSectionSecurity": "Security",
+  "@settingsSectionSecurity": {"description": "Settings section header."},
+  "settingsSectionPrivacy": "Privacy",
+  "@settingsSectionPrivacy": {"description": "Settings section header."},
+  "settingsSectionAbout": "About",
+  "@settingsSectionAbout": {"description": "Settings section header."},
+  "settingsThemeSystem": "System default",
+  "@settingsThemeSystem": {"description": "Theme option: follow system."},
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {"description": "Theme option: light."},
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {"description": "Theme option: dark."},
+  "settingsAutoLock": "Auto-lock",
+  "@settingsAutoLock": {"description": "Security row title."},
+  "settingsAutoLockSubtitle": "Configured after vault unlock (later phase)",
+  "@settingsAutoLockSubtitle": {"description": "Security row subtitle."},
+  "settingsBiometricUnlock": "Biometric unlock",
+  "@settingsBiometricUnlock": {"description": "Security row title."},
+  "settingsBiometricUnlockSubtitle": "Available on device (later phase)",
+  "@settingsBiometricUnlockSubtitle": {"description": "Security row subtitle."},
+  "settingsAuditLog": "Audit log",
+  "@settingsAuditLog": {"description": "Privacy row title."},
+  "settingsAuditLogSubtitle": "View privacy-relevant actions",
+  "@settingsAuditLogSubtitle": {"description": "Privacy row subtitle."},
+  "settingsCustomEntities": "Custom entity types",
+  "@settingsCustomEntities": {"description": "Privacy row title."},
+  "settingsCustomEntitiesSubtitle": "Define your own detectors",
+  "@settingsCustomEntitiesSubtitle": {"description": "Privacy row subtitle."},
+  "settingsKeepOriginal": "Keep encrypted original",
+  "@settingsKeepOriginal": {"description": "Privacy toggle title."},
+  "settingsKeepOriginalSubtitle": "Store the source image/PDF, encrypted — reveal it later with biometrics",
+  "@settingsKeepOriginalSubtitle": {"description": "Privacy toggle subtitle."},
+  "settingsAboutTitle": "DocuMink",
+  "@settingsAboutTitle": {"description": "About row title."},
+  "settingsAboutSubtitle": "Privacy-first, on-device redaction · {flavor} build",
+  "@settingsAboutSubtitle": {
+    "description": "About row subtitle with the build flavor.",
+    "placeholders": {"flavor": {"type": "String"}}
+  },
+
+  "documentTitle": "Document",
+  "@documentTitle": {"description": "Document detail app-bar title."},
+  "documentExport": "Export",
+  "@documentExport": {"description": "Export action tooltip."},
+  "documentDelete": "Delete",
+  "@documentDelete": {"description": "Delete action tooltip/button."},
+  "documentDeleteConfirmTitle": "Delete document?",
+  "@documentDeleteConfirmTitle": {"description": "Delete confirm dialog title."},
+  "documentDeleteConfirmBody": "This permanently removes the document and its tokens from the vault.",
+  "@documentDeleteConfirmBody": {"description": "Delete confirm dialog body."},
+  "commonCancel": "Cancel",
+  "@commonCancel": {"description": "Generic cancel button."},
+  "documentCopyText": "Copy redacted text",
+  "@documentCopyText": {"description": "Export sheet: copy redacted text."},
+  "documentCopyJson": "Copy metadata (JSON)",
+  "@documentCopyJson": {"description": "Export sheet: copy JSON metadata."},
+  "commonCopied": "Copied",
+  "@commonCopied": {"description": "Snackbar: content copied."},
+  "documentRevealValues": "{count, plural, =1{Reveal 1 original value · biometric} other{Reveal original values ({count}) · biometric}}",
+  "@documentRevealValues": {
+    "description": "Reveal reversible tokens button.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "documentViewOriginal": "View original · biometric",
+  "@documentViewOriginal": {"description": "View the retained original button."},
+  "documentAuthFailed": "Authentication failed",
+  "@documentAuthFailed": {"description": "Snackbar when biometric auth fails."},
+  "documentLoadError": "Could not load the document",
+  "@documentLoadError": {"description": "Error state title."},
+  "documentNotFound": "Document not found.",
+  "@documentNotFound": {"description": "Shown when the document is missing."},
+  "documentRedactedContent": "Redacted content",
+  "@documentRedactedContent": {"description": "Section header for redacted text."},
+  "documentNoPreview": "(no preview stored)",
+  "@documentNoPreview": {"description": "Placeholder when no redacted preview."},
+
+  "originalViewerTitle": "Original document",
+  "@originalViewerTitle": {"description": "Secure original-document viewer title."},
+  "originalViewerUnsupported": "Unsupported document type",
+  "@originalViewerUnsupported": {"description": "Viewer fallback for non-image/PDF."}
 }

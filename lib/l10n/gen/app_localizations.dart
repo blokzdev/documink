@@ -345,6 +345,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FPE'**
   String get operatorFpe;
+
+  /// Source badge label for content shared from another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get captureSourceShared;
+
+  /// Title of the in-context keep-original opt-in hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep an encrypted copy of the original?'**
+  String get pasteKeepOriginalTitle;
+
+  /// Body of the keep-original hint.
+  ///
+  /// In en, this message translates to:
+  /// **'It stays encrypted in your vault — reveal it later with biometrics.'**
+  String get pasteKeepOriginalBody;
+
+  /// Dismiss the keep-original hint without enabling it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pasteKeepOriginalNotNow;
+
+  /// Enable keeping the encrypted original.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get pasteKeepOriginalKeep;
+
+  /// Settings screen app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Settings section header.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsSectionAppearance;
+
+  /// Settings section header.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsSectionSecurity;
+
+  /// Settings section header.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsSectionPrivacy;
+
+  /// Settings section header.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsSectionAbout;
+
+  /// Theme option: follow system.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get settingsThemeSystem;
+
+  /// Theme option: light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// Theme option: dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// Security row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-lock'**
+  String get settingsAutoLock;
+
+  /// Security row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured after vault unlock (later phase)'**
+  String get settingsAutoLockSubtitle;
+
+  /// Security row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric unlock'**
+  String get settingsBiometricUnlock;
+
+  /// Security row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available on device (later phase)'**
+  String get settingsBiometricUnlockSubtitle;
+
+  /// Privacy row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get settingsAuditLog;
+
+  /// Privacy row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View privacy-relevant actions'**
+  String get settingsAuditLogSubtitle;
+
+  /// Privacy row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom entity types'**
+  String get settingsCustomEntities;
+
+  /// Privacy row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Define your own detectors'**
+  String get settingsCustomEntitiesSubtitle;
+
+  /// Privacy toggle title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep encrypted original'**
+  String get settingsKeepOriginal;
+
+  /// Privacy toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Store the source image/PDF, encrypted — reveal it later with biometrics'**
+  String get settingsKeepOriginalSubtitle;
+
+  /// About row title.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuMink'**
+  String get settingsAboutTitle;
+
+  /// About row subtitle with the build flavor.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy-first, on-device redaction · {flavor} build'**
+  String settingsAboutSubtitle(String flavor);
+
+  /// Document detail app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get documentTitle;
+
+  /// Export action tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get documentExport;
+
+  /// Delete action tooltip/button.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get documentDelete;
+
+  /// Delete confirm dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete document?'**
+  String get documentDeleteConfirmTitle;
+
+  /// Delete confirm dialog body.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently removes the document and its tokens from the vault.'**
+  String get documentDeleteConfirmBody;
+
+  /// Generic cancel button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// Export sheet: copy redacted text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy redacted text'**
+  String get documentCopyText;
+
+  /// Export sheet: copy JSON metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy metadata (JSON)'**
+  String get documentCopyJson;
+
+  /// Snackbar: content copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get commonCopied;
+
+  /// Reveal reversible tokens button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Reveal 1 original value · biometric} other{Reveal original values ({count}) · biometric}}'**
+  String documentRevealValues(int count);
+
+  /// View the retained original button.
+  ///
+  /// In en, this message translates to:
+  /// **'View original · biometric'**
+  String get documentViewOriginal;
+
+  /// Snackbar when biometric auth fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed'**
+  String get documentAuthFailed;
+
+  /// Error state title.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the document'**
+  String get documentLoadError;
+
+  /// Shown when the document is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Document not found.'**
+  String get documentNotFound;
+
+  /// Section header for redacted text.
+  ///
+  /// In en, this message translates to:
+  /// **'Redacted content'**
+  String get documentRedactedContent;
+
+  /// Placeholder when no redacted preview.
+  ///
+  /// In en, this message translates to:
+  /// **'(no preview stored)'**
+  String get documentNoPreview;
+
+  /// Secure original-document viewer title.
+  ///
+  /// In en, this message translates to:
+  /// **'Original document'**
+  String get originalViewerTitle;
+
+  /// Viewer fallback for non-image/PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported document type'**
+  String get originalViewerUnsupported;
 }
 
 class _AppLocalizationsDelegate
