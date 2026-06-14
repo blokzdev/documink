@@ -47,6 +47,35 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     }
   }
 
+  Future<void> _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete document?'),
+        content: const Text(
+          'This permanently removes the document and its tokens from the vault.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref
+        .read(documentRepositoryProvider)
+        .deleteDocument(widget.documentId);
+    ref.invalidate(documentsListProvider);
+    if (!mounted) return;
+    await Navigator.of(context).maybePop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final docAsync = ref.watch(documentByIdProvider(widget.documentId));
@@ -55,7 +84,16 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Document')),
+      appBar: AppBar(
+        title: const Text('Document'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: 'Delete',
+            onPressed: _delete,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: docAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),

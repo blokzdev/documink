@@ -156,6 +156,38 @@ class DocumentRepository {
     _db.documents,
   )..where((d) => d.id.equals(id))).getSingleOrNull();
 
+  /// Deletes a document and all its entities + tokens (one transaction), and
+  /// audits `document_deleted`.
+  Future<void> deleteDocument(String documentId) async {
+    await _db.transaction(() async {
+      final entityIds =
+          await (_db.selectOnly(_db.entities)
+                ..addColumns([_db.entities.id])
+                ..where(_db.entities.documentId.equals(documentId)))
+              .map((r) => r.read(_db.entities.id)!)
+              .get();
+      if (entityIds.isNotEmpty) {
+        await (_db.delete(
+          _db.tokens,
+        )..where((t) => t.entityId.isIn(entityIds))).go();
+      }
+      await (_db.delete(
+        _db.entities,
+      )..where((e) => e.documentId.equals(documentId))).go();
+      await (_db.delete(
+        _db.documents,
+      )..where((d) => d.id.equals(documentId))).go();
+      await AuditLogRepository(_db).record(
+        id: _newId(),
+        workspaceId: defaultWorkspaceId,
+        eventType: 'document_deleted',
+        documentId: documentId,
+        success: true,
+        nowEpochMs: _clock().millisecondsSinceEpoch,
+      );
+    });
+  }
+
   /// The reversible tokens belonging to [documentId] (joined via its entities).
   Future<List<Token>> tokensForDocument(String documentId) async {
     final query = _db.select(_db.tokens).join([
