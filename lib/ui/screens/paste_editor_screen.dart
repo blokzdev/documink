@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/anonymization/operator.dart';
 import '../../features/editor/paste_editor_controller.dart';
+import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
+import '../widgets/entity_chip.dart';
 
 /// Paste-and-redact editor (Phase 5b): paste text → detect (Tier 1) → choose an
 /// operator per entity type → preview the redacted text.
@@ -71,27 +74,54 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: AppTokens.spacingSm),
-              for (final label in state.labels)
+              for (final label in state.labels) ...[
                 _EntityRow(
                   label: label,
                   count: state.spans.where((s) => s.label == label).length,
                   selected: state.operators[label] ?? Operator.redact,
                   onChanged: (op) => controller.setOperator(label, op),
                 ),
+                const SizedBox(height: AppTokens.spacingSm),
+              ],
               if (state.entityCount > 0) ...[
-                const SizedBox(height: AppTokens.spacingMd),
-                Text('Preview', style: theme.textTheme.titleMedium),
+                const SizedBox(height: AppTokens.spacingSm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Redacted preview',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy_outlined),
+                      tooltip: 'Copy',
+                      onPressed: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: state.previewText),
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied')));
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: AppTokens.spacingSm),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppTokens.spacingMd),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(AppTokens.radiusMd),
+                    ),
                   ),
                   child: SelectableText(
                     state.previewText,
                     key: const Key('redacted-preview'),
+                    style: AppTypography.mono(context),
                   ),
                 ),
                 const SizedBox(height: AppTokens.spacingMd),
@@ -140,11 +170,11 @@ class _EntityRow extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '$label  ·  $count',
-              style: Theme.of(context).textTheme.titleSmall,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: EntityChip(label: label, count: count),
             ),
-            const SizedBox(height: AppTokens.spacingSm),
+            const SizedBox(height: AppTokens.spacingMd),
             Wrap(
               spacing: AppTokens.spacingSm,
               children: [
