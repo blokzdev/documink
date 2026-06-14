@@ -46,3 +46,10 @@ app.*.map.json
 
 # Agent-generated debugging artifacts
 deps.txt
+
+# Android release signing — NEVER commit secrets (see SETUP.md)
+/android/key.properties
+*.jks
+*.keystore
+*.b64
+*.b64.txt

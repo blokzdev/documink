@@ -151,6 +151,15 @@ Commit ADRs under `docs/adr/`:
   - Per-document overrides supported.
 - Round-trip tests for all reversible operators.
 
+> **Build-order note (2026-06-14):** Phases 4 and 5 are **executed in swapped order** —
+> **UI/UX scaffolding (Phase 5) is built before the native input handlers (Phase 4).**
+> Rationale: the UI is widget-testable in the headless agent environment and is the scaffold
+> every input plugs into, whereas Phase 4 is ~80% native (camera/OCR/pickers) with little
+> headless-verifiable value and is best done in a device session. **Phase numbers are kept
+> stable** (other docs/code reference "Phase 5 bootstrap"). Phase 4 inputs are modeled as
+> pure-Dart interfaces + the paste-text path now; native camera/OCR/import are stubbed via the
+> provider-override pattern and tracked in `VERIFICATION.md`. See `docs/DECISIONS.md`.
+
 ### Phase 4 — Input handlers
 
 - Camera capture flow (permission with rationale, single-page capture, OCR via ML Kit).
