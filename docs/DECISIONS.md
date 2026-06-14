@@ -9,6 +9,67 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-14 — Workflow: build device-bound phases behind seams (no phase-boundary stop)
+
+- **Context:** native/UI/model phases (4 input, 7 render, 8 transport, 10–14 Mink/LLM, 16 a11y)
+  were previously framed as "defer to a device session." That stalls the autonomous roadmap loop
+  at every native phase, even though most of each phase is pure-Dart orchestration that **is**
+  headless-testable (the codebase already proves this: Authenticator→`local_auth`, ML Kit
+  annotator, device-signal collector, sync transport — all seam + fake + real-adapter).
+- **Options:** (A) keep deferring whole native phases to device sessions; (B) **build each native
+  phase here behind seams** — pure-Dart orchestrator + safe-default seam + compile-only real
+  adapter + fake-driven tests — and **batch the un-runnable native checks into `VERIFICATION.md`**.
+- **Choice:** **B** (maintainer-directed, 2026-06-14). Codified in **CLAUDE.md → "Device-bound
+  phases: build behind seams now, batch verification."** Loop continues through native phases;
+  never claim a deferred device check passed; un-buildable remainders (e.g. needing a vetted
+  plugin) ship as tracked follow-ups rather than blocking.
+- **Rationale:** maximizes headless-verifiable progress, keeps the loop moving, preserves honesty
+  (the seam pattern already deny-by-defaults the un-wired native path).
+
+## 2026-06-14 — Roadmap completeness: capture deferred Mink/AI vision
+
+- **Context:** maintainer asked to ensure the rich Mink vision + envisioned features are all on the
+  roadmap so they're tackled at an optimal point. Gap audit (PRD/blueprint §5 vs roadmap) found
+  features deferred in the PRD but **absent from the roadmap**.
+- **Findings → additions:**
+  - **Voice I/O, extended multimodal I/O, background agents** (PRD §5.2/§14 "deferred to V3+") were
+    not on the roadmap → added **V3 Phase 10 "Mink interaction expansion"** (independent of Teams;
+    depends only on the V1 Tier-4 runtime; sequenced after V3 inference work). Each mode preserves
+    the V1 invariants (on-device, reactive default, biometric gate, audit) and defaults off.
+  - **In-app "report AI output" mechanism** (PRD §9.1, Play AI-Generated-Content policy) was not on
+    the roadmap → added to **V1 Phase 12 chat UI** (flags locally, audit-logged, nothing leaves the
+    device — consistent with zero-telemetry).
+- **Already covered (no change):** chat/sessions/tools/streaming/model-indicator/token-ref masking,
+  proactive suggestions (P13), typed memory + memory UI (P12), domain inference (P14), merge
+  projects/teams (V3), community templates/WAN dispatch/e-sign (V4), multilingual/formats/LAN (V3).
+- **Choice:** additive only — no resequencing of existing phases. Logged for review.
+
+## 2026-06-14 — V1 Phase 4a: input (camera scan + image import → OCR → redact)
+
+- **Branch hygiene:** the session branch `claude/documink-bootstrap-audit-6ml8o2` was stale (its one
+  commit was the already-squash-merged "Enablement" work; 12 commits behind `main`). Reset it to
+  `main` before building — verified the Enablement content (build-apk/release workflows, SETUP.md,
+  VERIFICATION.md, gradle signing) is already on `main`.
+- **Scope (this PR):** the scan/image→OCR→redact vertical slice (PRD §7.2). New `lib/features/input/`:
+  `IngestedText`/`InputSourceKind`, `OcrRecognizer` + `ImageInputSource` seams (fail-loud
+  `Unavailable*` defaults — never silently return empty, which would read as "no PII"), the pure-Dart
+  `InputIngestionService`, `CaptureController`/`CaptureScreen` (scan & import modes), providers, and
+  real adapters `MlKitTextRecognizer` / `SystemImageSource`. The paste editor gained an `initialText`
+  seam so any source feeds the existing detection/redaction/save flow (one redaction surface).
+- **Plugins:** `google_mlkit_text_recognition ^0.15.0` + `image_picker ^1.1.2` — both resolve on the
+  pinned toolchain (dry-run checked); both Apache-2.0/BSD (license-clean). AndroidManifest adds CAMERA
+  + bundles the ML Kit Latin OCR model (`com.google.mlkit.vision.DEPENDENCIES=ocr`) for offline OCR.
+- **Deferred (tracked follow-ups, not this PR):**
+  - **PDF import** (text-layer extraction + per-page OCR fallback). Held because the obvious PDF text
+    packages need a **license check** — Syncfusion is commercial (deny-list), so a license-cleared
+    (Apache/MIT/BSD) extractor must be vetted first per `.agents/rules/license-policy.md`.
+    Shipping the seam-less core would be premature; logged instead of rushed.
+  - **Inbound share-sheet intent** (receive shared text/images from other apps) — a separate native
+    surface (`receive_sharing_intent`-class), best done alongside Phase 7's outbound share.
+- **Headless tests:** `InputIngestionService` (success/cancel/empty/error/unwired), `CaptureController`
+  state machine, `CaptureScreen` widget (affordance/recognized-text/warning/error), paste-editor
+  `initialText` auto-detect. Device checks batched into `VERIFICATION.md`.
+
 ## 2026-06-14 — V1 Phase 7: export (headless core)
 
 - `ExportService` (pure) builds two artifacts from a redacted document: the **redacted text** and a

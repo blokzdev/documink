@@ -92,6 +92,15 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // R8 runs on release; ship our keep rules so the ML Kit text
+            // recognizer's references to non-bundled scripts don't fail the
+            // build (proguard-rules.pro). isMinifyEnabled is set explicitly so
+            // the custom rules are guaranteed to apply.
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

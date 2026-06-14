@@ -10,8 +10,14 @@ import '../widgets/entity_chip.dart';
 
 /// Paste-and-redact editor (Phase 5b): paste text → detect (Tier 1) → choose an
 /// operator per entity type → preview the redacted text.
+///
+/// [initialText] seeds the editor when the screen is reached from an input
+/// source (Phase 4 — camera scan / image import): the text is pre-filled and
+/// detection runs automatically.
 class PasteEditorScreen extends ConsumerStatefulWidget {
-  const PasteEditorScreen({super.key});
+  const PasteEditorScreen({super.key, this.initialText});
+
+  final String? initialText;
 
   @override
   ConsumerState<PasteEditorScreen> createState() => _PasteEditorScreenState();
@@ -19,6 +25,21 @@ class PasteEditorScreen extends ConsumerStatefulWidget {
 
 class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
   final _textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final seed = widget.initialText;
+    if (seed != null && seed.trim().isNotEmpty) {
+      _textController.text = seed;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final controller = ref.read(pasteEditorControllerProvider.notifier);
+        controller.setInput(seed);
+        controller.detect();
+      });
+    }
+  }
 
   @override
   void dispose() {

@@ -151,14 +151,20 @@ Commit ADRs under `docs/adr/`:
   - Per-document overrides supported.
 - Round-trip tests for all reversible operators.
 
-> **Build-order note (2026-06-14):** Phases 4 and 5 are **executed in swapped order** —
-> **UI/UX scaffolding (Phase 5) is built before the native input handlers (Phase 4).**
-> Rationale: the UI is widget-testable in the headless agent environment and is the scaffold
-> every input plugs into, whereas Phase 4 is ~80% native (camera/OCR/pickers) with little
-> headless-verifiable value and is best done in a device session. **Phase numbers are kept
-> stable** (other docs/code reference "Phase 5 bootstrap"). Phase 4 inputs are modeled as
-> pure-Dart interfaces + the paste-text path now; native camera/OCR/import are stubbed via the
-> provider-override pattern and tracked in `VERIFICATION.md`. See `docs/DECISIONS.md`.
+> **Build-order note (2026-06-14):** Phases 4 and 5 were **executed in swapped order** —
+> **UI/UX scaffolding (Phase 5) before the native input handlers (Phase 4)** — because the UI is
+> the scaffold every input plugs into and is widget-testable headless. **Phase numbers are kept
+> stable** (other docs/code reference "Phase 5 bootstrap").
+>
+> **Phase 4 now in progress (build-behind-seams; see CLAUDE.md "Device-bound phases"):**
+> - **4a (shipped):** camera scan + image import → ML Kit OCR → recognized-text review → the
+>   existing redaction editor (seeded). Native camera/picker/OCR sit behind the `OcrRecognizer`
+>   / `ImageInputSource` seams; the pure-Dart `InputIngestionService` + the capture UI are
+>   headless-tested with fakes; real adapters (`MlKitTextRecognizer`, `SystemImageSource`) wired
+>   at bootstrap and **device-verified** (`VERIFICATION.md`).
+> - **Tracked follow-ups (remaining Phase 4):** **PDF import** (text-layer extraction + per-page
+>   OCR fallback — pending a license-cleared PDF text package) and **inbound share-sheet intent**
+>   (receive text/images shared from other apps). Logged in `docs/DECISIONS.md`.
 
 ### Phase 4 — Input handlers
 
@@ -327,6 +333,7 @@ Commit ADRs under `docs/adr/`:
   - Tool calls rendered inline with explanation ("Mink ran `search_documents` and found 3 results").
   - Model indicator (shows which Tier 4 model is running Mink).
   - **Token-ref rendering:** chat messages containing token references render as masked by default; single "reveal" toggle per view with session-scoped state.
+  - **Report AI output:** a per-message "report this response" affordance (Google Play AI-Generated Content policy; PRD §9.1). Flags the message **locally** (audit-logged, user-inspectable) — no content leaves the device, consistent with the zero-telemetry posture.
 - **Mink Memory UI (Settings → Mink Memory):**
   - Memory grouped by type (Core, Episodic). V1.2 adds Semantic, Procedural, Resource sections.
   - Each entry shows provenance ("You told me" / "Inferred from conversation" / "Observed from action").
@@ -634,6 +641,29 @@ Commit ADRs under `docs/adr/`:
 
 - Seat-based Team pricing.
 - Admin billing console.
+
+### Phase 10 — Mink interaction expansion (voice, multimodal, background agents)
+
+> The richer Mink interaction modes the PRD defers to "V3+" (PRD §5.2, §14). Independent of the
+> Teams arc (Phases 6–9); depends only on the Tier-4 runtime shipped in V1. Sequence after the
+> V3 inference work (Phase 3 LAN-dispatched inference) so heavier modes can lean on a paired
+> device. **Every mode preserves the V1 invariants:** on-device only, no cloud inference, reactive
+> by default, biometric gate on irreversible actions, audit-logged.
+
+- **Voice I/O** — on-device speech-to-text for dictating to Mink and text-to-speech for replies.
+  - Platform speech recognition (Android `SpeechRecognizer` / Windows Speech) behind a seam; no
+    audio leaves the device; no cloud STT.
+  - Push-to-talk in chat; transcript shown and editable before send (privacy-review the text).
+  - Accessibility: pairs with TalkBack; never auto-records.
+- **Extended multimodal I/O** — beyond OCR'd text: let Mink reason over page images/regions
+  (e.g. "what's in the top-right box of this scan?") via the active Tier-4 model's vision
+  capability where present, with graceful degradation to text-only on non-vision tiers.
+- **Background agents (carefully scoped)** — opt-in, foreground-initiated longer-running tasks
+  (e.g. "redact this 200-page PDF and tell me when done") with a visible progress surface and
+  cancellation. Still **no silent background processing** — the task is user-initiated, bounded,
+  audited, and pauses on low battery. This relaxes V1's "active use only" constraint **only**
+  under explicit per-task user consent; the default remains reactive.
+- **Settings** — per-mode toggles (voice, multimodal, background tasks), all default-off.
 
 ---
 

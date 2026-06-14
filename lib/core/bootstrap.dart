@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flavors/flavor.dart';
 import 'router.dart';
+import '../features/input/input_providers.dart';
+import '../features/input/mlkit_text_recognizer.dart';
+import '../features/input/system_image_source.dart';
 import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
 import '../services/settings_store.dart';
@@ -30,6 +33,10 @@ Future<void> bootstrap(Flavor flavor) async {
         ),
         vaultFileProvider.overrideWithValue(vaultFile),
         authenticatorProvider.overrideWithValue(LocalAuthAuthenticator()),
+        // Phase 4 input: real on-device OCR + camera/picker adapters. Behind
+        // seams so headless tests use fakes; device-verified (VERIFICATION.md).
+        ocrRecognizerProvider.overrideWithValue(MlKitTextRecognizer()),
+        imageInputSourceProvider.overrideWithValue(SystemImageSource()),
       ],
       child: const DocuMinkApp(),
     ),

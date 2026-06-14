@@ -67,10 +67,30 @@ an item here in the same PR.
 - ☐ **LAN sync** — mDNS discovery, QR pairing, TLS-pinned WebSocket; second-device onboarding.
 - ☐ **cr-sqlite CRDT merge** at the SQLite layer; hard conflicts surface in Settings → Sync Conflicts.
 
-## Input handlers (Phase 4 — native; build pending)
+## Input handlers (Phase 4 — native)
 
-- ☐ **Camera capture + OCR**, **image import** (JPG/PNG/HEIC picker), **PDF import**
-  (text-layer extraction + per-page OCR). *(to be added when Phase 4 is built)*
+Headless tests cover the pure-Dart `InputIngestionService` + the capture UI via fake
+`OcrRecognizer` / `ImageInputSource`. The native adapters are wired at bootstrap and need a
+device:
+
+- ☐ **Camera permission prompt** — first Scan shows the runtime CAMERA permission rationale;
+  denial is handled gracefully (no crash). *(AndroidManifest CAMERA; image_picker)*
+- ☐ **Camera capture → OCR** — `MlKitTextRecognizer` recognizes text from a captured page;
+  the recognized text appears on the capture screen and seeds the redaction editor.
+  *(lib/features/input/mlkit_text_recognizer.dart)*
+- ☐ **ML Kit Latin model bundled** — OCR works **offline on first launch** (the
+  `com.google.mlkit.vision.DEPENDENCIES=ocr` meta-data installs the model with the app).
+- ☐ **Image import** — system photo picker returns an image; **JPG / PNG / HEIC** all decode
+  and OCR (HEIC is the iOS/modern-Android format most likely to surprise).
+  *(lib/features/input/system_image_source.dart)*
+- ☐ **OCR quality** — recognized text on a real document is good enough that Tier-1 detection
+  finds the PII (spot-check email/phone/SSN on a sample doc).
+- ☐ **End-to-end scan→redact** (PRD §7.2) — scan a page → review recognized text → "Redact this
+  text" → detection + operators → save to vault.
+- ☐ **PDF import** *(tracked follow-up — not yet built)* — text-layer extraction + per-page OCR
+  fallback for scanned PDFs. *(pending a license-cleared PDF text package; docs/DECISIONS.md)*
+- ☐ **Inbound share-sheet intent** *(tracked follow-up — not yet built)* — receiving text/images
+  shared from another app into DocuMink.
 
 ## Settings persistence (Phase 5d)
 

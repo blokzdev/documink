@@ -61,6 +61,11 @@ dependencies:
   # Biometric gate for revealing reversible tokens (§5 decode). Behind an
   # Authenticator seam; the real plugin is wired at bootstrap, faked in tests.
   local_auth: ^2.3.0
+  # Phase 4 input handlers (camera scan + image import → OCR). Both sit behind
+  # the OcrRecognizer / ImageInputSource seams (lib/features/input); the real
+  # adapters are wired at bootstrap and faked in tests. Device-only at runtime.
+  google_mlkit_text_recognition: ^0.15.0
+  image_picker: ^1.1.2
 
 
 dev_dependencies:
