@@ -12,6 +12,8 @@ class Routes {
   static const vault = '/vault';
   static const settings = '/settings';
   static const auditLog = '/settings/audit';
+  static const customEntities = '/settings/custom-entities';
+  static const customEntityForm = '/settings/custom-entities/edit';
 
   /// Document detail, e.g. `/document/<id>`.
   static String document(String id) => '/document/$id';
