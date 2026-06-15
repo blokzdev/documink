@@ -408,6 +408,13 @@ Plan of record: **`docs/P13-PLAN.md`** (sub-PRs 13a–13d). Two-layer engine —
 
 ### Phase 14 — Projects & templates
 
+Plan of record: **`docs/P14-PLAN.md`**. **Status:** 14a–14c shipped (PRs #60–#65); **14d** (AI-scaffolded
+upload path + personal templates) and the remote signed-template refresh remain.
+
+- **Sub-PRs:** 14a Projects core (repo CRUD + versioning + isolation + audit) · 14b signed Verified
+  templates + picker (Path A) · 14c list/detail/settings + Blank Wizard (Path C) · 14d upload→
+  `DomainInferenceService` (Path B) + "AI-scaffolded" badge + personal-template save (behind seams).
+
 - **Project schema** per Blueprint §3 and §6.
 - **`ProjectService`** — CRUD with manifest versioning, isolation enforcement (`workspace_id` / `project_id` filtering in every query).
 - **`TemplateService`** — fetches signed templates manifest from `documink.ai/templates/manifest.json`, verifies Ed25519, caches with offline fallback.
