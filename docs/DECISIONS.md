@@ -1232,3 +1232,22 @@ Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the mem
   `generate`; **true token streaming is deferred** (would extend the seam + the `flutter_gemma`
   adapter) — V1 chat shows a thinking indicator. Consent-gated document-snippet context injection
   and cross-project access are also deferred to later Phase-12 slices.
+
+## 2026-06-15 — V1 P12e: Mink chat UI
+
+- **Global (no-project) chat default permissions.** A chat with no active Project uses a built-in
+  default granting only `read_documents` (so `search_documents`/`list_entities` work); everything
+  privacy-sensitive stays deny-by-default. Memory tools are always available (router-gated). This
+  realizes the "built-in default manifest" flagged in the 12d entry. *Rationale:* a useful global
+  assistant without weakening project isolation — project chats still use their manifest verbatim.
+- **Token-ref reveal deferred (masked-only for now).** `TokenText` renders Form-B `<<tok_…>>`
+  markers as a muted `⟨hidden⟩` chip and never shows decoded values. A per-view biometric reveal
+  (memory.md §8) needs a **token-by-id** decrypt path; today's `RevealService` is *document*-scoped
+  and the 12d tool set emits no token markers anyway. Reveal lands with `decode_token` wiring.
+  *No invariant weakened* — the default and only behavior is fully masked.
+- **Report-AI-output = local audit flag.** "Report" on a Mink message writes an
+  `ai_output_reported` audit row (session/message ids only) — satisfying the Play AI-content policy
+  (PRD §9.1) with zero egress, consistent with the no-telemetry posture. A dedicated review UI for
+  reported messages is a later nicety (the row is already user-inspectable in the Audit Log).
+- **No streaming (still).** The thread shows a progress indicator while `MinkService` runs the
+  (single-shot) turn; token streaming remains deferred with the `LlmBackend` seam (see 12d).

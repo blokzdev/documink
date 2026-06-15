@@ -11,6 +11,10 @@ class AuditEventType {
   static const String vaultUnlock = 'vault_unlock';
   static const String biometricFailed = 'biometric_failed';
   static const String minkToolCall = 'mink_tool_call';
+
+  /// A Mink chat response the user flagged via "report this response"
+  /// (PRD §9.1). Flagged **locally** only — no content leaves the device.
+  static const String aiOutputReported = 'ai_output_reported';
   static const String suggestionOffered = 'suggestion_offered';
   static const String suggestionDismissed = 'suggestion_dismissed';
   static const String suggestionActioned = 'suggestion_actioned';
