@@ -84,6 +84,11 @@ that is intentional. After editing a drift table / annotated source, regenerate 
 `--force-jit` command above and commit the regenerated file in the same change. CI enforces
 currency (codegen-freshness job).
 
+**Localizations are generated too.** After editing `lib/l10n/*.arb`, run `flutter gen-l10n` and
+commit the regenerated `lib/l10n/gen/` (synthetic-package is off, so analyze/test use the committed
+output). DocuMink localizes **whole screens** — every user-facing string goes through
+`AppLocalizations`/`l10n`, never a hardcoded literal.
+
 ## Autonomy contract (Option C — continuous self-merge loop)
 
 Supersedes the earlier "Option B" (human-merge, stop-at-every-phase-boundary) contract, by
@@ -123,6 +128,28 @@ roadmap end-to-end without stopping for human review at phase boundaries.
   analytics-scan, verify-model-hashes, codegen-freshness — run the ones the phase touches).
 - Docs updated **in the same phase** if implementation revealed a spec gap.
 - README "Build status" updated to reflect the phase.
+
+## Phase loop mechanics (standing workflow)
+
+Concrete mechanics of the Option-C loop above — codified so every session runs it the same way:
+
+- **Open each phase with a plan doc.** Start with a small **docs-only PR** that creates
+  `docs/Pxx-PLAN.md` (the design of record: scope from the specs, key decisions, a sub-PR table,
+  privacy checklist, verification). It's the per-phase contract; each slice references it.
+  (Convention started at P13; P12 and earlier predate it.)
+- **One branch per slice → PR → CI-green → squash-merge → sync `main` → next.** Push the feature
+  branch, open the PR **ready for review**, drive `documink-ci` to all-green, **squash-merge**
+  yourself, then `git checkout main && git fetch && git reset --hard origin/main` before cutting the
+  next branch. Head branches auto-delete on GitHub.
+- **CI watch:** webhook PR-activity delivers **failures only** — not CI success, new pushes, or
+  merge-conflict transitions. So **poll** the PR's checks to confirm green. `apk-size-check` is a
+  full arm64 release build (**~9 min**); a long-running build is **not** a hang — wait it out. The
+  jitpack `JP2ForAndroid` exclude (see Known constraints) is what keeps that build green.
+- **Pre-commit hook (`.githooks/pre-commit`, `core.hooksPath=.githooks`)** runs
+  `dart format --set-exit-if-changed lib/ test/ tool/` then `flutter analyze --fatal-infos
+  --fatal-warnings`. If formatting changed files it **reformats them in place and aborts the
+  commit** — just `git add -A` and re-run the same commit (the reformat is already applied). Never
+  bypass with `--no-verify`.
 
 ## Self-reporting honesty
 
