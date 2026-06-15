@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/app_database.dart';
 import '../../services/database_providers.dart';
 import '../documents/document_repository.dart';
+import '../llm/llm_providers.dart';
+import 'domain_inference_service.dart';
 import 'project_repository.dart';
 import 'template_manifest.dart';
 import 'template_service.dart';
@@ -48,4 +50,11 @@ final templateServiceProvider = Provider<TemplateService>(
 /// Throws if the bundled catalog fails Ed25519 verification.
 final verifiedTemplatesProvider = FutureProvider<List<TemplateDefinition>>(
   (ref) => ref.watch(templateServiceProvider).verifiedTemplates(),
+);
+
+/// On-device document→template inference for creation Path B (blueprint §6.2).
+/// Uses the [llmBackendProvider]; returns null (fall back to the picker) when no
+/// Tier-4 model is available.
+final domainInferenceServiceProvider = Provider<DomainInferenceService>(
+  (ref) => DomainInferenceService(ref.watch(llmBackendProvider)),
 );

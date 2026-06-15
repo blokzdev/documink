@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database_providers.dart';
 import 'device_capability_profiler.dart';
 import 'device_signal_collector.dart';
+import 'llm_backend.dart';
 import 'manifest_verifier.dart';
 import 'model_manifest.dart';
 import 'profiler_repository.dart';
@@ -15,6 +16,13 @@ const String signedManifestAsset = 'assets/model_manifest/manifest.signed.json';
 
 final manifestVerifierProvider = Provider<ManifestVerifier>(
   (ref) => ManifestVerifier(),
+);
+
+/// The on-device LLM text-generation backend (Tier 4). Defaults to the
+/// fail-loud [UnavailableLlmBackend]; the real `flutter_gemma`/LiteRT adapter is
+/// composed at bootstrap on supported devices (Phase 10b) and device-verified.
+final llmBackendProvider = Provider<LlmBackend>(
+  (ref) => const UnavailableLlmBackend(),
 );
 
 /// The verified model manifest. Throws if the bundled manifest fails Ed25519
