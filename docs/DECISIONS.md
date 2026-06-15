@@ -9,6 +9,47 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — Build fix: drop the jitpack `JP2ForAndroid` transitive dep
+
+- **Context:** every Android build (CI `apk-size-check`, manual Build APK, Release AAB) began
+  failing at `:app:mergeProdReleaseNativeLibs` — Gradle could not resolve
+  `com.github.Tgo1014:JP2ForAndroid:1.0.4` from **jitpack.io (HTTP 403 Forbidden)**. That artifact
+  is a JPEG2000 image decoder declared `runtimeOnly` by the `flutter_pdf_text` plugin (Phase 4b)
+  for Apache PDFBox. It blocked Phase 13's docs PR (#77) and all Android builds. Headless gates
+  (analyze/test/scanners) were unaffected — the PDF seam defaults to `UnavailablePdfTextExtractor`
+  in tests, so jitpack is only hit by real Android builds.
+- **Decision — exclude the transitive dep, build-graph-wide.** `android/build.gradle.kts` adds
+  `configurations.all { exclude(group = "com.github.Tgo1014", module = "JP2ForAndroid") }` inside
+  **`allprojects`** — it must cover both `:app` and the `:flutter_pdf_text` module itself, whose own
+  `releaseRuntimeClasspath` (lint model) resolves the dep otherwise (an `:app`-only exclude left that
+  second resolution site failing). Gradle then never resolves it, so jitpack leaves the build graph
+  entirely. We use `flutter_pdf_text` **only for the text layer** (`page.text`); JPEG2000 *image*
+  decoding is never exercised, and image-only pages already fall back to OCR via `pdfx`.
+  - Removing the decoder leaves a dangling reference `com.gemalto.jp2.JP2Decoder` (from PDFBox's
+    `JPXFilter.readJPX`) that R8 rejects as a missing class, so `android/app/proguard-rules.pro` adds
+    `-dontwarn com.gemalto.jp2.**` (same pattern already used there for unused ML Kit scripts /
+    MediaPipe). That code path only runs when decoding a JP2 *image*, which text extraction never does.
+  - The adapter (`flutter_pdf_text_extractor.dart`) also reads each page in a try/catch so any page
+    PDFBox can't extract degrades to an empty string → OCR fallback (defense-in-depth; device-only).
+- **Why a 403 isn't just "retry it":** research (jitpack docs + issues) shows a jitpack 403 is an
+  auth/build-side failure that is **typically persistent, not a transient network blip** — so the
+  fix removes the dependency on jitpack rather than relying on it recovering.
+- **Alternatives considered (rejected for now, kept as fallbacks):**
+  - **jitpack auth token** — still couples every Android build to jitpack uptime; fragile.
+  - **Vendor the `.aar` / swap to Maven Central** — `JP2ForAndroid` is **BSD-2-Clause** (allow-listed)
+    and also mirrored as `com.gemalto.jp2:jp2-android` on Maven Central, so this is viable **if** a
+    real JPEG2000-text need ever appears. Unnecessary today (we don't decode PDF images), and it
+    would add a native dep we don't use.
+  - **`pdfrx` consolidation** (one pdfium backend, JPEG2000 built-in, no jitpack) — the clean
+    long-term fix, but **blocked**: current `pdfrx`/`pdfium_flutter` need Flutter Build Hooks
+    (Flutter ≥ 3.41) vs. our pinned 3.38.6. Stays in CLAUDE.md "Deferred opportunities" for the
+    next toolchain bump; the exclude is the correct minimal fix until then.
+- **CI-verified here:** `flutter analyze` clean; `flutter test` green (Dart adapter change is
+  compile/analyze-checked; the seam is faked in tests so behavior is unchanged). The Android build
+  itself can't run in this web container (no Android SDK) — the fix is proven by this PR's own
+  `apk-size-check` going green (jitpack no longer queried). **Device-only (deferred):** text
+  extraction on a JPEG2000-image-bearing PDF + OCR fallback on image-only pages — VERIFICATION.md.
+
 ## 2026-06-15 — V1 P11b: Tier-4 onboarding "Meet Mink" + floor UX
 
 - **Context:** completes Phase 11 — adds the first-run AI decision step and the below-floor UX on top

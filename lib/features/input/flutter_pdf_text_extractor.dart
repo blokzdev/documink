@@ -16,6 +16,19 @@ class FlutterPdfTextExtractor implements PdfTextExtractor {
   @override
   Future<List<String>> extractPages(String path) async {
     final doc = await PDFDoc.fromPath(path);
-    return [for (final page in doc.pages) await page.text];
+    // Read each page independently so a single page PDFBox can't extract (e.g.
+    // a page whose only content is a JPEG2000 image — the JP2 decoder is
+    // intentionally excluded from the build) degrades to an empty string rather
+    // than failing the whole document. An empty page is the orchestrator's
+    // signal to OCR it via the rasterize + ML Kit fallback (InputIngestionService).
+    final pages = <String>[];
+    for (final page in doc.pages) {
+      try {
+        pages.add(await page.text);
+      } on Object {
+        pages.add('');
+      }
+    }
+    return pages;
   }
 }
