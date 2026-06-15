@@ -165,6 +165,28 @@ void main() {
     expect(await offers(), isEmpty);
   });
 
+  test('recordActioned / recordDismissed write PII-safe audit rows', () async {
+    final suggester = build(const []);
+    final s = suggestion(label: PiiLabels.person);
+    final sig = signal({PiiLabels.person: 5});
+
+    await suggester.recordActioned(s, sig);
+    await suggester.recordDismissed(s, sig);
+
+    final actioned = await audit.query(
+      'ws',
+      eventTypes: [AuditEventType.suggestionActioned],
+    );
+    final dismissed = await audit.query(
+      'ws',
+      eventTypes: [AuditEventType.suggestionDismissed],
+    );
+    expect(actioned, hasLength(1));
+    expect(dismissed, hasLength(1));
+    expect(actioned.single.metadata!['label'], PiiLabels.person); // type only
+    expect(actioned.single.metadata!['count'], 5);
+  });
+
   test('consults sources in order and uses the first valid proposal', () async {
     final first = FixedSource(null);
     final second = FixedSource(suggestion(label: PiiLabels.email));
