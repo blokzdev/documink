@@ -496,6 +496,24 @@ abstract class AppLocalizations {
   /// **'Let Mink offer an occasional follow-up tip after an action — in-context and dismissible, never a notification'**
   String get settingsProactiveSuggestionsSubtitle;
 
+  /// Button that applies a proactive suggestion's one-tap action.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get suggestionApply;
+
+  /// Button that dismisses a proactive suggestion card.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get suggestionDismiss;
+
+  /// One-time disclosure shown above the first proactive suggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Mink can offer occasional follow-up tips after an action. You can turn this off in Settings.'**
+  String get suggestionDisclosure;
+
   /// About row title.
   ///
   /// In en, this message translates to:

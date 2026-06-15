@@ -6,6 +6,9 @@ import '../../features/anonymization/operator.dart';
 import '../../features/documents/keep_original_setting.dart';
 import '../../features/documents/pending_original.dart';
 import '../../features/editor/paste_editor_controller.dart';
+import '../../features/suggestions/proactive_suggestions_setting.dart';
+import '../../features/suggestions/suggestion.dart';
+import '../../features/suggestions/suggestion_controller.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_typography.dart';
 import '../theme/tokens.dart';
@@ -36,11 +39,16 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
     if (seed != null && seed.trim().isNotEmpty) {
       // Seeded from a capture/import — keep the pending original it set.
       _textController.text = seed;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
         final controller = ref.read(pasteEditorControllerProvider.notifier);
         controller.setInput(seed);
-        controller.detect();
+        await controller.detect();
+        if (!mounted) return;
+        // Post-scan completion is a proactive-suggestion trigger (blueprint §5.5).
+        await ref
+            .read(suggestionControllerProvider.notifier)
+            .maybeOffer(SuggestionTrigger.scanCompleted);
       });
     } else {
       // Manual paste — no source file; drop any stale pending original so it
@@ -70,6 +78,15 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
         ref.watch(pendingOriginalProvider) != null &&
         !ref.watch(keepOriginalProvider) &&
         !ref.watch(keepOriginalHintSeenProvider);
+    // Proactive suggestion (blueprint §5.5): the card shows when a suggestion is
+    // ready; the disclosure preface shows once, before the first one is acted on.
+    final suggestionState = ref.watch(suggestionControllerProvider);
+    final suggestion = suggestionState.status == SuggestionStatus.ready
+        ? suggestionState.suggestion
+        : null;
+    final showSuggestionDisclosure = !ref.watch(
+      proactiveSuggestionsDisclosureSeenProvider,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pasteTitle)),
@@ -92,7 +109,13 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
             FilledButton.icon(
               onPressed: state.status == EditorStatus.detecting
                   ? null
-                  : controller.detect,
+                  : () async {
+                      await controller.detect();
+                      // Post-detection completion trigger (blueprint §5.5).
+                      await ref
+                          .read(suggestionControllerProvider.notifier)
+                          .maybeOffer(SuggestionTrigger.detectionCompleted);
+                    },
               icon: state.status == EditorStatus.detecting
                   ? const SizedBox(
                       width: 16,
@@ -225,25 +248,120 @@ class _PasteEditorScreenState extends ConsumerState<PasteEditorScreen> {
                   ),
                   const SizedBox(height: AppTokens.spacingMd),
                 ],
+                if (suggestion != null) ...[
+                  _SuggestionCard(
+                    suggestion: suggestion,
+                    showDisclosure: showSuggestionDisclosure,
+                    onApply: () => ref
+                        .read(suggestionControllerProvider.notifier)
+                        .accept(),
+                    onDismiss: () => ref
+                        .read(suggestionControllerProvider.notifier)
+                        .dismiss(),
+                  ),
+                  const SizedBox(height: AppTokens.spacingMd),
+                ],
                 FilledButton.tonalIcon(
                   onPressed: () async {
                     final id = await controller.save();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          id != null
-                              ? l10n.pasteSavedToVault
-                              : l10n.pasteNothingToSave,
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            id != null
+                                ? l10n.pasteSavedToVault
+                                : l10n.pasteNothingToSave,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
+                    // Post-redaction-application trigger (blueprint §5.5).
+                    await ref
+                        .read(suggestionControllerProvider.notifier)
+                        .maybeOffer(SuggestionTrigger.redactionApplied);
                   },
                   icon: const Icon(Icons.save_outlined),
                   label: Text(l10n.pasteSaveToVault),
                 ),
               ],
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The in-context proactive-suggestion card (blueprint §5.5): a compact,
+/// dismissible card offering the suggestion's one-tap action. Clones the
+/// keep-original hint's structure. Never a push notification.
+class _SuggestionCard extends StatelessWidget {
+  const _SuggestionCard({
+    required this.suggestion,
+    required this.showDisclosure,
+    required this.onApply,
+    required this.onDismiss,
+  });
+
+  final Suggestion suggestion;
+  final bool showDisclosure;
+  final VoidCallback onApply;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      key: const Key('proactive-suggestion-card'),
+      color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.4),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTokens.spacingMd),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.lightbulb_outline,
+                  size: 18,
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
+                const SizedBox(width: AppTokens.spacingSm),
+                Expanded(
+                  child: Text(
+                    suggestion.title,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTokens.spacingXs),
+            Text(suggestion.body, style: theme.textTheme.bodyMedium),
+            if (showDisclosure) ...[
+              const SizedBox(height: AppTokens.spacingSm),
+              Text(
+                l10n.suggestionDisclosure,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            const SizedBox(height: AppTokens.spacingSm),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: onDismiss,
+                  child: Text(l10n.suggestionDismiss),
+                ),
+                const SizedBox(width: AppTokens.spacingSm),
+                FilledButton(
+                  onPressed: onApply,
+                  child: Text(l10n.suggestionApply),
+                ),
+              ],
+            ),
           ],
         ),
       ),

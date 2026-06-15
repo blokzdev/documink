@@ -61,11 +61,19 @@ class ProactiveSuggester {
       final proposed = await source.propose(signal);
       if (proposed == null) continue;
       if (!_isValid(proposed, signal)) continue;
-      await _auditOffered(proposed, signal);
+      await _writeAudit(AuditEventType.suggestionOffered, proposed, signal);
       return proposed;
     }
     return null;
   }
+
+  /// Audits that the user acted on [s] (the UI applies the one-tap mutation).
+  Future<void> recordActioned(Suggestion s, SuggestionSignal signal) =>
+      _writeAudit(AuditEventType.suggestionActioned, s, signal);
+
+  /// Audits that the user dismissed [s].
+  Future<void> recordDismissed(Suggestion s, SuggestionSignal signal) =>
+      _writeAudit(AuditEventType.suggestionDismissed, s, signal);
 
   /// Rejects anything outside the safe envelope: an operator off the whitelist,
   /// a label we didn't actually detect (guards a hallucinated label from the LLM
@@ -79,12 +87,19 @@ class ProactiveSuggester {
     return true;
   }
 
-  Future<void> _auditOffered(Suggestion s, SuggestionSignal signal) {
+  /// Writes one PII-safe audit row (type + count only — never a value) for any
+  /// of the three suggestion events. Scope is threaded from [signal] (project
+  /// isolation), mirroring the `mink_tool_call` metadata discipline.
+  Future<void> _writeAudit(
+    String eventType,
+    Suggestion s,
+    SuggestionSignal signal,
+  ) {
     return _audit.record(
       id: _newId(),
       workspaceId: signal.workspaceId,
       projectId: signal.projectId,
-      eventType: AuditEventType.suggestionOffered,
+      eventType: eventType,
       success: true,
       metadata: {
         'trigger': s.trigger.name,

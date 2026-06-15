@@ -238,6 +238,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Let Mink offer an occasional follow-up tip after an action — in-context and dismissible, never a notification';
 
   @override
+  String get suggestionApply => 'Apply';
+
+  @override
+  String get suggestionDismiss => 'Dismiss';
+
+  @override
+  String get suggestionDisclosure =>
+      'Mink can offer occasional follow-up tips after an action. You can turn this off in Settings.';
+
+  @override
   String get settingsAboutTitle => 'DocuMink';
 
   @override
