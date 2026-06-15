@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/flavors/flavor.dart';
 import '../../core/routes.dart';
 import '../../features/documents/keep_original_setting.dart';
+import '../../features/suggestions/proactive_suggestions_setting.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
@@ -21,6 +22,7 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final flavor = ref.watch(currentFlavorProvider);
     final keepOriginal = ref.watch(keepOriginalProvider);
+    final proactiveSuggestions = ref.watch(proactiveSuggestionsProvider);
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
@@ -113,6 +115,18 @@ class SettingsScreen extends ConsumerWidget {
                         value: keepOriginal,
                         onChanged: (v) =>
                             ref.read(keepOriginalProvider.notifier).set(v),
+                      ),
+                      SwitchListTile(
+                        key: const Key('proactive-suggestions-toggle'),
+                        secondary: const Icon(Icons.lightbulb_outline),
+                        title: Text(l10n.settingsProactiveSuggestions),
+                        subtitle: Text(
+                          l10n.settingsProactiveSuggestionsSubtitle,
+                        ),
+                        value: proactiveSuggestions,
+                        onChanged: (v) => ref
+                            .read(proactiveSuggestionsProvider.notifier)
+                            .set(v),
                       ),
                     ],
                   ),

@@ -484,6 +484,18 @@ abstract class AppLocalizations {
   /// **'Store the source image/PDF, encrypted — reveal it later with biometrics'**
   String get settingsKeepOriginalSubtitle;
 
+  /// Privacy toggle title for Mink proactive suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Proactive suggestions'**
+  String get settingsProactiveSuggestions;
+
+  /// Privacy toggle subtitle for Mink proactive suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Mink offer an occasional follow-up tip after an action — in-context and dismissible, never a notification'**
+  String get settingsProactiveSuggestionsSubtitle;
+
   /// About row title.
   ///
   /// In en, this message translates to:
