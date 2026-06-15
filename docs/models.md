@@ -63,6 +63,29 @@ Only two things live on our infrastructure for the model system:
 1. **`manifest.json`** — tiny (few KB), Ed25519-signed, hosted at `documink.ai/models/manifest.json`. Fetched weekly with exponential backoff. This is the *only* always-our-infrastructure artifact for model distribution.
 2. **Emergency mirrors** (not normally used) — reserved for scenarios where HuggingFace or Play Asset Delivery is unavailable. These are cold-storage R2 buckets that only get activated if a manifest update flag points to them. Not a distribution primary.
 
+### 2.4 Tier-4 **runtime** delivery (native libraries) — on-demand, NOT in the base APK
+
+**The gap this corrects (Phase 10b finding):** §2.1–2.3 cover delivering the *model file* on-demand,
+but the Tier-4 **runtime native libraries** must also stay out of the base APK. Measured in 10b:
+adding `flutter_gemma` (LiteRT) to the base build produced an **arm64-v8a APK of ~238 MB** — over
+Google Play's ~200 MB base-APK limit — because LiteRT ships large `.so` per ABI (libLiteRtLm ~34 MB,
+WebGPU accelerator ~22 MB, GemmaModelConstraintProvider ~22 MB, plus `qdrant_edge` RAG ~23 MB we
+don't use). Trimming the unused libs still lands ~170 MB. Bundling the runtime in the base APK is
+therefore **not viable**.
+
+**Decision:** the Tier-4 LLM **runtime libs are delivered on-demand**, only to devices that qualify
+for a Tier-4 tier (profiler ≥ Minimum/Standard), via **Play Feature Delivery** (an on-demand
+**dynamic feature module** carrying the LiteRT/`flutter_gemma` native libs) — paired with the model
+download (§2.1). On Windows V2 the runtime ships with the desktop installer. The **base APK contains
+no LLM runtime**; below-tier and not-yet-downloaded states fall back to `UnavailableLlmBackend`
+(graceful — Tiers 1–3 detection are unaffected). Flutter's deferred-components mechanism + an Android
+dynamic feature module is the implementation path; this is a dedicated device-bound slice (see
+Roadmap Phases 10–11 / DECISIONS.md).
+
+**`apk-size-check` stays on the base APK** (universal, 150 MB) — which is now meaningful precisely
+*because* the runtime is not in it. Per-ABI / dynamic-module size budgets are defined when the
+delivery slice lands.
+
 ---
 
 ## 3. Tier catalog (authoritative)
@@ -142,6 +165,13 @@ quantization per device class, sizes) is finalized when Tier 3 delivery is imple
 ### 4.5 System-provided models → OS-managed
 
 Gemini Nano (Android) and Phi Silica (Windows) are delivered and managed by the OS. Quantization is handled by ML Kit GenAI and Windows AI APIs respectively; we don't configure it.
+
+### 4.6 Runtime implementation status (Roadmap Phases 10–11)
+
+- **Phase 10a (done):** `LlmBackend` seam (`lib/features/llm/llm_backend.dart`) + the Path-B `DomainInferenceService` — pure-Dart, fake-tested. The Tier-4 surface the rest hangs off.
+- **Runtime package (validated, not yet shipped):** `flutter_gemma` (MIT; wraps LiteRT-LM) consumes the Gemma `.task` models and **resolves on the pinned Flutter 3.38.6** (Gate 0 passed). The adapter + R8 rules work — but bundling its native libs in the base APK is **not viable** (§2.4, ~238 MB arm64). So the real adapter ships with the **on-demand runtime-delivery** slice (dynamic feature module, §2.4), not before.
+- **Phase 10c (next, headless):** model **download** (HTTP from the manifest `url` → app-support dir → `ModelHashVerifier` → `DownloadState`).
+- **Phase 11:** download/runtime-delivery UX + tier-gated enablement; then 14d AI-upload consumes `DomainInferenceService`. Until the runtime lands, `llmBackendProvider` stays `UnavailableLlmBackend` and the app degrades gracefully.
 
 ---
 

@@ -9,6 +9,33 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P10b: LLM runtime deferred to on-demand delivery (⚠ review)
+
+- **Context:** 10b added `flutter_gemma` (LiteRT) behind the 10a seam and pushed
+  PR #67. Gate 0 passed (resolves on Flutter 3.38.6; MIT; license-clean) and the
+  R8 keep/`-dontwarn` rules worked — but CI's per-ABI build showed the **arm64-v8a
+  APK at 237.8 MB**, over Google Play's ~200 MB base-APK limit (not just our
+  150 MB gate). Driver: LiteRT native `.so` in the **base APK** (libLiteRtLm ~34 MB,
+  WebGPU accel ~22 MB, GemmaModelConstraintProvider ~22 MB, unused `qdrant_edge`
+  RAG ~23 MB). Trimming the unused libs still lands ~170 MB.
+- **Spec gap:** `models.md` §2 planned on-demand delivery of the **model file** but
+  assumed the **runtime libs** fit the base APK. They don't.
+- **Decision (maintainer):** **defer the runtime to on-demand delivery** — ship the
+  LiteRT/`flutter_gemma` native libs via a **Play dynamic feature module** (Flutter
+  deferred components), only to Tier-4-qualifying devices, paired with the model
+  download. The base APK carries **no LLM runtime**; it stays on
+  `UnavailableLlmBackend` (graceful; Tiers 1–3 unaffected). **PR #67 closed
+  un-merged**; the merged 10a seam remains the Tier-4 surface.
+- **Corrected spec:** `models.md` §2.4 (runtime delivery) + §4.6 (runtime status)
+  added in this docs change.
+- **Options considered:** (A) on-demand dynamic module — **chosen** (correct,
+  matches the tier/on-demand design; needs build infra, device-bound); (B) trim
+  libs + raise gate — rejected (~170 MB still > Play base limit; excluding a
+  required `.so` can crash inference, unverifiable headlessly); (C) raise gate to
+  fit 238 MB — rejected (> Play limit).
+- **Follow-ups:** 10c model download (headless); the dynamic-feature-module runtime
+  delivery slice (device-bound); 11 UX; then 14d AI-upload.
+
 ## 2026-06-15 — V1 P10a: Tier-4 LLM seam (`LlmBackend`) + Path-B inference
 
 - **Context:** maintainer asked whether Gemma 4 E2B (Apache 2.0, on-device,
