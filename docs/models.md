@@ -143,6 +143,13 @@ quantization per device class, sizes) is finalized when Tier 3 delivery is imple
 
 Gemini Nano (Android) and Phi Silica (Windows) are delivered and managed by the OS. Quantization is handled by ML Kit GenAI and Windows AI APIs respectively; we don't configure it.
 
+### 4.6 Runtime implementation status (Roadmap Phases 10–11)
+
+- **Phase 10a (done):** `LlmBackend` seam (`lib/features/llm/llm_backend.dart`) + the Path-B `DomainInferenceService` — pure-Dart, fake-tested.
+- **Phase 10b (this change):** the **LiteRT `.task` runtime** is implemented via the **`flutter_gemma`** package (MIT; wraps Google's LiteRT-LM), behind the seam — `FlutterGemmaLlmBackend`, wired at bootstrap. It runs the profiler-selected `.task` model (Gemma 4 family) loaded **from a file** (`fromFile`); **models are never bundled in the APK** (§2). The GGUF/`fllama` families (Qwen/SmolLM/Phi) are a later runtime; `flutter_gemma` covers the Gemma `.task` path that the auto-selected Balanced tiers (Standard = Gemma 4 E2B, Performance = Gemma 4 E4B) use.
+- **Phase 10c (next):** model **download** (HTTP from the manifest `url` → app-support dir → `ModelHashVerifier`) + Android PAD; **Phase 11:** download-progress + tier-gated enablement UX. Until 10c installs a model, `FlutterGemmaLlmBackend.isAvailable()` is false and the app degrades gracefully (no LLM features).
+- **APK size:** the LiteRT native libs ship in the APK; `apk-size-check` now gates the **per-ABI (arm64-v8a)** release build (not the universal all-ABIs artifact), reflecting the real per-device download.
+
 ---
 
 ## 5. Manifest schema and authorship

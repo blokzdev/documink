@@ -54,6 +54,15 @@ an item here in the same PR.
 - ☐ **Tier-4 model download + verify** — signed-manifest fetch, SHA-256 verify, resume.
 - ☐ **Tier-4 inference + benchmark gate** — per `docs/models.md` on reference devices
   (Pixel 6/9, Galaxy A, 2–3 GB emulator); release gate: F1 drop >2 pts OR latency +30%.
+- ☐ **flutter_gemma runtime (Phase 10b)** — `FlutterGemmaLlmBackend` loads a Gemma 4 `.task`
+  from a file and runs inference on a real device: install a model (sideload until 10c's
+  downloader lands), confirm `isAvailable()` flips true, `generate()` returns text, no OOM at
+  Standard tier (4 GB), and acceptable latency. Confirm the LiteRT native libs build into the
+  arm64-v8a APK under the size gate and the app degrades gracefully (no LLM) when no model is
+  installed. *(lib/features/llm/flutter_gemma_llm_backend.dart)*
+- ☐ **Path-B domain inference on-device** — once the runtime + a model are present, the
+  `DomainInferenceService` returns sensible template suggestions for sample docs; low-tier
+  devices fall back to the picker. *(lib/features/projects/domain_inference_service.dart)*
 
 ## Mink / memory (Phase 12)
 

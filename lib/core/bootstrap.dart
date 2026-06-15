@@ -16,6 +16,8 @@ import '../features/input/pdfx_page_rasterizer.dart';
 import '../features/input/receive_sharing_intent_share_receiver.dart';
 import '../features/input/share_intent_coordinator.dart';
 import '../features/input/system_image_source.dart';
+import '../features/llm/flutter_gemma_llm_backend.dart';
+import '../features/llm/llm_providers.dart';
 import '../features/security/screen_security.dart';
 import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
@@ -60,6 +62,11 @@ Future<void> bootstrap(Flavor flavor) async {
         screenSecurityProvider.overrideWithValue(
           const PlatformScreenSecurity(),
         ),
+        // Phase 10b: real on-device LLM runtime (flutter_gemma/LiteRT). Reports
+        // unavailable until a model is installed (Phase 10c), so the app
+        // degrades gracefully on devices without one. Behind the LlmBackend
+        // seam; faked in tests; inference device-verified (VERIFICATION.md).
+        llmBackendProvider.overrideWithValue(FlutterGemmaLlmBackend()),
       ],
       child: const DocuMinkApp(),
     ),

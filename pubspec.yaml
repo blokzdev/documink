@@ -79,6 +79,12 @@ dependencies:
   # apps. Behind the ShareIntentReceiver seam (lib/features/input); the real
   # adapter is wired at bootstrap, faked in tests. Device-only at runtime.
   receive_sharing_intent: ^1.8.1
+  # Tier-4 on-device LLM runtime (Phase 10b). MIT; wraps Google's LiteRT-LM and
+  # runs the profiler-selected model (e.g. Gemma 4 E2B, Apache 2.0) from a
+  # downloaded .task file — models are NOT bundled in the APK. Behind the
+  # LlmBackend seam (lib/features/llm); the real adapter is wired at bootstrap
+  # and device-verified, faked in tests. Device-only at runtime.
+  flutter_gemma: ^0.16.5
 
 
 dev_dependencies:

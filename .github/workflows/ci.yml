@@ -46,15 +46,19 @@ jobs:
           flutter-version: '3.38.6'
           cache: true
       - run: flutter pub get
-      # Release build doesn't require signing config, produces app-prod-release.apk
-      - run: flutter build apk --flavor prod --release -t lib/main_prod.dart
-      - name: Enforce Size Limit
+      # Per-ABI release build (R8 on). We gate the realistic per-device download
+      # — the arm64-v8a split APK — not the universal all-ABIs artifact, which
+      # Play never ships (it delivers per-ABI via the AAB). This reflects the
+      # real install size and gives the LiteRT/flutter_gemma native libs (Phase
+      # 10b) honest headroom. Debug-signed (no signing secrets in this job).
+      - run: flutter build apk --flavor prod --release --split-per-abi -t lib/main_prod.dart
+      - name: Enforce Size Limit (arm64-v8a, the modern-phone download)
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-prod-release.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk"
           SIZE=$(stat -c%s "$APK_PATH")
-          echo "APK size: $SIZE bytes"
+          echo "arm64-v8a APK size: $SIZE bytes"
           if [ "$SIZE" -gt 157286400 ]; then
-            echo "Error: APK size exceeds 150MB limit."
+            echo "Error: arm64-v8a APK size exceeds 150MB limit."
             exit 1
           fi
 

@@ -9,6 +9,36 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P10b: real LLM runtime (`flutter_gemma`) + per-ABI size gate
+
+- **Context:** 10b implements the on-device runtime behind the 10a seam. Two
+  decisions: which runtime package, and how to keep the `apk-size-check` budget
+  honest once LiteRT native libs ship in the APK.
+- **Gate 0 (passed):** `flutter_gemma` 0.16.5 **resolves on the pinned Flutter
+  3.38.6 / Dart 3.10.7** (no Flutter-floor bump needed — unlike pdfrx) and is
+  **MIT** with allow-listed transitives (license-scan green, 153 pkgs). Had it
+  required a newer Flutter or a non-allow-listed dep, the plan was to STOP and
+  surface (deviation-protocol). Models are **not bundled** (loaded via
+  `fromFile`), so no model enters the APK.
+- **Runtime choice:** **`flutter_gemma`** (wraps Google LiteRT-LM) for the Gemma
+  `.task` path that the auto-selected Balanced tiers use (Standard = Gemma 4 E2B,
+  Performance = E4B). `FlutterGemmaLlmBackend` implements `LlmBackend`, wired at
+  bootstrap; device-only (compiles/analyzes clean, not headless-run; fakes cover
+  the seam consumers). It reports unavailable until a model is installed (10c), so
+  the app degrades gracefully. (The GGUF/`fllama` families remain a later runtime.)
+- **apk-size gate — universal → per-ABI.** The job gated the **universal**
+  (all-ABIs) release APK at 150 MB. The maintainer suggested release+R8 — but
+  that's **already on**. The real issue is the universal APK is an artifact Play
+  never ships (AAB → per-ABI delivery). **Decision:** build `--split-per-abi` and
+  gate the **`app-prod-arm64-v8a-release.apk`** (the realistic modern-phone
+  download) at 150 MB. Honest per-device size + headroom for LiteRT, no loss of
+  device coverage. Fallback if still tight: `ndk.abiFilters` to drop x86 for prod
+  (not done preemptively). **Note:** APKs can't be built in the web container
+  (no Android SDK), so the real size is only known when CI runs — one iteration
+  anticipated.
+- **Deferred:** 10c model download (HTTP/PAD + `ModelHashVerifier` + `DownloadState`,
+  headless-testable); 11 download/enablement UX; then 14d AI-upload UI.
+
 ## 2026-06-15 — V1 P10a: Tier-4 LLM seam (`LlmBackend`) + Path-B inference
 
 - **Context:** maintainer asked whether Gemma 4 E2B (Apache 2.0, on-device,
