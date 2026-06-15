@@ -53,6 +53,16 @@ simplification at the phase-boundary review — **never remove a workaround auto
   `'dart compile' does not support build hooks`. **Hard rule.** Do NOT downgrade deps, pin
   versions, or switch Dart/Flutter channels to dodge it. (blueprint.md §15 #30; `.agents/rules/dart-toolchain.md`.)
 
+- **`flutter_pdf_text` jitpack dependency is excluded — keep it excluded.** The plugin declares a
+  `runtimeOnly` JPEG2000 decoder `com.github.Tgo1014:JP2ForAndroid` from **jitpack.io**, which 403s
+  and breaks every Android build. `android/app/build.gradle.kts` excludes it
+  (`configurations.all { exclude(group = "com.github.Tgo1014", module = "JP2ForAndroid") }`). We only
+  use the plugin for the **text layer**, so dropping the decoder is functionally harmless (PDFBox
+  ignores JPX images; image-only pages OCR via `pdfx`). **Do NOT remove this exclude** to "clean up"
+  — it is load-bearing. The proper end-state is the `pdfrx` consolidation below (eliminates jitpack
+  and the exclude together) once the Flutter floor reaches ≥ 3.41. (docs/DECISIONS.md 2026-06-15;
+  JP2ForAndroid is BSD-2 / also on Maven Central as `com.gemalto.jp2:jp2-android` if ever needed.)
+
 ## Deferred opportunities (revisit at the next toolchain bump)
 
 - **PDF stack consolidation to `pdfrx`.** The Phase 4b PDF import uses three plugins

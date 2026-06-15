@@ -154,6 +154,18 @@ android {
     }
 }
 
+// flutter_pdf_text pulls a runtimeOnly JPEG2000 decoder
+// (com.github.Tgo1014:JP2ForAndroid) from jitpack.io for Apache PDFBox. jitpack
+// 403s break every Android build (apk-size-check, Build APK, Release AAB), and we
+// use flutter_pdf_text only for the text layer — JPEG2000 *image* decoding is never
+// exercised (image-only pages OCR via pdfx). Dropping it removes jitpack from the
+// build graph entirely; per PDFBox-Android, JPX images are then ignored with a logged
+// warning and text extraction is unaffected. pdfrx consolidation (one pdfium backend,
+// no jitpack) remains the path at the Flutter >=3.41 bump. See docs/DECISIONS.md.
+configurations.all {
+    exclude(group = "com.github.Tgo1014", module = "JP2ForAndroid")
+}
+
 flutter {
     source = "../.."
 }

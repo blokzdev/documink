@@ -153,6 +153,11 @@ with fakes; the native adapters need a device:
 - ☐ **Text-layer extraction** — a born-digital PDF's text is extracted via `flutter_pdf_text`
   (PDFBox) and seeds the editor; no OCR runs (no scanned-page warning shown).
   *(lib/features/input/flutter_pdf_text_extractor.dart)*
+- ☐ **JPEG2000 PDF still extracts (JP2 decoder excluded)** — a born-digital PDF that **contains a
+  JPEG2000 image** still extracts its text layer cleanly after the `JP2ForAndroid` jitpack dep was
+  excluded from the build (docs/DECISIONS.md 2026-06-15). PDFBox should log/ignore the JPX image,
+  not crash; a page it can't extract degrades to empty → OCR fallback. *(android/app/build.gradle.kts
+  exclude; lib/features/input/flutter_pdf_text_extractor.dart per-page guard)*
 - ☐ **Scanned-PDF OCR fallback** — an image-only PDF rasterizes each page via `pdfx` and OCRs it;
   the "Page N was scanned — used OCR" warning shows. *(lib/features/input/pdfx_page_rasterizer.dart)*
 - ☐ **Multi-page** — a multi-page PDF concatenates with `--- Page N ---` markers; the source badge
