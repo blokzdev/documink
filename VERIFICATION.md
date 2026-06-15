@@ -109,6 +109,21 @@ device checks for rendering + real accumulated memory:
 - ☐ **Export JSON** — the export dialog renders the in-scope memory and Copy puts it on the
   clipboard; no plaintext PII appears (values are token-refs). *Device:* phone.
 
+## Proactive suggestions (Phase 13)
+
+The deterministic engine + card + Settings toggle are fully headless-tested. The
+only device-only piece is the optional **Layer-2 LLM enrichment**, which needs a
+loaded Tier-4 model.
+
+- ☐ **On-device LLM suggestion (Tier 2+)** — on a redaction where the deterministic
+  rule does *not* fire (e.g. no recurring type), with a model loaded, `LlmSuggestionSource`
+  may surface a context-aware card; confirm the prompt/latency are acceptable and that a
+  malformed/declined generation simply shows no card (never an error). *(lib/features/suggestions/llm_suggestion_source.dart;
+  real `LlmBackend` wired at bootstrap.)*
+- ☐ **Card rendering + one-tap on device** — the `proactive-suggestion-card` renders correctly
+  and **Apply** tokenizes the label in the real editor; **Dismiss** clears it. (Headless
+  widget-tested; this confirms real rendering/gestures.)
+
 ## Sync transport (Phase 8 — beyond crypto core)
 
 - ☐ **BYOC Google Drive** OAuth + encrypted delta push/pull.
