@@ -1251,3 +1251,21 @@ Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the mem
   reported messages is a later nicety (the row is already user-inspectable in the Audit Log).
 - **No streaming (still).** The thread shows a progress indicator while `MinkService` runs the
   (single-shot) turn; token streaming remains deferred with the `LlmBackend` seam (see 12d).
+
+## 2026-06-15 — V1 P12f: Mink Memory inspector (Settings → Mink Memory)
+
+- **Scope shown = active scope (globals + active Project), split into two sections.** Reuses
+  `MemoryRepository.recallCore/recallEpisodic` (which already return globals + the active project),
+  partitioned by `projectId` for the "This project" vs "Global" view — consistent with how the
+  rest of the app scopes, and satisfies "per-Project vs global clearly separated" (memory.md §8.1).
+  A cross-project "all memory everywhere" view would need `AuditedCrossProjectAccess` (deferred).
+- **"Forget everything about X" uses literal matching.** V1 has no embeddings (ADR-018), so the
+  action deletes entries whose key/value/summary contains the topic (case-insensitive). Honest and
+  predictable; semantic topic clustering arrives with Resource memory in V1.2. Logged so the
+  limitation is explicit.
+- **Export = pretty JSON via copy-to-clipboard (no file share).** Real file/share export is native
+  (Phase 7 share stack); the inspector shows the JSON in a dialog with Copy. Values are already
+  token-references (the write guard guarantees no plaintext), so the export carries no raw PII.
+- **Deletes go through `MemoryRepository.forget*` directly** (the same path the `forget` tool uses).
+  No new audit event for user-initiated deletes in 12f; the dedicated `mink_memory_delete` event
+  (memory.md §8) is folded into the broader memory-audit follow-up noted in the 12d entry.

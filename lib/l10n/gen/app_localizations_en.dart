@@ -534,6 +534,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiSettingsRowSubtitle => 'Download and run the local AI model';
 
   @override
+  String get settingsMinkMemory => 'Mink memory';
+
+  @override
+  String get settingsMinkMemorySubtitle =>
+      'Review and manage what Mink remembers';
+
+  @override
   String get aiEnable => 'Download & enable';
 
   @override

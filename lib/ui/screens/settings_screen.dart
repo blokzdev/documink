@@ -98,6 +98,13 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.aiSettings),
                       ),
+                      ListTile(
+                        leading: const Icon(Icons.psychology_outlined),
+                        title: Text(l10n.settingsMinkMemory),
+                        subtitle: Text(l10n.settingsMinkMemorySubtitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.minkMemory),
+                      ),
                       SwitchListTile(
                         key: const Key('keep-original-toggle'),
                         secondary: const Icon(Icons.lock_outline),
