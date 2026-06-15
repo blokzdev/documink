@@ -627,4 +627,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiFloorStillWorks =>
       'Redaction and detection still work fully — only the AI assistant is unavailable.';
+
+  @override
+  String get onboardingTitle => 'Meet Mink';
+
+  @override
+  String get onboardingIntro =>
+      'Mink is your on-device assistant. It runs entirely on this device — nothing is sent to a server. Add it now, or anytime in Settings.';
+
+  @override
+  String get onboardingAccept => 'Accept & download';
+
+  @override
+  String get onboardingSkip => 'Skip for now';
+
+  @override
+  String get onboardingShowOptions => 'Show options';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingOptInWarning => 'larger download';
+
+  @override
+  String get homeMinkUnavailable => 'Needs a more capable device';
 }

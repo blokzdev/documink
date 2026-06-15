@@ -4,6 +4,9 @@ class Routes {
 
   static const home = '/';
   static const unlock = '/unlock';
+
+  /// First-run "Meet Mink" Tier-4 onboarding step (Phase 11b).
+  static const onboarding = '/onboarding/ai';
   static const scan = '/scan';
   static const paste = '/paste';
   static const import = '/import';

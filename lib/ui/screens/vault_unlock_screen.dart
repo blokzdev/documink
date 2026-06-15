@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/llm/llm_providers.dart';
 import '../../services/vault_providers.dart';
 import '../../services/vault_service.dart';
 import '../theme/tokens.dart';
@@ -55,6 +56,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
     final vault = ref.read(vaultServiceProvider.notifier);
     try {
       if (creating) {
+        // Owe the first-run "Meet Mink" onboarding step before the unlock
+        // redirect fires, so a freshly created vault routes to onboarding
+        // (never flashing Home). Phase 11b.
+        ref.read(aiOnboardingProvider.notifier).require();
         await vault.initialize(passphrase);
       } else {
         await vault.unlock(passphrase);

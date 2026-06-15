@@ -14,6 +14,7 @@ import 'model_source.dart';
 import 'model_store.dart';
 import 'profiler_repository.dart';
 import 'profiler_service.dart';
+import 'profiler_state.dart';
 
 /// Path to the bundled, Ed25519-signed model manifest (offline last-known-good;
 /// production refreshes weekly from documink.ai, §6.4).
@@ -21,6 +22,36 @@ const String signedManifestAsset = 'assets/model_manifest/manifest.signed.json';
 
 final manifestVerifierProvider = Provider<ManifestVerifier>(
   (ref) => ManifestVerifier(),
+);
+
+/// Whether the first-run **"Meet Mink"** onboarding step is still owed (Phase
+/// 11b). The persistent truth is "has the profiler ever run?" (`ProfilerState !=
+/// null`); this in-memory flag lets `router.dart`'s synchronous redirect gate on
+/// it without an async DB read. Set at first-run vault creation (eagerly) and on
+/// unlock from the persisted state (bootstrap); cleared once the step is seen.
+class AiOnboarding extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// Mark onboarding as owed (first-run vault creation).
+  void require() => state = true;
+
+  /// Sync the flag from the persisted profiler state (`null` ⇒ owed).
+  void fromState({required bool hasProfilerState}) => state = !hasProfilerState;
+
+  /// Onboarding shown (accepted, skipped, or floor-acknowledged).
+  void markSeen() => state = false;
+}
+
+final aiOnboardingProvider = NotifierProvider<AiOnboarding, bool>(
+  AiOnboarding.new,
+);
+
+/// The persisted profiler outcome for widgets that need to gate on it (e.g. the
+/// Home floor UX). `null` until the profiler runs. Auto-disposes so it refetches
+/// when a screen re-opens. Requires the unlocked vault.
+final profilerStateProvider = FutureProvider.autoDispose<ProfilerState?>(
+  (ref) => ref.watch(profilerRepositoryProvider).load(),
 );
 
 /// Holds the **activated** on-device backend once the user enables AI and the
