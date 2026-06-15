@@ -73,7 +73,14 @@ class ModelDownloadService {
       // Move the verified file into the store path (if not already there).
       if (fetched.absolute.path != dest.absolute.path) {
         await _deleteQuietly(dest);
-        await fetched.rename(dest.path);
+        try {
+          await fetched.rename(dest.path);
+        } on FileSystemException {
+          // rename() fails across filesystems (e.g. temp dir → app-support on a
+          // different mount); fall back to copy + delete.
+          await fetched.copy(dest.path);
+          await _deleteQuietly(fetched);
+        }
       }
       await _setState(DownloadState.ready);
       return dest.path;

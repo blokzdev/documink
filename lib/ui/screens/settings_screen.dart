@@ -91,6 +91,13 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => context.push(Routes.customEntities),
                       ),
+                      ListTile(
+                        leading: const Icon(Icons.smart_toy_outlined),
+                        title: Text(l10n.aiSettingsRow),
+                        subtitle: Text(l10n.aiSettingsRowSubtitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.aiSettings),
+                      ),
                       SwitchListTile(
                         key: const Key('keep-original-toggle'),
                         secondary: const Icon(Icons.lock_outline),

@@ -9,6 +9,35 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P10b (impl): Gemma runtime in base APK, arm64-only + trimmed (supersedes the dynamic-feature plan) (⚠ review)
+
+- **Context:** the prior 10b decision was to deliver the LiteRT runtime via a Play
+  **dynamic feature module**. Vendoring the authoritative docs
+  (`docs/reference/`) surfaced that **Flutter deferred components cannot defer a
+  plugin's native libraries** — they're packaged into the module whose Dart uses
+  them, and Flutter's plugin tooling targets the base app module. So the
+  feature-module path is **not toolchain-supported** for `flutter_gemma`'s `.so`.
+- **Decision (maintainer-approved):** ship the runtime **in the base APK,
+  arm64-v8a only, with unused native libs trimmed** — no feature module:
+  - `prod` flavor `ndk { abiFilters 'arm64-v8a' }` (LiteRT `.litertlm`/FFI is
+    arm64-only); `packaging.jniLibs.excludes` drops `qdrant_edge` (RAG),
+    WebGPU accelerator + TopK sampler, and the constraint provider.
+  - Net base ≈ ~170 MB arm64, **under Play's ~200 MB** base-APK limit. Model
+    still downloaded + SHA-256-verified on demand (10c), never bundled.
+  - `apk-size-check` now builds the arm64 `prod` release APK and enforces ≤ 200 MB.
+- **Implemented (this PR):** `flutter_gemma` dep (Gate 0: resolves on 3.38.6,
+  license-clean); `FlutterGemmaLlmBackend` + `HttpModelSource` (device adapters,
+  compile/analyze-clean); `LlmRuntimeCoordinator` (fake-tested); bootstrap wiring
+  + `FlutterGemma.initialize`; R8 rules; OpenCL manifest entries; `Settings →
+  On-device AI` screen (download + load + prompt tester) for device verification.
+- **Cannot be verified here (no Android SDK):** the real APK size, the lib-trim
+  not breaking inference, and inference correctness/memory/latency. Tracked in
+  VERIFICATION.md; device-session runbook in SETUP.md.
+- **Rationale:** the only toolchain-supported way to ship `flutter_gemma` under
+  Play limits; far simpler than (infeasible) per-plugin native deferral. Risk:
+  excluding a needed `.so` → `UnsatisfiedLinkError` (device-verify; drop the
+  exclude if so).
+
 ## 2026-06-15 — V1 P10b: LLM runtime deferred to on-demand delivery (⚠ review)
 
 - **Context:** 10b added `flutter_gemma` (LiteRT) behind the 10a seam and pushed

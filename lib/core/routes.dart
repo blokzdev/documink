@@ -18,6 +18,7 @@ class Routes {
   static const chat = '/chat';
   static const vault = '/vault';
   static const settings = '/settings';
+  static const aiSettings = '/settings/ai';
   static const auditLog = '/settings/audit';
   static const customEntities = '/settings/custom-entities';
   static const customEntityForm = '/settings/custom-entities/edit';

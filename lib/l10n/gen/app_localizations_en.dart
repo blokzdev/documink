@@ -519,4 +519,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wizardBuildFromScratch => 'Build from scratch (guided)';
+
+  @override
+  String get aiTitle => 'On-device AI';
+
+  @override
+  String get aiSubtitle =>
+      'Download and run Gemma on this device. Everything stays local — nothing is sent to a server.';
+
+  @override
+  String get aiSettingsRow => 'On-device AI';
+
+  @override
+  String get aiSettingsRowSubtitle => 'Download and run the local AI model';
+
+  @override
+  String get aiEnable => 'Download & enable';
+
+  @override
+  String aiDownloading(int percent) {
+    return 'Downloading model… $percent%';
+  }
+
+  @override
+  String get aiLoading => 'Loading model…';
+
+  @override
+  String get aiReady => 'On-device AI is ready';
+
+  @override
+  String get aiError => 'Could not enable on-device AI';
+
+  @override
+  String get aiUnsupported => 'This device can\'t run on-device AI';
+
+  @override
+  String get aiPromptHint => 'Ask something to test the model…';
+
+  @override
+  String get aiRun => 'Run';
+
+  @override
+  String get aiResponseTitle => 'Response';
 }

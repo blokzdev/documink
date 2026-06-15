@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database_providers.dart';
 import 'device_capability_profiler.dart';
 import 'device_signal_collector.dart';
+import 'flutter_gemma_llm_backend.dart';
 import 'llm_backend.dart';
+import 'llm_runtime_coordinator.dart';
 import 'manifest_verifier.dart';
 import 'model_download_service.dart';
 import 'model_manifest.dart';
@@ -21,11 +23,40 @@ final manifestVerifierProvider = Provider<ManifestVerifier>(
   (ref) => ManifestVerifier(),
 );
 
-/// The on-device LLM text-generation backend (Tier 4). Defaults to the
-/// fail-loud [UnavailableLlmBackend]; the real `flutter_gemma`/LiteRT adapter is
-/// composed at bootstrap on supported devices (Phase 10b) and device-verified.
+/// Holds the **activated** on-device backend once the user enables AI and the
+/// model is downloaded + loaded (Phase 10b). Null until then. Set by the runtime
+/// coordinator / AI settings; reading the engine goes through [llmBackendProvider].
+class ActiveLlmBackend extends Notifier<LlmBackend?> {
+  @override
+  LlmBackend? build() => null;
+
+  void set(LlmBackend backend) => state = backend;
+  void clear() => state = null;
+}
+
+final activeLlmBackendProvider =
+    NotifierProvider<ActiveLlmBackend, LlmBackend?>(ActiveLlmBackend.new);
+
+/// The on-device LLM text-generation backend (Tier 4). Resolves to the activated
+/// `flutter_gemma`/LiteRT backend once enabled, else the fail-loud
+/// [UnavailableLlmBackend] (so detection/Mink degrade gracefully).
 final llmBackendProvider = Provider<LlmBackend>(
-  (ref) => const UnavailableLlmBackend(),
+  (ref) => ref.watch(activeLlmBackendProvider) ?? const UnavailableLlmBackend(),
+);
+
+/// Brings the Tier-4 engine to a ready state on demand: resolve the selected
+/// variant → download + verify the model → build the `flutter_gemma` backend.
+/// Used by the "Enable on-device AI" action. Requires the bootstrap-wired
+/// [modelSourceProvider] + [modelStoreProvider].
+final llmRuntimeCoordinatorProvider = Provider<LlmRuntimeCoordinator>(
+  (ref) => LlmRuntimeCoordinator(
+    loadState: () => ref.read(profilerRepositoryProvider).load(),
+    loadManifest: () => ref.read(modelManifestProvider.future),
+    ensureModel: (variant, {onProgress}) => ref
+        .read(modelDownloadServiceProvider)
+        .ensureModel(variant, onProgress: onProgress),
+    backendFactory: (path) => FlutterGemmaLlmBackend(modelPath: path),
+  ),
 );
 
 /// The Tier-4 model transport (Phase 10c). Defaults to the fail-loud

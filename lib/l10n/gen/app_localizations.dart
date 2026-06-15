@@ -1005,6 +1005,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build from scratch (guided)'**
   String get wizardBuildFromScratch;
+
+  /// AI settings screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device AI'**
+  String get aiTitle;
+
+  /// AI settings intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and run Gemma on this device. Everything stays local — nothing is sent to a server.'**
+  String get aiSubtitle;
+
+  /// Settings row opening the on-device AI screen.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device AI'**
+  String get aiSettingsRow;
+
+  /// Settings row subtitle for on-device AI.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and run the local AI model'**
+  String get aiSettingsRowSubtitle;
+
+  /// Button to download + load the on-device model.
+  ///
+  /// In en, this message translates to:
+  /// **'Download & enable'**
+  String get aiEnable;
+
+  /// Progress label while the model downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading model… {percent}%'**
+  String aiDownloading(int percent);
+
+  /// Shown while the model loads into the runtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading model…'**
+  String get aiLoading;
+
+  /// Shown once the model is loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device AI is ready'**
+  String get aiReady;
+
+  /// Error state for AI enablement.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not enable on-device AI'**
+  String get aiError;
+
+  /// Shown when no model variant is available.
+  ///
+  /// In en, this message translates to:
+  /// **'This device can\'t run on-device AI'**
+  String get aiUnsupported;
+
+  /// Hint for the test-prompt field.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask something to test the model…'**
+  String get aiPromptHint;
+
+  /// Run the test prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get aiRun;
+
+  /// Header above the model's response.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get aiResponseTitle;
 }
 
 class _AppLocalizationsDelegate

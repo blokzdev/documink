@@ -184,6 +184,25 @@ After each UI-elevation PR, pull **Build APK (manual)** and review:
   preview), vault browser cards, document detail (reveal animation), settings, audit — each in
   light/dark, at large dynamic-type, with TalkBack.
 
+## Tier-4 on-device AI — Gemma 4 E2B (Phase 10b)
+
+All device-only; the runtime is `UnavailableLlmBackend` until activated. Full runbook in SETUP.md §9.
+- ☐ **arm64 release APK size** — `flutter build apk --flavor prod --release` → the
+  `app-prod-release.apk` is arm64-only and **under 200 MB** (Play base-APK limit). CI gate enforces.
+- ☐ **Lib trim is safe** — with `qdrant_edge`/WebGPU/constraint `.so` excluded
+  (`android/app/build.gradle.kts`), the model **loads + runs** with no `UnsatisfiedLinkError`. If one
+  occurs, remove that single exclude and re-test.
+- ☐ **Model download + verify** — Settings → On-device AI → *Download & enable*: the Gemma 4 E2B
+  model downloads (progress), **SHA-256 matches** the signed manifest (fill the real hash first,
+  SETUP.md §9), and `DownloadState` → ready. A tampered/mismatched hash is rejected.
+- ☐ **Inference works** — the prompt tester returns a coherent response; re-prompt works; no crash.
+- ☐ **Memory / latency** — no OOM on a 4 GB device (Standard tier); first-token + full-response
+  latency are acceptable; backgrounding mid-generation doesn't crash.
+- ☐ **GPU path** — OpenCL acceleration engages where available (`PreferredBackend.gpu`), CPU
+  fallback otherwise.
+- ☐ **Graceful degradation** — with AI not enabled (or on a below-Standard device), detection +
+  the rest of the app work unchanged (backend stays Unavailable).
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.

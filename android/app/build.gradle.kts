@@ -66,6 +66,29 @@ android {
         create("prod") {
             dimension = "environment"
             resValue("string", "app_name", "DocuMink")
+            // Tier-4 (Phase 10b): the LiteRT/flutter_gemma runtime (.litertlm /
+            // FFI / vision) is arm64-only, so prod ships a single ABI. This keeps
+            // the on-device-AI build under Play's ~200 MB base limit without a
+            // dynamic feature module (Flutter can't defer a plugin's native libs
+            // — see docs/reference/flutter_deferred_components.md + DECISIONS.md).
+            // dev/staging keep all ABIs for emulator work.
+            ndk { abiFilters += "arm64-v8a" }
+        }
+    }
+
+    // Drop flutter_gemma/LiteRT native libs we don't use, to shrink the APK:
+    // the qdrant_edge RAG vector store, and the WebGPU accelerator + constraint
+    // provider (we use CPU/GPU(OpenCL) inference, not WebGPU or grammar
+    // constraints). If a real device throws UnsatisfiedLinkError for one of
+    // these, remove its exclude (tracked in VERIFICATION.md).
+    packaging {
+        jniLibs {
+            excludes += listOf(
+                "**/libqdrant_edge_ffi.so",
+                "**/libLiteRtWebGpuAccelerator.so",
+                "**/libLiteRtTopKWebGpuSampler.so",
+                "**/libGemmaModelConstraintProvider.so",
+            )
         }
     }
 
