@@ -65,3 +65,33 @@ await model.stopGeneration();
 - Native runtime libs (arm64) are large (~110 MB+): libLiteRtLm ~34 MB, libLiteRt ~10 MB,
   WebGPU accelerator ~18 MB + TopK sampler ~4 MB, GemmaModelConstraintProvider ~22 MB,
   qdrant_edge (RAG) ~23 MB. WebGPU/qdrant/constraint are candidates to exclude when unused.
+
+## ✅ Confirmed in-repo (Gate 0 — 2026-06-15)
+
+- **Resolves on the pinned toolchain.** `flutter_gemma: ^0.16.5` ⇒ `flutter pub get` succeeds on
+  **Flutter 3.38.6 / Dart 3.10.7** (adds 6 transitive deps). **`check_licenses.dart` is clean**
+  (153 hosted packages compliant) — MIT + allow-listed transitives. Safe to depend on; no Flutter
+  floor bump needed.
+- **Use the Modern API** (`export 'core/api/flutter_gemma.dart'`), not the legacy
+  `FlutterGemmaPlugin.instance`. Verified signatures from the pub-cache source:
+  ```dart
+  await FlutterGemma.initialize();                          // once at bootstrap
+  await FlutterGemma.installModel(modelType: ModelType.gemma4,
+      fileType: ModelFileType.task)                         // .task (Gemma 4) | .litertlm | binary
+    .fromFile(modelPath).install();                          // model already downloaded+verified by us
+  final InferenceModel model = await FlutterGemma.getActiveModel(
+      maxTokens: 2048, preferredBackend: PreferredBackend.gpu); // .cpu/.gpu/.npu(.litertlm)
+  final session = await model.createSession();
+  await session.addQueryChunk(Message.text(text: prompt, isUser: true));
+  final String out = await session.getResponse();            // or getResponseAsync() (Stream<String>)
+  await session.close(); await model.close();
+  // helpers: FlutterGemma.isModelInstalled(id), listInstalledModels(), model.stopGeneration()
+  ```
+- **`ModelType`**: general, gemmaIt, **gemma4**, deepSeek, qwen, qwen3, llama, hammer, functionGemma,
+  phi. **`ModelFileType`**: `task` (MediaPipe templates) · `litertlm` (LiteRT-LM, Android/Desktop) ·
+  `binary` (.bin/.tflite).
+- **qdrant_edge** is flutter_gemma's vector-store/RAG (`searchSimilar` + `VectorStoreFilter`); we
+  don't use it → `libqdrant_edge_ffi.so` is safe to exclude.
+- **DocuMink wiring:** our `ModelDownloadService` (10c) fetches + SHA-256-verifies the model into
+  `ModelStore`, then we hand the path to `installModel().fromFile(path)` — we do **not** use
+  flutter_gemma's own downloader (verify against the signed manifest first).
