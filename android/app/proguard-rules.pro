@@ -26,3 +26,11 @@
 -keep class com.google.mediapipe.** { *; }
 -keep class com.google.protobuf.** { *; }
 -dontwarn com.google.protobuf.**
+
+# flutter_pdf_text / Apache PDFBox (Phase 4b PDF text extraction). PDFBox's
+# JPXFilter references com.gemalto.jp2.JP2Decoder to decode JPEG2000 *images*,
+# which we intentionally exclude from the build (the JP2ForAndroid decoder is a
+# jitpack dependency that 403s — see android/build.gradle.kts + docs/DECISIONS.md).
+# We use the plugin only for the text layer, so that decoder is never invoked;
+# suppress R8's missing-class error on the now-absent reference.
+-dontwarn com.gemalto.jp2.**

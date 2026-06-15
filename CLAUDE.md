@@ -55,13 +55,17 @@ simplification at the phase-boundary review — **never remove a workaround auto
 
 - **`flutter_pdf_text` jitpack dependency is excluded — keep it excluded.** The plugin declares a
   `runtimeOnly` JPEG2000 decoder `com.github.Tgo1014:JP2ForAndroid` from **jitpack.io**, which 403s
-  and breaks every Android build. `android/app/build.gradle.kts` excludes it
-  (`configurations.all { exclude(group = "com.github.Tgo1014", module = "JP2ForAndroid") }`). We only
-  use the plugin for the **text layer**, so dropping the decoder is functionally harmless (PDFBox
-  ignores JPX images; image-only pages OCR via `pdfx`). **Do NOT remove this exclude** to "clean up"
-  — it is load-bearing. The proper end-state is the `pdfrx` consolidation below (eliminates jitpack
-  and the exclude together) once the Flutter floor reaches ≥ 3.41. (docs/DECISIONS.md 2026-06-15;
-  JP2ForAndroid is BSD-2 / also on Maven Central as `com.gemalto.jp2:jp2-android` if ever needed.)
+  and breaks every Android build. The fix has **two load-bearing parts**: (1) `android/build.gradle.kts`
+  excludes it inside **`allprojects`** (`configurations.all { exclude(group = "com.github.Tgo1014",
+  module = "JP2ForAndroid") }`) — it must be `allprojects`, not just `:app`, or the `:flutter_pdf_text`
+  module's own lint classpath still pulls it; and (2) `android/app/proguard-rules.pro` adds
+  `-dontwarn com.gemalto.jp2.**` so R8 tolerates the now-missing `JP2Decoder` reference from PDFBox.
+  We use the plugin only for the **text layer**, so dropping the decoder is functionally harmless
+  (PDFBox ignores JPX images; image-only pages OCR via `pdfx`). **Do NOT remove either part** to
+  "clean up" — both are required. The proper end-state is the `pdfrx` consolidation below (eliminates
+  jitpack and this workaround together) once the Flutter floor reaches ≥ 3.41. (docs/DECISIONS.md
+  2026-06-15; JP2ForAndroid is BSD-2; the upstream `com.gemalto.jp2:jp2-android` is JCenter-only/dead,
+  which is why no clean Maven swap exists.)
 
 ## Deferred opportunities (revisit at the next toolchain bump)
 
