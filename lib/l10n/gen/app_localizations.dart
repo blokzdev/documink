@@ -897,6 +897,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search the web'**
   String get permSearchWeb;
+
+  /// Blank-wizard app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Project — guided'**
+  String get wizardTitle;
+
+  /// Wizard step: basics.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get wizardStepBasics;
+
+  /// Wizard step: sensitive data.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensitive data'**
+  String get wizardStepData;
+
+  /// Wizard step: permissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get wizardStepPermissions;
+
+  /// Wizard step: review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get wizardStepReview;
+
+  /// Wizard: project name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Project name'**
+  String get wizardName;
+
+  /// Wizard: domain dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Domain'**
+  String get wizardDomain;
+
+  /// Wizard: sensitive-data step prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sensitive data will this project handle?'**
+  String get wizardDataPrompt;
+
+  /// Wizard: default operator dropdown label.
+  ///
+  /// In en, this message translates to:
+  /// **'Default action for the selected types'**
+  String get wizardDefaultAction;
+
+  /// Wizard permission toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Mink rewrite content'**
+  String get wizardPermRewrite;
+
+  /// Wizard permission toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Mink expand content'**
+  String get wizardPermExpand;
+
+  /// Wizard permission toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow export'**
+  String get wizardPermExport;
+
+  /// Wizard permission toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Require biometrics to reveal originals'**
+  String get wizardPermDecodeBiometric;
+
+  /// Wizard review summary line.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {count, plural, =0{no data types} =1{1 data type} other{{count} data types}}'**
+  String wizardReviewSummary(String name, int count);
+
+  /// Wizard: advance to the next step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get wizardNext;
+
+  /// Wizard: go to the previous step.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get wizardBack;
+
+  /// Wizard: create the project.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Project'**
+  String get wizardCreate;
+
+  /// Template picker: launch the blank wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Build from scratch (guided)'**
+  String get wizardBuildFromScratch;
 }
 
 class _AppLocalizationsDelegate

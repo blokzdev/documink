@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/routes.dart';
 import '../../features/projects/active_project_provider.dart';
 import '../../features/projects/project_providers.dart';
 import '../../features/projects/template_manifest.dart';
@@ -49,6 +51,13 @@ class TemplatePickerScreen extends ConsumerWidget {
                     _TemplateCard(t),
                     const SizedBox(height: AppTokens.spacingSm),
                   ],
+                  const SizedBox(height: AppTokens.spacingSm),
+                  OutlinedButton.icon(
+                    key: const Key('build-from-scratch'),
+                    onPressed: () => context.push(Routes.newProjectWizard),
+                    icon: const Icon(Icons.tune),
+                    label: Text(l10n.wizardBuildFromScratch),
+                  ),
                 ],
               ),
             ),
