@@ -231,6 +231,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Store the source image/PDF, encrypted — reveal it later with biometrics';
 
   @override
+  String get settingsProactiveSuggestions => 'Proactive suggestions';
+
+  @override
+  String get settingsProactiveSuggestionsSubtitle =>
+      'Let Mink offer an occasional follow-up tip after an action — in-context and dismissible, never a notification';
+
+  @override
   String get settingsAboutTitle => 'DocuMink';
 
   @override
