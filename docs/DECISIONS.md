@@ -9,6 +9,38 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P11a: Tier-4 UX — Settings → AI Model + activation orchestration
+
+- **Context:** Phase 10 made the Tier-4 runtime real but the only UI was a placeholder that bypassed
+  the profiler, forgot enablement on restart, and had no tier/variant/floor controls. The profiler had
+  never actually run (`deviceSignalCollectorProvider` threw — no native adapter).
+- **Slicing:** Phase 11 is split **11a** (this PR — Settings → AI Model + orchestration + restore-on-
+  unlock + audit) and **11b** (onboarding "Meet Mink" decision + full floor UX + model-version-update
+  prompt). One concern per PR (commit-hygiene); 11a is the headless/widget-testable core, 11b is the
+  onboarding/router/floor layer that reuses it.
+- **Decisions (specs didn't fully determine):**
+  - **Restore-on-unlock.** Activation lives in-memory (`ActiveLlmBackend`); `AiActivationService`
+    rebuilds the backend from the persisted `ProfilerState` + on-disk model on each unlock, wired in
+    `bootstrap.dart` (guarded so full-app widget tests without the model-store override don't crash —
+    AI just stays Unavailable there). Alternative (a persisted "enabled" flag) was redundant —
+    `downloadState == ready` + the model file already encode it.
+  - **Re-check preserves a ready model.** `ProfilerService.recheck` resets `downloadState` to
+    `notDownloaded` on every run; `AiModelController.recheck` reconciles — if the pick is unchanged and
+    the file is still on disk, it keeps `ready` (a re-check must not silently drop an installed model).
+  - **Audit metadata is PII-safe** (architecture-invariants #2 no-silent-swap): tier/variant/model
+    changes record only ids, versions, score, and sizeBytes — never document content. All five event
+    types already existed (`audit_event_type.dart`).
+  - **Real `DeviceSignalCollector` (Android)** added as a first-party `MethodChannel`
+    (`documink/device_signals`) — RAM/storage/cores/OS only (no PII, no permissions); NPU/GPU/system-
+    model are conservative defaults (none/0) until refined on-device, so the profiler under-promises
+    rather than over-promises. Build-behind-seams: compile/analyze-clean, fake-tested; device-verified
+    (VERIFICATION.md).
+  - **Tier-override choices** are restricted to the device's qualifying set (`{recommended} ∪
+    optInAvailable`) — no recomputation needed; the profiler already produced it.
+- **CI-verified here:** analyze clean; `flutter test` green (10 controller + 7 activation + 4 widget
+  tests added); licenses/analytics pass; codegen unchanged. **Device-only (deferred):** the native
+  collector accuracy, real profiling, model restore across restart, and audit rows — VERIFICATION.md.
+
 ## 2026-06-15 — V1 P10b (impl): Gemma runtime in base APK, arm64-only + trimmed (supersedes the dynamic-feature plan) (⚠ review)
 
 - **Context:** the prior 10b decision was to deliver the LiteRT runtime via a Play

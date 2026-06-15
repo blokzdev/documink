@@ -561,4 +561,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiResponseTitle => 'Response';
+
+  @override
+  String get aiNotProfiled =>
+      'Check whether this device can run on-device AI. Nothing is downloaded yet.';
+
+  @override
+  String get aiCheckDevice => 'Check my device';
+
+  @override
+  String get aiRecheck => 'Re-check my device';
+
+  @override
+  String get aiTierRecommended => 'Recommended for your device';
+
+  @override
+  String get aiTierLabel => 'Tier';
+
+  @override
+  String get aiVariantLabel => 'Variant';
+
+  @override
+  String get aiVariantBalanced => 'Balanced';
+
+  @override
+  String get aiVariantSpecialized => 'Specialized';
+
+  @override
+  String get aiModelLabel => 'Model';
+
+  @override
+  String get aiSizeLabel => 'Size';
+
+  @override
+  String get aiScoreLabel => 'Device score';
+
+  @override
+  String get aiManageTitle => 'Manage';
+
+  @override
+  String get aiTierOverride => 'Override tier';
+
+  @override
+  String get aiRemove => 'Remove downloaded model';
+
+  @override
+  String get aiFloorTitle => 'On-device AI isn\'t available here';
+
+  @override
+  String get aiFloorScore =>
+      'This device doesn\'t have enough capability headroom to run the on-device assistant.';
+
+  @override
+  String get aiFloorRam =>
+      'This device doesn\'t have enough memory (RAM) to run the on-device assistant.';
+
+  @override
+  String get aiFloorStorage =>
+      'There isn\'t enough free storage to download and run the on-device assistant.';
+
+  @override
+  String get aiFloorNoTier =>
+      'No on-device assistant is available for this device.';
+
+  @override
+  String get aiFloorStillWorks =>
+      'Redaction and detection still work fully — only the AI assistant is unavailable.';
 }
