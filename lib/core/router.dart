@@ -7,6 +7,8 @@ import '../features/llm/llm_providers.dart';
 import '../services/vault_providers.dart';
 import '../ui/screens/ai_settings_screen.dart';
 import '../ui/screens/audit_log_screen.dart';
+import '../ui/screens/chat_screen.dart';
+import '../ui/screens/chat_thread_screen.dart';
 import '../ui/screens/blank_wizard_screen.dart';
 import '../ui/screens/capture_screen.dart';
 import '../ui/screens/custom_entity_form_screen.dart';
@@ -15,7 +17,6 @@ import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/onboarding_ai_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
-import '../ui/screens/placeholder_screen.dart';
 import '../ui/screens/project_detail_screen.dart';
 import '../ui/screens/projects_list_screen.dart';
 import '../ui/screens/settings_screen.dart';
@@ -97,11 +98,12 @@ GoRouter createRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.chat,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Chat with Mink',
-          message: 'The Mink chat UI arrives with the conversational layer.',
-          icon: Icons.chat_bubble_outline,
-        ),
+        builder: (context, state) => const ChatScreen(),
+      ),
+      GoRoute(
+        path: Routes.chatThreadPattern,
+        builder: (context, state) =>
+            ChatThreadScreen(sessionId: state.pathParameters['sessionId']!),
       ),
       GoRoute(
         path: Routes.vault,

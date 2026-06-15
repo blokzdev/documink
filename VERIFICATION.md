@@ -80,6 +80,23 @@ need a **real on-device model** loaded (Standard tier+) to verify behaviour with
   biometric/credential sheet; cancelling denies the tool and audits `biometricResult:'failed'`.
   *Device:* phone with biometrics enrolled. *(decode_token's own reveal gate verified in 12e/12f.)*
 
+### 12e — chat UI
+
+Screen structure/navigation/send-flow are widget-tested headless (`test/ui/screens/chat_*`);
+these need a **device** (real model + real navigation/rendering):
+
+- ☐ **End-to-end chat on device** — open *Chat with Mink* (above floor, AI enabled), start a chat,
+  send a message, see Mink reply with real Gemma; tool-call chips render inline. *Device:* phone.
+- ☐ **Unavailable/floor banners** — below the floor or with AI off, sending shows the right banner
+  ("below the AI floor" / "not enabled in Settings → AI Model") and does not hang. *Device:* a
+  floor-class phone + an above-floor phone with AI disabled.
+- ☐ **Masking on device** — any `<<tok_…>>` in a reply renders as `⟨hidden⟩` (never the raw marker
+  or decoded value). *Device:* phone. *(Tap-to-reveal verified when `decode_token` lands.)*
+- ☐ **Report-AI-output** — "Report" on a Mink message shows the local-flag snackbar and writes an
+  `ai_output_reported` row visible in Settings → Audit Log; nothing leaves the device. *Device:* phone.
+- ☐ **Composer/scroll behaviour** — multi-line input, send-on-enter, auto-scroll to newest, and the
+  in-flight progress indicator behave on a real keyboard. *Device:* phone.
+
 ## Sync transport (Phase 8 — beyond crypto core)
 
 - ☐ **BYOC Google Drive** OAuth + encrypted delta push/pull.

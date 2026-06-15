@@ -19,6 +19,11 @@ class Routes {
   static const projectDetailPattern = '/projects/:id';
 
   static const chat = '/chat';
+
+  /// A single Mink chat thread, e.g. `/chat/<sessionId>`.
+  static String chatThread(String sessionId) => '/chat/$sessionId';
+  static const chatThreadPattern = '/chat/:sessionId';
+
   static const vault = '/vault';
   static const settings = '/settings';
   static const aiSettings = '/settings/ai';
