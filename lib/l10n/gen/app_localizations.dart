@@ -1030,6 +1030,18 @@ abstract class AppLocalizations {
   /// **'Download and run the local AI model'**
   String get aiSettingsRowSubtitle;
 
+  /// Privacy row opening the Mink memory screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Mink memory'**
+  String get settingsMinkMemory;
+
+  /// Privacy row subtitle for Mink memory.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and manage what Mink remembers'**
+  String get settingsMinkMemorySubtitle;
+
   /// Button to download + load the on-device model.
   ///
   /// In en, this message translates to:

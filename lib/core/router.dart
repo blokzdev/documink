@@ -15,6 +15,7 @@ import '../ui/screens/custom_entity_form_screen.dart';
 import '../ui/screens/custom_entity_types_screen.dart';
 import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
+import '../ui/screens/mink_memory_screen.dart';
 import '../ui/screens/onboarding_ai_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/project_detail_screen.dart';
@@ -121,6 +122,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.aiSettings,
         builder: (context, state) => const AiSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.minkMemory,
+        builder: (context, state) => const MinkMemoryScreen(),
       ),
       GoRoute(
         path: Routes.auditLog,

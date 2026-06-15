@@ -97,6 +97,18 @@ these need a **device** (real model + real navigation/rendering):
 - ☐ **Composer/scroll behaviour** — multi-line input, send-on-enter, auto-scroll to newest, and the
   in-flight progress indicator behave on a real keyboard. *Device:* phone.
 
+### 12f — Mink Memory inspector (Settings → Mink Memory)
+
+List/provenance/delete are widget-tested headless (`test/ui/screens/mink_memory_screen_test.dart`);
+device checks for rendering + real accumulated memory:
+
+- ☐ **Inspector with real memory** — after some chats/actions, Settings → Mink Memory shows Core +
+  Episodic split into *This project* / *Global* with correct provenance labels. *Device:* phone.
+- ☐ **Delete + Forget about…** — per-entry delete (with confirm) and "Forget about a topic" remove
+  the right entries and the list refreshes. *Device:* phone.
+- ☐ **Export JSON** — the export dialog renders the in-scope memory and Copy puts it on the
+  clipboard; no plaintext PII appears (values are token-refs). *Device:* phone.
+
 ## Sync transport (Phase 8 — beyond crypto core)
 
 - ☐ **BYOC Google Drive** OAuth + encrypted delta push/pull.
