@@ -6,7 +6,10 @@ import 'device_capability_profiler.dart';
 import 'device_signal_collector.dart';
 import 'llm_backend.dart';
 import 'manifest_verifier.dart';
+import 'model_download_service.dart';
 import 'model_manifest.dart';
+import 'model_source.dart';
+import 'model_store.dart';
 import 'profiler_repository.dart';
 import 'profiler_service.dart';
 
@@ -23,6 +26,33 @@ final manifestVerifierProvider = Provider<ManifestVerifier>(
 /// composed at bootstrap on supported devices (Phase 10b) and device-verified.
 final llmBackendProvider = Provider<LlmBackend>(
   (ref) => const UnavailableLlmBackend(),
+);
+
+/// The Tier-4 model transport (Phase 10c). Defaults to the fail-loud
+/// [UnavailableModelSource]; the platform adapter (PAD on Android, HTTP on
+/// Windows) is composed at bootstrap and device-verified.
+final modelSourceProvider = Provider<ModelSource>(
+  (ref) => const UnavailableModelSource(),
+);
+
+/// On-device model storage paths. Must be overridden at bootstrap with the
+/// app-support directory (resolved via path_provider) — like
+/// [deviceSignalCollectorProvider], the bare core has no platform path.
+final modelStoreProvider = Provider<ModelStore>((ref) {
+  throw UnimplementedError(
+    'modelStoreProvider must be overridden with the app-support ModelStore',
+  );
+});
+
+/// Ensures the selected model file is present + SHA-256-verified, tracking
+/// [DownloadState] (Phase 10c). Requires the unlocked vault (via
+/// [profilerRepositoryProvider]).
+final modelDownloadServiceProvider = Provider<ModelDownloadService>(
+  (ref) => ModelDownloadService(
+    source: ref.watch(modelSourceProvider),
+    store: ref.watch(modelStoreProvider),
+    profiler: ref.watch(profilerRepositoryProvider),
+  ),
 );
 
 /// The verified model manifest. Throws if the bundled manifest fails Ed25519

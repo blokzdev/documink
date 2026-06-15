@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypto/crypto.dart';
 
 /// Verifies a downloaded model file's bytes against the SHA-256 in the (already
@@ -17,6 +19,25 @@ class ModelHashVerifier {
       throw ModelHashMismatchException(
         expected: expectedSha256Hex.toLowerCase(),
         actual: sha256.convert(bytes).toString(),
+      );
+    }
+  }
+
+  /// SHA-256s [file] by **streaming** it (never loads the whole file — model
+  /// files can be ~1 GB+) and returns whether it matches [expectedSha256Hex].
+  Future<bool> matchesFile(File file, String expectedSha256Hex) async {
+    final digest = await sha256.bind(file.openRead()).first;
+    return digest.toString() == expectedSha256Hex.toLowerCase();
+  }
+
+  /// Throws [ModelHashMismatchException] if [file] doesn't match the hash
+  /// (streaming).
+  Future<void> verifyFileOrThrow(File file, String expectedSha256Hex) async {
+    final digest = await sha256.bind(file.openRead()).first;
+    if (digest.toString() != expectedSha256Hex.toLowerCase()) {
+      throw ModelHashMismatchException(
+        expected: expectedSha256Hex.toLowerCase(),
+        actual: digest.toString(),
       );
     }
   }
