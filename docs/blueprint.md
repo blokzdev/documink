@@ -828,14 +828,20 @@ Tools are declarative Dart classes registered at app startup. Each tool declares
 - Finishing detection on a pasted block
 - Applying redaction to a document
 
-It asks the LLM (using a brief, targeted prompt with action context) whether a follow-up suggestion would be valuable. If yes, a compact suggestion card appears in-context (not as a push notification). The card offers the action + dismissal. User can disable all suggestions in Settings.
+If a follow-up would be valuable, a compact suggestion card appears in-context (not as a push notification). The card offers the action + dismissal. User can disable all suggestions in Settings.
+
+**Two-layer engine (refined Phase 13, see `docs/P13-PLAN.md` / DECISIONS.md 2026-06-15).** The suggester is a single orchestrator over an ordered list of suggestion *sources*, behind one `Suggestion` interface and a closed action whitelist:
+- **Layer 1 — deterministic rules (pure Dart, all tiers).** A rules engine over a PII-safe signal (entity **type → count** only, never span text) produces the common suggestions — e.g. the flagship "tokenize all N <PERSON> consistently?". It runs on **every device, including below-floor / Minimum** (no model), with zero latency and no prompt to leak into.
+- **Layer 2 — optional LLM enrichment (Tier 2+).** When the on-device model is available, a brief targeted prompt — built from the same type+count signal, **never raw PII** — may add a context-aware suggestion. Best-effort: any failure silently yields no card. The deterministic layer wins when both fire.
+
+The action a card offers is drawn from a closed enum (e.g. tokenize-label-consistently) mapped onto the existing operator vocabulary, validated against the detected labels — a source can never invent an action.
 
 **V1 constraints:**
 - In-context only (never a system notification).
 - No background processing.
 - Limited to post-action moments.
-- User setting to disable entirely.
-- Audit-logged when suggestion is offered and when acted upon.
+- User setting to disable entirely (default on; a one-time in-context disclosure precedes the first suggestion, keeping it non-intrusive per §15 #20).
+- Audit-logged when offered, when acted upon, and when dismissed (`suggestion_offered` / `suggestion_actioned` / `suggestion_dismissed`), with type+count metadata only — never plaintext.
 
 ### 5.6 Mink memory
 

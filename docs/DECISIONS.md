@@ -50,6 +50,43 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
   `apk-size-check` going green (jitpack no longer queried). **Device-only (deferred):** text
   extraction on a JPEG2000-image-bearing PDF + OCR fallback on image-only pages — VERIFICATION.md.
 
+## 2026-06-15 — V1 P13 (planning): Proactive suggestions — design of record
+
+- **Context:** opens Phase 13 (proactive suggestions, PRD §5.2 / blueprint §5.5 / roadmap). This is a
+  planning + doc-alignment PR only (no code): it adds `docs/P13-PLAN.md`, refines blueprint §5.5 and
+  roadmap Phase 13, and sets README status. Implementation follows in sub-PRs 13a–13d.
+- **Decisions (specs didn't fully determine):**
+  - **⚠ Two-layer engine — deterministic rules first, LLM optional (spec refinement).** blueprint §5.5
+    and roadmap read "asks the LLM". We refine to a single orchestrator over ordered *sources*:
+    **Layer 1** is a pure-Dart deterministic rules engine that runs on **every tier including
+    below-floor / Minimum** (no model), and **Layer 2** is an optional LLM enrichment source consulted
+    only when the on-device model is available (Tier 2+). This is an **addition, not a contradiction** —
+    it still "asks the LLM" when one exists, while broadening reach, removing latency/hallucination, and
+    ensuring **no PII ever enters a prompt** on the common path. Maintainer-requested; surfaced here per
+    deviation-protocol; §5.5 + roadmap updated in this PR. Alternative (LLM-only, per the literal spec)
+    rejected: it would make suggestions unavailable on the very devices most likely to be in scope and
+    needlessly route a type+count signal through a model.
+  - **Initial state ON (opt-out) + one-time disclosure.** PRD says "user setting to disable entirely"
+    (implies on-by-default); blueprint §15 #20 cautions against enabling suggestions "by default to be
+    intrusive". Reconciled: default **on**, but the **first** suggestion card carries a one-time
+    disclosure ("Mink can offer follow-up tips — turn off in Settings"), gated by a disclosure-seen flag
+    (the existing `keepOriginalHintSeenProvider` pattern). The card is inherently non-intrusive
+    (post-action, single, dismissible, never a notification), so #20's *intent* is met. Default-off
+    (opt-in) was considered and rejected — it leaves the feature invisible/unused. Maintainer-confirmed.
+  - **One-tap action = real deterministic mutation.** The card's action performs the bounded change
+    (e.g. `setOperator(label, Operator.tokenRandom)` — tokenize a label consistently), not a
+    display-only/navigate affordance. Action vocabulary is a **closed enum** validated against the
+    detected labels + `editorOperators`; a source can never invent an action. Maintainer-confirmed.
+  - **Token-Random chosen for the flagship "tokenize consistently" rule** (over Mask/Redact): it is
+    reversible **and** consistent (same value → same surrogate), true to DocuMink's reversible
+    philosophy, where an irreversible redact would not be "consistent tokenization".
+  - **New convention: per-phase `docs/Pxx-PLAN.md`.** DocuMink previously kept plans in
+    README/roadmap/DECISIONS only; the maintainer asked to introduce standalone plan docs. `P13-PLAN.md`
+    is the first; it is the design of record for the phase, with each sub-PR planned as it is built.
+- **CI-verified here:** docs-only — no code changed; analyze/test unaffected (run to confirm no drift);
+  license/analytics/codegen scanners n/a. **Device-only (deferred):** none yet — device items
+  (real card rendering, one-tap, on-device LLM suggestions) are added to VERIFICATION.md in 13c/13d.
+
 ## 2026-06-15 — V1 P11b: Tier-4 onboarding "Meet Mink" + floor UX
 
 - **Context:** completes Phase 11 — adds the first-run AI decision step and the below-floor UX on top

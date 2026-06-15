@@ -386,16 +386,25 @@ Commit ADRs under `docs/adr/`:
 
 ### Phase 13 — Proactive suggestions (V1 scoped)
 
+Plan of record: **`docs/P13-PLAN.md`** (sub-PRs 13a–13d). Two-layer engine — see blueprint §5.5.
+
 - `ProactiveSuggester` hooks into:
   - Post-scan completion.
   - Post-detection completion on pasted text.
   - Post-redaction application.
-- Targeted prompt to LLM asking "is there a valuable follow-up suggestion for what just happened?"
+- **Layer 1 — deterministic rules engine (pure Dart, all tiers incl. below-floor):** a PII-safe
+  signal (entity type → count only) drives a rules catalog — e.g. "tokenize all N <PERSON>
+  consistently?" — with no model and no prompt.
+- **Layer 2 — optional LLM enrichment (Tier 2+):** when the on-device model is available, a brief
+  targeted prompt (type+count only, never raw PII) may add a context-aware suggestion; best-effort.
 - Suggestion card rendered in-context (never push notification).
-- Dismissible; offers the action as one-tap.
-- Settings toggle to disable proactive suggestions entirely.
-- Audit-logged when offered and when acted upon.
+- Dismissible; offers the action as one-tap (real, bounded mutation from a closed action whitelist).
+- Settings toggle to disable proactive suggestions entirely (default on; one-time disclosure on the
+  first suggestion keeps it non-intrusive per blueprint §15 #20).
+- Audit-logged when offered, acted upon, and dismissed (type+count metadata only).
 - No background processing — only triggers during active use.
+- **Sub-PRs:** 13a engine + models (deterministic, headless) · 13b Settings toggle + disclosure ·
+  13c paste-editor card + triggers + one-tap action · 13d optional LLM enrichment layer.
 
 ### Phase 14 — Projects & templates
 
