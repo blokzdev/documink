@@ -9,6 +9,38 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P10a: Tier-4 LLM seam (`LlmBackend`) + Path-B inference
+
+- **Context:** maintainer asked whether Gemma 4 E2B (Apache 2.0, on-device,
+  ~int4) could be a local/edge AI option with tier-based graceful degradation,
+  and power the AI-upload creation path (§6.2 Path B). Research confirmed it's
+  **already the designated Standard-tier Balanced model** in `docs/models.md`
+  §3.1 (`google/gemma-4-e2b-it-task`, LiteRT `.task` int4 QAT, `flutter_gemma`),
+  and the Phase-9 profiler + signed manifest (merged) already do device
+  diagnostics + tiered selection + verification. What's missing is the **runtime**
+  (Phase 10) and **UX** (Phase 11).
+- **Decision:** open **Phase 10** build-behind-seams. **10a (this PR, headless):**
+  an `LlmBackend` seam (`isAvailable` + `generate`) with a fail-loud
+  `UnavailableLlmBackend` default, and a pure-Dart `DomainInferenceService` (the
+  §6.2 Path-B brain: prompt → parse a `{domain,confidence,candidates}` JSON →
+  `DomainSuggestion` with strong/weak/none strength; returns **null** on
+  unavailable / low-tier / unparyseable ⇒ caller falls back to the picker). No
+  new dependency; no model in the APK; fully fake-tested.
+- **Rationale:** mirrors the established native-seam pattern (OCR, screen
+  security); makes the whole Tier-4 surface headless-testable; and the same seam
+  unblocks **both** Mink chat and 14d AI-upload. Tier-based graceful degradation
+  falls out of the seam (no backend ⇒ null ⇒ non-AI path).
+- **Deferred to 10b (flagged for that PR):** the real `flutter_gemma`/LiteRT
+  adapter (Apache-2.0/MIT) wired at bootstrap + model download/verify via the
+  existing manifest/SHA-256/PAD path. That PR **adds the `flutter_gemma`
+  dependency** (must keep `license-scan` green), **updates `models.md` in the
+  same PR** (architecture-invariant #5), and must re-check **`apk-size-check`**
+  (LiteRT native libs add to the APK; models stay on-demand). Device-verified in
+  `VERIFICATION.md`. Then 14d (AI-upload UI) and Phase 11 (Tier-4 UX) ride on the
+  seam.
+- **Note:** the "~840 MB" figure is ~int4 weights; `models.md` gates Standard at
+  **4 GB device RAM** to cover KV-cache/headroom — keep that conservative gate.
+
 ## 2026-06-14 — V1 P14c-1: active-project persistence in SettingsStore
 
 - **Context:** the Project list/switcher needs the selected Project id to survive
