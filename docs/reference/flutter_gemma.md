@@ -79,7 +79,7 @@ The size that matters is the **per-device** download. `ndk.abiFilters` is overri
 ```
 flutter build apk --flavor prod --release -t lib/main_prod.dart \
     --target-platform android-arm64 --split-per-abi
-# → build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk
+# → build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk
 ```
 `--target-platform` restricts the Dart AOT + native assets to arm64; `--split-per-abi` produces a
 clean per-ABI artifact and takes the Gradle code path that does **not** do the abiFilters override.
@@ -112,13 +112,18 @@ Note the android tarball ships the Linux/Windows **WebGPU** libs too; they're pu
 Android and safe to drop. If a device throws `UnsatisfiedLinkError` for a dropped lib, remove that
 one exclude (tracked in `VERIFICATION.md`).
 
-> **Verify:** `unzip -l app-prod-arm64-v8a-release.apk | grep '\.so'` lists what actually shipped —
+> **Verify:** `unzip -l app-arm64-v8a-prod-release.apk | grep '\.so'` lists what actually shipped —
 > the CI `apk-size-check` job prints this breakdown on every build.
 
-**Result:** the trimmed arm64 release APK is enforced **< 200 MB** by the CI `apk-size-check` gate
-(Play's base-APK download limit). The pre-trim universal (all-ABI) APK was 323.8 MB; switching to a
-single arm64 split plus dropping ~97 MB of unused native libs brings it comfortably under.
-(Sideloaded APKs have no size limit, so device testing works regardless.)
+**Result (CI-confirmed 2026-06-15):** the trimmed arm64 release APK is **150.7 MB** — down from the
+323.8 MB pre-trim universal (all-ABI) APK — comfortably under Play's 200 MB base-APK limit (enforced
+by the CI `apk-size-check` gate). Switching to a single arm64 split removed the duplicated per-ABI
+engine/MediaPipe libs, and the `jniLibs.excludes` dropped ~97 MB of unused native libs (the CI build
+log's `.so` breakdown confirms the excluded libs are absent). (Sideloaded APKs have no size limit, so
+device testing works regardless.)
+
+> **Output filename:** `--split-per-abi` names the artifact `app-<abi>-<flavor>-<buildtype>.apk` —
+> i.e. `app-arm64-v8a-prod-release.apk` (NOT `app-prod-arm64-v8a-release.apk`).
 
 ## ✅ Confirmed in-repo (Gate 0 — 2026-06-15)
 

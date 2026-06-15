@@ -55,12 +55,12 @@ jobs:
       - run: flutter build apk --flavor prod --release -t lib/main_prod.dart --target-platform android-arm64 --split-per-abi
       - name: Inspect native libs (diagnostic)
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk"
           echo "=== native (.so) libs packaged in the arm64 APK (compressed sizes) ==="
           unzip -l "$APK_PATH" | awk '/\.so$/ {printf "%12d  %s\n", $1, $4}' | sort -rn
       - name: Enforce Size Limit
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk"
           SIZE=$(stat -c%s "$APK_PATH")
           echo "prod arm64 release APK size: $SIZE bytes"
           # 200 MB = Google Play's base-APK download limit. The on-device-AI

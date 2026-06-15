@@ -25,6 +25,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: documink-prod-release-apk
-          path: build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk
           retention-days: 14
           if-no-files-found: error

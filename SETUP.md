@@ -176,10 +176,10 @@ for Standard tier). Report results so the agent can iterate.
 2. **Build the test APK** (single arm64 prod release; debug-signed is fine for sideload):
    ```powershell
    flutter build apk --flavor prod --release -t lib/main_prod.dart --target-platform android-arm64 --split-per-abi
-   # → build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk
+   # → build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk  (~151 MB)
    ```
    Confirm size **< 200 MB**. Install:
-   `adb install -r build/app/outputs/flutter-apk/app-prod-arm64-v8a-release.apk`.
+   `adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk`.
    (The trimmed LiteRT native libs — QNN NPU stack, qdrant RAG, WebGPU, constraint
    provider — are dropped via `packaging.jniLibs.excludes`; see
    `docs/reference/flutter_gemma.md`. If inference throws `UnsatisfiedLinkError`

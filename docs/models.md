@@ -75,18 +75,24 @@ module). So that path is not toolchain-supported. (See
 
 **Decision (implemented in 10b):** ship the runtime in the **base APK, arm64-v8a only, with unused
 native libs trimmed** — no feature module:
-- **arm64-v8a only** for the `prod` flavor (`ndk { abiFilters 'arm64-v8a' }`). LiteRT's
-  `.litertlm`/FFI/vision features are arm64-only anyway; dropping armeabi-v7a/x86_64 removes their
-  native copies. Play delivers the single ABI per device.
-- **Trim** libs we don't use via `packaging.jniLibs.excludes`: `libqdrant_edge_ffi.so` (RAG vector
-  store), `libLiteRtWebGpuAccelerator.so` + `libLiteRtTopKWebGpuSampler.so` (WebGPU; we use
-  CPU/OpenCL-GPU), `libGemmaModelConstraintProvider.so` (grammar constraints). If a device throws
-  `UnsatisfiedLinkError` for one, drop that exclude (VERIFICATION.md).
-- Net base ≈ **~170 MB arm64 → under Play's ~200 MB base-APK limit**, no on-demand runtime module.
+- **arm64-v8a only, enforced at build time** — `flutter build apk --target-platform android-arm64
+  --split-per-abi`. Note `ndk { abiFilters 'arm64-v8a' }` is a **no-op** on non-split builds (Flutter
+  overwrites build-type `abiFilters` with all default ABIs), so the CLI flags are the real lever; the
+  Play **AAB** keeps all ABIs and Play does per-ABI delivery. LiteRT's `.litertlm`/FFI/vision are
+  arm64-only anyway.
+- **Trim ~97 MB** of the 146 MB arm64 native-asset payload via `packaging.jniLibs.excludes`:
+  `libqdrant_edge_ffi.so` (RAG, 18.3 MB); `libLiteRtWebGpuAccelerator.so` +
+  `libLiteRtTopKWebGpuSampler.so` (WebGPU, desktop-only — 9.0 MB); `libGemmaModelConstraintProvider.so`
+  (grammar constraints, 19.2 MB); and the **Qualcomm QNN NPU runtime stack** (~50.7 MB, optional). These
+  ship via Flutter Native Assets but still go through `jniLibs`, so AGP excludes apply. Kept:
+  `libLiteRtLm` + `StreamProxy` + Android GPU/OpenCL accelerators. If a device throws
+  `UnsatisfiedLinkError` for an excluded lib, drop that exclude (VERIFICATION.md). Full measured
+  breakdown: `docs/reference/flutter_gemma.md`.
+- **CI-confirmed APK size: 150.7 MB arm64 → under Play's 200 MB base-APK limit**, no runtime module.
 - The **model** is still downloaded on demand + SHA-256-verified (§2.1 / 10c), never bundled.
   Below-tier / not-yet-downloaded → `UnavailableLlmBackend` (graceful; Tiers 1–3 unaffected).
 
-**`apk-size-check`** builds the `prod` release APK (now arm64-only ⇒ the real per-device size) and
+**`apk-size-check`** builds the arm64 split `prod` release APK (the real per-device size) and
 enforces **≤ 200 MB** (Play's base-APK limit). Windows V2 runtime ships with the desktop installer.
 
 ---
