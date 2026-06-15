@@ -506,5 +506,22 @@
   "aiFloorNoTier": "No on-device assistant is available for this device.",
   "@aiFloorNoTier": {"description": "Floor reason: no qualifying tier."},
   "aiFloorStillWorks": "Redaction and detection still work fully — only the AI assistant is unavailable.",
-  "@aiFloorStillWorks": {"description": "Reassurance shown in the floor state."}
+  "@aiFloorStillWorks": {"description": "Reassurance shown in the floor state."},
+
+  "onboardingTitle": "Meet Mink",
+  "@onboardingTitle": {"description": "First-run AI onboarding title."},
+  "onboardingIntro": "Mink is your on-device assistant. It runs entirely on this device — nothing is sent to a server. Add it now, or anytime in Settings.",
+  "@onboardingIntro": {"description": "First-run AI onboarding intro paragraph."},
+  "onboardingAccept": "Accept & download",
+  "@onboardingAccept": {"description": "Download + enable the selected model."},
+  "onboardingSkip": "Skip for now",
+  "@onboardingSkip": {"description": "Skip AI setup and continue to the app."},
+  "onboardingShowOptions": "Show options",
+  "@onboardingShowOptions": {"description": "Reveal alternative model variants/tiers."},
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {"description": "Proceed past the floor onboarding state."},
+  "onboardingOptInWarning": "larger download",
+  "@onboardingOptInWarning": {"description": "Size caution tag on an opt-in tier."},
+  "homeMinkUnavailable": "Needs a more capable device",
+  "@homeMinkUnavailable": {"description": "Tooltip on the disabled Mink action at the AI floor."}
 }

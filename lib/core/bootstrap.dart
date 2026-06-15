@@ -123,13 +123,30 @@ class _DocuMinkAppState extends ConsumerState<DocuMinkApp> {
         }
       }
 
+      // Phase 11b: owe the first-run "Meet Mink" step until the profiler has run
+      // once (persisted ProfilerState). Guarded like restoreAi for bare tests.
+      Future<void> syncOnboarding() async {
+        try {
+          final state = await ref.read(profilerRepositoryProvider).load();
+          ref
+              .read(aiOnboardingProvider.notifier)
+              .fromState(hasProfilerState: state != null);
+        } catch (_) {
+          // Vault/providers not wired (tests) — leave the flag default (false).
+        }
+      }
+
       ref.listenManual(appUnlockedProvider, (_, unlocked) {
         if (unlocked) {
           coordinator.onUnlocked();
           restoreAi();
+          syncOnboarding();
         }
       });
-      if (ref.read(appUnlockedProvider)) restoreAi();
+      if (ref.read(appUnlockedProvider)) {
+        restoreAi();
+        syncOnboarding();
+      }
       coordinator.start();
     });
   }

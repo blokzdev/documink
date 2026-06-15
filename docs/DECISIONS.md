@@ -9,6 +9,33 @@ Format: newest first. A decision that later graduates into a spec/ADR notes the 
 
 ---
 
+## 2026-06-15 — V1 P11b: Tier-4 onboarding "Meet Mink" + floor UX
+
+- **Context:** completes Phase 11 — adds the first-run AI decision step and the below-floor UX on top
+  of 11a's orchestration. Reuses `AiModelController` / `ProfilerService`; pure UI/routing.
+- **Decisions (specs didn't fully determine):**
+  - **Onboarding gate via a synchronous reactive flag.** `router.dart`'s `redirect` is synchronous but
+    "has the profiler ever run?" is an async DB read, so `aiOnboardingProvider` (a `bool` Notifier)
+    fronts it. Its **persistent truth is `ProfilerState != null`**: set eagerly on first-run vault
+    creation (`vault_unlock_screen`, before the unlock redirect — avoids a Home flash), and synced from
+    the persisted state on unlock (`bootstrap`). Cleared by `markSeen()` once the step is shown.
+  - **Floor gating is per-surface, disabled-not-hidden.** Only the live Tier-4 surface — the Home
+    "Chat with Mink" card — is gated (greyed + lock + `Tooltip` + `Semantics(enabled:false)` for
+    TalkBack) via a new `profilerStateProvider` (`isFloor`). Settings → AI stays reachable (it owns the
+    floor card + re-check). DomainInference Path B (Phase 14d) and the Mink chat UI (Phase 12) gate when
+    they land; the per-project persona editor is config metadata, left enabled.
+  - **Model-version-update prompt descoped.** The approved outline included a before/after "keep vs
+    adopt" prompt, but V1 ships a **bundled, static manifest (version 1)** — a real bump can't occur
+    until the post-V1 remote-manifest refresh, and "keep old" needs version pinning the data model
+    lacks. Deferred to that feature; 11a's `manifest_update` audit-on-bump is kept. (Recommended option;
+    flagged in the PR.)
+  - **Onboarding "Show options" downloads on Accept, not on select.** The radio choice (Balanced /
+    Specialized / an opt-in tier) only sets the selection; **Accept** dispatches the single matching
+    `AiModelController` call (enable / switchVariant / overrideTier) — one download, audited.
+- **CI-verified here:** analyze clean; `flutter test` green (+10 onboarding/router/card tests);
+  licenses/analytics pass; codegen unchanged. **Device-only (deferred):** first-run routing, real
+  profiling, floor gating + TalkBack — VERIFICATION.md.
+
 ## 2026-06-15 — V1 P11a: Tier-4 UX — Settings → AI Model + activation orchestration
 
 - **Context:** Phase 10 made the Tier-4 runtime real but the only UI was a placeholder that bypassed

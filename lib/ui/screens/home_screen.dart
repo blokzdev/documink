@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/routes.dart';
+import '../../features/llm/llm_providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/tokens.dart';
@@ -50,6 +51,7 @@ class HomeScreen extends ConsumerWidget {
       label: 'Chat with Mink',
       description: 'Your on-device assistant',
       route: Routes.chat,
+      tier4: true,
     ),
     _HomeAction(
       icon: Icons.folder_outlined,
@@ -64,6 +66,12 @@ class HomeScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    // Tier-4 floor (Phase 11b): below the AI floor, Mink surfaces render
+    // disabled-not-hidden. Defaults to available while the profiler state loads
+    // or before it has run (onboarding handles first-run).
+    final atFloor = ref
+        .watch(profilerStateProvider)
+        .maybeWhen(data: (s) => s?.isFloor ?? false, orElse: () => false);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -104,6 +112,8 @@ class HomeScreen extends ConsumerWidget {
                     icon: action.icon,
                     label: action.label,
                     description: action.description,
+                    enabled: !(action.tier4 && atFloor),
+                    disabledTooltip: l10n.homeMinkUnavailable,
                     onTap: () => context.push(action.route),
                   ),
                   const SizedBox(height: AppTokens.spacingSm),
@@ -129,10 +139,14 @@ class _HomeAction {
     required this.label,
     required this.description,
     required this.route,
+    this.tier4 = false,
   });
 
   final IconData icon;
   final String label;
   final String description;
   final String route;
+
+  /// Whether this action needs the Tier-4 engine (disabled at the AI floor).
+  final bool tier4;
 }

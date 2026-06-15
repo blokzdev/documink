@@ -223,7 +223,24 @@ on-device model). Settings → On-device AI.
   `model_install` / `model_uninstall` rows for the above actions (metadata = ids/versions/score only,
   no PII).
 - ☐ **Manifest-version bump** — after the signed manifest's version increases, the next unlock writes
-  one `manifest_update` audit row (the before/after prompt lands in 11b).
+  one `manifest_update` audit row.
+
+## Tier-4 onboarding + floor UX (Phase 11b)
+
+Widget-tested headless; these need a real device for the first-run flow + a11y.
+- ☐ **First-run onboarding** — a freshly created vault routes **unlock → "Meet Mink"** (not Home);
+  the profiler runs and shows the recommended tier. **Accept & download** lands at Home with the model
+  ready; **Skip** lands at Home with AI off; **Show options** lets you pick Specialized / an opt-in
+  tier before downloading.
+- ☐ **No re-prompt** — after onboarding (accept or skip), relaunch + unlock goes **straight to Home**
+  (the profiler has run; the step isn't shown again).
+- ☐ **Floor onboarding** — on a below-floor device the step shows the honest floor reason + **Continue**
+  (+ Re-check), no download.
+- ☐ **Home floor gating** — on a below-floor device the **"Chat with Mink"** card is **visibly disabled
+  (greyed, lock icon), not hidden**; TalkBack announces it as disabled with the "Needs a more capable
+  device" reason; all other actions stay enabled.
+- ☐ **Recovery** — "Re-check my device" after freeing RAM/storage re-qualifies and re-enables the
+  Mink surfaces.
 
 ## UI / accessibility (Phases 5, 16)
 

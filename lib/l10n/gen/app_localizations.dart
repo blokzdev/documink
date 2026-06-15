@@ -1203,6 +1203,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Redaction and detection still work fully — only the AI assistant is unavailable.'**
   String get aiFloorStillWorks;
+
+  /// First-run AI onboarding title.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet Mink'**
+  String get onboardingTitle;
+
+  /// First-run AI onboarding intro paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Mink is your on-device assistant. It runs entirely on this device — nothing is sent to a server. Add it now, or anytime in Settings.'**
+  String get onboardingIntro;
+
+  /// Download + enable the selected model.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept & download'**
+  String get onboardingAccept;
+
+  /// Skip AI setup and continue to the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get onboardingSkip;
+
+  /// Reveal alternative model variants/tiers.
+  ///
+  /// In en, this message translates to:
+  /// **'Show options'**
+  String get onboardingShowOptions;
+
+  /// Proceed past the floor onboarding state.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// Size caution tag on an opt-in tier.
+  ///
+  /// In en, this message translates to:
+  /// **'larger download'**
+  String get onboardingOptInWarning;
+
+  /// Tooltip on the disabled Mink action at the AI floor.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a more capable device'**
+  String get homeMinkUnavailable;
 }
 
 class _AppLocalizationsDelegate

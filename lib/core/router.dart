@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/custom_entities/custom_entity_definition.dart';
+import '../features/llm/llm_providers.dart';
 import '../services/vault_providers.dart';
 import '../ui/screens/ai_settings_screen.dart';
 import '../ui/screens/audit_log_screen.dart';
@@ -12,6 +13,7 @@ import '../ui/screens/custom_entity_form_screen.dart';
 import '../ui/screens/custom_entity_types_screen.dart';
 import '../ui/screens/document_detail_screen.dart';
 import '../ui/screens/home_screen.dart';
+import '../ui/screens/onboarding_ai_screen.dart';
 import '../ui/screens/paste_editor_screen.dart';
 import '../ui/screens/placeholder_screen.dart';
 import '../ui/screens/project_detail_screen.dart';
@@ -29,6 +31,7 @@ import 'routes.dart';
 GoRouter createRouter(Ref ref) {
   final refresh = ValueNotifier<int>(0);
   ref.listen(appUnlockedProvider, (_, __) => refresh.value++);
+  ref.listen(aiOnboardingProvider, (_, __) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
@@ -39,12 +42,22 @@ GoRouter createRouter(Ref ref) {
       final atUnlock = state.matchedLocation == Routes.unlock;
       if (!unlocked) return atUnlock ? null : Routes.unlock;
       if (atUnlock) return Routes.home;
+      // First-run Tier-4 onboarding gate (Phase 11b): owed until the profiler
+      // has run once. The flag is synchronous; see aiOnboardingProvider.
+      final needsOnboarding = ref.read(aiOnboardingProvider);
+      final atOnboarding = state.matchedLocation == Routes.onboarding;
+      if (needsOnboarding && !atOnboarding) return Routes.onboarding;
+      if (!needsOnboarding && atOnboarding) return Routes.home;
       return null;
     },
     routes: [
       GoRoute(
         path: Routes.unlock,
         builder: (context, state) => const VaultUnlockScreen(),
+      ),
+      GoRoute(
+        path: Routes.onboarding,
+        builder: (context, state) => const OnboardingAiScreen(),
       ),
       GoRoute(
         path: Routes.home,
