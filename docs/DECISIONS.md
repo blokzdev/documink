@@ -1194,3 +1194,41 @@ Decisions made autonomously (recommended options), specs not fully determining t
 - **Choice:** **B.** Captured in **ADR-018**.
 - **Rationale:** blueprint §3.2 already marks those consumers "activation V1.2"; no published,
   arm64-prebuilt, SQLCipher-compatible binding exists on the frozen toolchain.
+
+## 2026-06-15 — V1 P12d: Mink conversational layer (high-stakes, fuller logging)
+
+Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the memory core, so
+12d is the brain (`MinkService`/`ToolRegistry`/`ContextAssembler`/`ChatRepository`). Decisions:
+
+- **Memory tools bypass the project-permission gate.** `ToolPermissionRegistry` only governs the
+  §5 *action* tools; the four memory tools are dispatched by the deterministic, PII-guarded
+  `MemoryRouter` (memory.md §4), which is itself the gate. `MinkService` therefore runs memory
+  tools directly (no `evaluate`), but still **audits** each as `mink_tool_call{decision:'memory'}`.
+  *Rationale:* memory is Mink's own faculty, always available; the router + write guard already
+  enforce PII safety. Treating memory as a project permission would wrongly deny it (it isn't in
+  the registry's `tools` map). No invariant weakened — every memory write still passes the guard.
+- **Audit event type for memory ops.** Used the existing `mink_tool_call` for all Mink tool
+  executions (incl. memory writes), with PII-safe metadata (tool name + decision only — never
+  args/content). The dedicated `mink_memory_write/update/delete` event types memory.md §8 names
+  are deferred to the Mink-Memory UI slice (12f); logged so it isn't lost.
+- **`decode_token` is self-gating (forward-looking).** It will reveal via `RevealService`, which
+  already authenticates + audits the reveal. To avoid a double biometric prompt, `MinkService`'s
+  central `Authenticator` gate skips `decode_token` (listed in `_selfGatingTools`). It is **not
+  wired** in 12d (no reveal-from-chat yet); the seam is in place for 12e/12f.
+- **Tool set scoped to memory(4) + `search_documents` + `list_entities`.** These are clean,
+  plaintext-free delegations that exercise every gate path (allow / deny / biometric / unknown /
+  PII-rejection). `summarize_document`/`rewrite_content`/`expand_content` (LLM-over-redacted-text),
+  `decode_token` (biometric reveal), and the mutating tools (`anonymize_document`,
+  `export_document`, `create_custom_entity`, `modify_policy`) are a focused follow-up — kept out
+  of 12d to keep the security-sensitive turn loop reviewable. Unwired-but-known tools return a
+  failed outcome ("not available in this build") so Mink degrades gracefully.
+- **Biometric gate is centralized in `MinkService`** (not per-tool): a tool resolving to
+  `allowWithBiometric` (via `decode`'s `biometric:true` or a manifest `requires_biometric` level)
+  prompts once, audits `biometricResult`, and denies on failure. Tested via a `requires_biometric`
+  read permission so the path is covered before `decode_token` exists.
+- **Tier-scaled episodic, no streaming.** Episodic recall count scales by tier and auto-capture is
+  disabled at Minimum/floor (memory.md §7); capture records only PII-safe tool-name summaries,
+  best-effort (failures swallowed, never fails a turn). The `LlmBackend` seam is single-shot
+  `generate`; **true token streaming is deferred** (would extend the seam + the `flutter_gemma`
+  adapter) — V1 chat shows a thinking indicator. Consent-gated document-snippet context injection
+  and cross-project access are also deferred to later Phase-12 slices.

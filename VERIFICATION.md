@@ -61,6 +61,25 @@ an item here in the same PR.
 - ☐ **Tool dispatch + biometric gate** — `decode_token` prompts biometric; permission
   denials surface transparently and audit-log `permission_denied`.
 
+### 12d — conversational layer (`MinkService` turn loop)
+
+The whole loop is fake-tested headless (`test/features/mink/`, `test/features/chat/`); these
+need a **real on-device model** loaded (Standard tier+) to verify behaviour with Gemma:
+
+- ☐ **Real tool-call reliability** — Gemma 4 E2B emits well-formed `{"tool","args"}` JSON that
+  `parseToolInvocation` accepts often enough to be useful (and falls back to plain answers cleanly
+  when it doesn't). *Where:* chat with AI enabled; *Device:* phone at Standard+.
+- ☐ **Answer quality / no PII leakage** — Mink references values as `<TYPE>`/token-refs and never
+  emits decoded personal data in replies. *Device:* phone, with a redacted document in scope.
+- ☐ **Latency + memory under the loop** — multi-iteration tool turns stay within the perf ceilings
+  (no OOM on a mid-tier device). *Device:* phone at Standard + a Light-tier device.
+- ☐ **Episodic auto-capture is tier-correct on device** — a chat turn that runs a tool writes one
+  PII-safe `episode_type:'chat'` entry at Standard+, and **nothing** at Minimum/floor. *Where:*
+  Settings → Mink Memory (12f) after a chat; *Device:* phone re-profiled to each tier.
+- ☐ **Biometric gate, real prompt** — a tool resolving to `allow_with_biometric` triggers the OS
+  biometric/credential sheet; cancelling denies the tool and audits `biometricResult:'failed'`.
+  *Device:* phone with biometrics enrolled. *(decode_token's own reveal gate verified in 12e/12f.)*
+
 ## Sync transport (Phase 8 — beyond crypto core)
 
 - ☐ **BYOC Google Drive** OAuth + encrypted delta push/pull.
