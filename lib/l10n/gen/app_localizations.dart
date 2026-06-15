@@ -1083,6 +1083,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Response'**
   String get aiResponseTitle;
+
+  /// Shown before the profiler has run.
+  ///
+  /// In en, this message translates to:
+  /// **'Check whether this device can run on-device AI. Nothing is downloaded yet.'**
+  String get aiNotProfiled;
+
+  /// Runs the capability profiler for the first time.
+  ///
+  /// In en, this message translates to:
+  /// **'Check my device'**
+  String get aiCheckDevice;
+
+  /// Re-runs the capability profiler.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check my device'**
+  String get aiRecheck;
+
+  /// Label above the recommended tier.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for your device'**
+  String get aiTierRecommended;
+
+  /// Capability tier field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Tier'**
+  String get aiTierLabel;
+
+  /// Model variant field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Variant'**
+  String get aiVariantLabel;
+
+  /// The Balanced model variant.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get aiVariantBalanced;
+
+  /// The Specialized model variant.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialized'**
+  String get aiVariantSpecialized;
+
+  /// Model id/name field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get aiModelLabel;
+
+  /// Download size field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get aiSizeLabel;
+
+  /// Capability score field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Device score'**
+  String get aiScoreLabel;
+
+  /// Header for the model management controls.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get aiManageTitle;
+
+  /// Label for the tier override dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Override tier'**
+  String get aiTierOverride;
+
+  /// Deletes the on-device model file.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove downloaded model'**
+  String get aiRemove;
+
+  /// Floor-state title (device below minimum).
+  ///
+  /// In en, this message translates to:
+  /// **'On-device AI isn\'t available here'**
+  String get aiFloorTitle;
+
+  /// Floor reason: insufficient capability score.
+  ///
+  /// In en, this message translates to:
+  /// **'This device doesn\'t have enough capability headroom to run the on-device assistant.'**
+  String get aiFloorScore;
+
+  /// Floor reason: insufficient RAM.
+  ///
+  /// In en, this message translates to:
+  /// **'This device doesn\'t have enough memory (RAM) to run the on-device assistant.'**
+  String get aiFloorRam;
+
+  /// Floor reason: insufficient storage.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn\'t enough free storage to download and run the on-device assistant.'**
+  String get aiFloorStorage;
+
+  /// Floor reason: no qualifying tier.
+  ///
+  /// In en, this message translates to:
+  /// **'No on-device assistant is available for this device.'**
+  String get aiFloorNoTier;
+
+  /// Reassurance shown in the floor state.
+  ///
+  /// In en, this message translates to:
+  /// **'Redaction and detection still work fully — only the AI assistant is unavailable.'**
+  String get aiFloorStillWorks;
 }
 
 class _AppLocalizationsDelegate

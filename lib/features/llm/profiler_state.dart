@@ -42,21 +42,29 @@ class ProfilerState {
   bool get isFloor => tier == noTier;
 
   ProfilerState copyWith({
+    String? tier,
+    VariantKind? variant,
+    String? modelId,
+    int? manifestVersion,
     DownloadState? downloadState,
+    double? score,
+    int? ranAtEpochMs,
+    List<String>? optInAvailable,
     UserPreference? userPreference,
     bool? optInTierEnabled,
+    FloorReason? floorReason,
   }) => ProfilerState(
-    tier: tier,
-    variant: variant,
-    modelId: modelId,
-    manifestVersion: manifestVersion,
+    tier: tier ?? this.tier,
+    variant: variant ?? this.variant,
+    modelId: modelId ?? this.modelId,
+    manifestVersion: manifestVersion ?? this.manifestVersion,
     downloadState: downloadState ?? this.downloadState,
-    score: score,
-    ranAtEpochMs: ranAtEpochMs,
-    optInAvailable: optInAvailable,
+    score: score ?? this.score,
+    ranAtEpochMs: ranAtEpochMs ?? this.ranAtEpochMs,
+    optInAvailable: optInAvailable ?? this.optInAvailable,
     userPreference: userPreference ?? this.userPreference,
     optInTierEnabled: optInTierEnabled ?? this.optInTierEnabled,
-    floorReason: floorReason,
+    floorReason: floorReason ?? this.floorReason,
   );
 
   Map<String, dynamic> toJson() => {

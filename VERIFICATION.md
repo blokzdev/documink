@@ -203,6 +203,28 @@ All device-only; the runtime is `UnavailableLlmBackend` until activated. Full ru
 - ☐ **Graceful degradation** — with AI not enabled (or on a below-Standard device), detection +
   the rest of the app work unchanged (backend stays Unavailable).
 
+## Tier-4 UX — profiler + Settings → AI Model (Phase 11a)
+
+Pure-Dart orchestration is fake-tested; these need a real device (the native signal collector + the
+on-device model). Settings → On-device AI.
+- ☐ **Real device-signal collector** — `AndroidDeviceSignalCollector` (the `documink/device_signals`
+  channel) returns sane RAM / free-storage / CPU-core / OS-version values (sanity-check against the
+  device's actual specs).
+- ☐ **Profiler picks the expected tier** — *Check my device* selects the tier you'd expect for the
+  phone (e.g. Standard on a ≥ 4 GB device); a low-RAM device/emulator lands at the floor with the
+  correct reason copy.
+- ☐ **Enablement persists across restart** — enable + download the model, force-quit, relaunch +
+  unlock: the engine auto-restores to **ready** (no re-download) via `AiActivationService`.
+- ☐ **Variant switch / tier override** — toggling Balanced↔Specialized and the tier dropdown
+  downloads the right model and re-points the backend; each writes an audit row.
+- ☐ **Remove model** — *Remove downloaded model* deletes the file, disables the engine, and frees the
+  space; re-enable works afterwards.
+- ☐ **No-silent-swap audit** — Settings → Audit Log shows `tier_change` / `variant_change` /
+  `model_install` / `model_uninstall` rows for the above actions (metadata = ids/versions/score only,
+  no PII).
+- ☐ **Manifest-version bump** — after the signed manifest's version increases, the next unlock writes
+  one `manifest_update` audit row (the before/after prompt lands in 11b).
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.

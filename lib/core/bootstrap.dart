@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flavors/flavor.dart';
 import 'router.dart';
+import '../features/llm/ai_activation_service.dart';
+import '../features/llm/android_device_signal_collector.dart';
 import '../features/llm/http_model_source.dart';
 import '../features/llm/llm_providers.dart';
 import '../features/llm/model_store.dart';
@@ -72,6 +74,11 @@ Future<void> bootstrap(Flavor flavor) async {
         // (flutter_gemma) loads it. Device-verified (VERIFICATION.md).
         modelSourceProvider.overrideWithValue(const HttpModelSource()),
         modelStoreProvider.overrideWithValue(ModelStore(supportDir)),
+        // Phase 11: real device-capability signals for the profiler (RAM/storage/
+        // cores/OS via a first-party channel). Device-verified (VERIFICATION.md).
+        deviceSignalCollectorProvider.overrideWithValue(
+          const AndroidDeviceSignalCollector(),
+        ),
       ],
       child: const DocuMinkApp(),
     ),
@@ -103,9 +110,26 @@ class _DocuMinkAppState extends ConsumerState<DocuMinkApp> {
         navigateToEditor: (text) => router.push(Routes.paste, extra: text),
       );
       _shareCoordinator = coordinator;
+      // Phase 11: re-enable a previously-downloaded Tier-4 model on unlock so
+      // enablement survives restarts (activation is otherwise in-memory).
+      // Best-effort: guard the provider read so an environment without the
+      // bootstrap-wired model store (e.g. full-app widget tests) doesn't crash
+      // startup — AI just stays Unavailable there.
+      void restoreAi() {
+        try {
+          ref.read(aiActivationServiceProvider).restoreOnUnlock();
+        } catch (_) {
+          // Providers not wired (tests) — skip restore.
+        }
+      }
+
       ref.listenManual(appUnlockedProvider, (_, unlocked) {
-        if (unlocked) coordinator.onUnlocked();
+        if (unlocked) {
+          coordinator.onUnlocked();
+          restoreAi();
+        }
       });
+      if (ref.read(appUnlockedProvider)) restoreAi();
       coordinator.start();
     });
   }

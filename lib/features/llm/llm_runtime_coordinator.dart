@@ -33,6 +33,11 @@ class LlmRuntimeCoordinator {
   _ensureModel;
   final LlmBackend Function(String) _backendFactory;
 
+  /// Builds an [LlmBackend] from a local model path (the bootstrap-wired
+  /// `flutter_gemma` factory). Exposed so [AiActivationService] can rebuild the
+  /// backend on unlock without re-downloading.
+  LlmBackend Function(String modelPath) get backendFactory => _backendFactory;
+
   /// Whether a Tier-4 model is selected for this device (not floor). Cheap —
   /// reads the persisted profiler state only.
   Future<bool> isEligible() async {
