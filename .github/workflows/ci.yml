@@ -46,15 +46,28 @@ jobs:
           flutter-version: '3.38.6'
           cache: true
       - run: flutter pub get
-      # Release build doesn't require signing config, produces app-prod-release.apk
-      - run: flutter build apk --flavor prod --release -t lib/main_prod.dart
+      # Build a single arm64 release APK — the realistic per-device download for
+      # a Tier-4 phone. --target-platform restricts the AOT + native assets to
+      # arm64; --split-per-abi gives a clean per-ABI artifact and avoids the
+      # Flutter plugin's all-ABI abiFilters override (see app build.gradle.kts +
+      # docs/reference/flutter_gemma.md). The trimmed LiteRT native libs are
+      # dropped via packaging.jniLibs.excludes there.
+      - run: flutter build apk --flavor prod --release -t lib/main_prod.dart --target-platform android-arm64 --split-per-abi
+      - name: Inspect native libs (diagnostic)
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk"
+          echo "=== native (.so) libs packaged in the arm64 APK (compressed sizes) ==="
+          unzip -l "$APK_PATH" | awk '/\.so$/ {printf "%12d  %s\n", $1, $4}' | sort -rn
       - name: Enforce Size Limit
         run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-prod-release.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk"
           SIZE=$(stat -c%s "$APK_PATH")
-          echo "APK size: $SIZE bytes"
-          if [ "$SIZE" -gt 157286400 ]; then
-            echo "Error: APK size exceeds 150MB limit."
+          echo "prod arm64 release APK size: $SIZE bytes"
+          # 200 MB = Google Play's base-APK download limit. The on-device-AI
+          # build (trimmed LiteRT native libs) must stay under it. The model
+          # itself is downloaded on demand, never in the APK (models.md §2.4).
+          if [ "$SIZE" -gt 209715200 ]; then
+            echo "Error: prod arm64 APK exceeds the 200MB Play base-APK limit."
             exit 1
           fi
 

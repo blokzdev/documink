@@ -63,28 +63,37 @@ Only two things live on our infrastructure for the model system:
 1. **`manifest.json`** — tiny (few KB), Ed25519-signed, hosted at `documink.ai/models/manifest.json`. Fetched weekly with exponential backoff. This is the *only* always-our-infrastructure artifact for model distribution.
 2. **Emergency mirrors** (not normally used) — reserved for scenarios where HuggingFace or Play Asset Delivery is unavailable. These are cold-storage R2 buckets that only get activated if a manifest update flag points to them. Not a distribution primary.
 
-### 2.4 Tier-4 **runtime** delivery (native libraries) — on-demand, NOT in the base APK
+### 2.4 Tier-4 **runtime** delivery (native libraries) — arm64-only base, trimmed
 
-**The gap this corrects (Phase 10b finding):** §2.1–2.3 cover delivering the *model file* on-demand,
-but the Tier-4 **runtime native libraries** must also stay out of the base APK. Measured in 10b:
-adding `flutter_gemma` (LiteRT) to the base build produced an **arm64-v8a APK of ~238 MB** — over
-Google Play's ~200 MB base-APK limit — because LiteRT ships large `.so` per ABI (libLiteRtLm ~34 MB,
-WebGPU accelerator ~22 MB, GemmaModelConstraintProvider ~22 MB, plus `qdrant_edge` RAG ~23 MB we
-don't use). Trimming the unused libs still lands ~170 MB. Bundling the runtime in the base APK is
-therefore **not viable**.
+**Why not a dynamic feature module (superseded approach):** §2.1–2.3 deliver the *model file*
+on-demand, but the LiteRT/`flutter_gemma` **runtime `.so`** (~110 MB arm64) also can't sit in the
+base APK at universal scale (10b measured ~238 MB). The first plan was a Play **dynamic feature
+module** for the runtime — but Flutter's deferred components **cannot defer a plugin's native
+libraries** (they go in the module whose Dart uses them, and the plugin tooling targets the base app
+module). So that path is not toolchain-supported. (See
+`docs/reference/flutter_deferred_components.md`.)
 
-**Decision:** the Tier-4 LLM **runtime libs are delivered on-demand**, only to devices that qualify
-for a Tier-4 tier (profiler ≥ Minimum/Standard), via **Play Feature Delivery** (an on-demand
-**dynamic feature module** carrying the LiteRT/`flutter_gemma` native libs) — paired with the model
-download (§2.1). On Windows V2 the runtime ships with the desktop installer. The **base APK contains
-no LLM runtime**; below-tier and not-yet-downloaded states fall back to `UnavailableLlmBackend`
-(graceful — Tiers 1–3 detection are unaffected). Flutter's deferred-components mechanism + an Android
-dynamic feature module is the implementation path; this is a dedicated device-bound slice (see
-Roadmap Phases 10–11 / DECISIONS.md).
+**Decision (implemented in 10b):** ship the runtime in the **base APK, arm64-v8a only, with unused
+native libs trimmed** — no feature module:
+- **arm64-v8a only, enforced at build time** — `flutter build apk --target-platform android-arm64
+  --split-per-abi`. Note `ndk { abiFilters 'arm64-v8a' }` is a **no-op** on non-split builds (Flutter
+  overwrites build-type `abiFilters` with all default ABIs), so the CLI flags are the real lever; the
+  Play **AAB** keeps all ABIs and Play does per-ABI delivery. LiteRT's `.litertlm`/FFI/vision are
+  arm64-only anyway.
+- **Trim ~97 MB** of the 146 MB arm64 native-asset payload via `packaging.jniLibs.excludes`:
+  `libqdrant_edge_ffi.so` (RAG, 18.3 MB); `libLiteRtWebGpuAccelerator.so` +
+  `libLiteRtTopKWebGpuSampler.so` (WebGPU, desktop-only — 9.0 MB); `libGemmaModelConstraintProvider.so`
+  (grammar constraints, 19.2 MB); and the **Qualcomm QNN NPU runtime stack** (~50.7 MB, optional). These
+  ship via Flutter Native Assets but still go through `jniLibs`, so AGP excludes apply. Kept:
+  `libLiteRtLm` + `StreamProxy` + Android GPU/OpenCL accelerators. If a device throws
+  `UnsatisfiedLinkError` for an excluded lib, drop that exclude (VERIFICATION.md). Full measured
+  breakdown: `docs/reference/flutter_gemma.md`.
+- **CI-confirmed APK size: 150.7 MB arm64 → under Play's 200 MB base-APK limit**, no runtime module.
+- The **model** is still downloaded on demand + SHA-256-verified (§2.1 / 10c), never bundled.
+  Below-tier / not-yet-downloaded → `UnavailableLlmBackend` (graceful; Tiers 1–3 unaffected).
 
-**`apk-size-check` stays on the base APK** (universal, 150 MB) — which is now meaningful precisely
-*because* the runtime is not in it. Per-ABI / dynamic-module size budgets are defined when the
-delivery slice lands.
+**`apk-size-check`** builds the arm64 split `prod` release APK (the real per-device size) and
+enforces **≤ 200 MB** (Play's base-APK limit). Windows V2 runtime ships with the desktop installer.
 
 ---
 
@@ -168,10 +177,10 @@ Gemini Nano (Android) and Phi Silica (Windows) are delivered and managed by the 
 
 ### 4.6 Runtime implementation status (Roadmap Phases 10–11)
 
-- **Phase 10a (done):** `LlmBackend` seam (`lib/features/llm/llm_backend.dart`) + the Path-B `DomainInferenceService` — pure-Dart, fake-tested. The Tier-4 surface the rest hangs off.
-- **Runtime package (validated, not yet shipped):** `flutter_gemma` (MIT; wraps LiteRT-LM) consumes the Gemma `.task` models and **resolves on the pinned Flutter 3.38.6** (Gate 0 passed). The adapter + R8 rules work — but bundling its native libs in the base APK is **not viable** (§2.4, ~238 MB arm64). So the real adapter ships with the **on-demand runtime-delivery** slice (dynamic feature module, §2.4), not before.
-- **Phase 10c (next, headless):** model **download** (HTTP from the manifest `url` → app-support dir → `ModelHashVerifier` → `DownloadState`).
-- **Phase 11:** download/runtime-delivery UX + tier-gated enablement; then 14d AI-upload consumes `DomainInferenceService`. Until the runtime lands, `llmBackendProvider` stays `UnavailableLlmBackend` and the app degrades gracefully.
+- **Phase 10a (done):** `LlmBackend` seam (`lib/features/llm/llm_backend.dart`) + the Path-B `DomainInferenceService` — pure-Dart, fake-tested.
+- **Phase 10c (done):** `ModelDownloadService` + `ModelSource`/`ModelStore` + streaming SHA-256 + `DownloadState` (download → verify → store, transport-agnostic).
+- **Phase 10b (done, device-verify pending):** real runtime — `flutter_gemma` (MIT, wraps LiteRT-LM) shipped **in the base APK, arm64-only + trimmed** (§2.4); `FlutterGemmaLlmBackend` adapter (`installModel().fromFile` → `getActiveModel` → session → `getResponse`), `HttpModelSource` transport, and `LlmRuntimeCoordinator` (resolve variant → download/verify → build backend; fake-tested). Wired at bootstrap (`FlutterGemma.initialize`, model source/store). Enabled via **Settings → On-device AI** (`AiSettingsScreen`): download + load + a prompt tester. `llmBackendProvider` is `UnavailableLlmBackend` until activated (graceful). **On-device verification (build size, inference, memory, latency, lib-trim) is pending — see VERIFICATION.md + SETUP.md.**
+- **Phase 11:** profiler-driven auto-enable + tier UX (the coordinator's `activate()` path); then 14d AI-upload consumes `DomainInferenceService`.
 
 ---
 

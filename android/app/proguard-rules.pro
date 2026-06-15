@@ -15,3 +15,14 @@
 # Keep the Latin recognizer we DO use (the plugin ships no consumer R8 rules —
 # flutter-ml/google_ml_kit_flutter#744 — so be explicit).
 -keep class com.google.mlkit.vision.text.latin.** { *; }
+
+# flutter_gemma / MediaPipe LiteRT (Phase 10b on-device LLM). The plugin's own
+# consumer rules keep the MediaPipe/protobuf classes, but R8 still errors on
+# optional references absent from the release classpath (auto-value @Memoized;
+# MediaPipe profiling/template protos). We don't exercise those paths; suppress
+# the missing-class errors and keep the JNI-invoked runtime classes.
+-dontwarn com.google.auto.value.**
+-dontwarn com.google.mediapipe.**
+-keep class com.google.mediapipe.** { *; }
+-keep class com.google.protobuf.** { *; }
+-dontwarn com.google.protobuf.**

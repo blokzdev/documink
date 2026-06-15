@@ -13,6 +13,18 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
+        <!-- Tier-4 (Phase 10b): optional OpenCL GPU acceleration for the
+             flutter_gemma/LiteRT runtime. Not required — falls back to CPU when
+             absent, so this never gates install. -->
+        <uses-native-library
+            android:name="libOpenCL.so"
+            android:required="false" />
+        <uses-native-library
+            android:name="libOpenCL-car.so"
+            android:required="false" />
+        <uses-native-library
+            android:name="libOpenCL-pixel.so"
+            android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -164,6 +164,44 @@ Not set up yet; ask when you're ready.
 
 ---
 
+## 9. Verify the on-device AI engine (Gemma 4 E2B) — device session
+
+The Tier-4 runtime (LiteRT via `flutter_gemma`) ships in the base APK, **arm64-only +
+trimmed** (no dynamic feature module — see `docs/models.md` §2.4). The model is **downloaded
+on demand**, not bundled. The agent built it behind seams + got CI green but **cannot build an
+APK or run inference** — do this on your Windows laptop + an **arm64 Android phone** (≥ 4 GB RAM
+for Standard tier). Report results so the agent can iterate.
+
+1. **Toolchain:** `flutter --version` (3.38.6), `flutter doctor` (Android SDK/NDK OK), `flutter pub get`.
+2. **Build the test APK** (single arm64 prod release; debug-signed is fine for sideload):
+   ```powershell
+   flutter build apk --flavor prod --release -t lib/main_prod.dart --target-platform android-arm64 --split-per-abi
+   # → build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk  (~151 MB)
+   ```
+   Confirm size **< 200 MB**. Install:
+   `adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk`.
+   (The trimmed LiteRT native libs — QNN NPU stack, qdrant RAG, WebGPU, constraint
+   provider — are dropped via `packaging.jniLibs.excludes`; see
+   `docs/reference/flutter_gemma.md`. If inference throws `UnsatisfiedLinkError`
+   for a missing `.so`, tell the agent which one to un-exclude.)
+3. **Host the model + fill the manifest** (one-time): obtain the Gemma 4 E2B file
+   (`.task` `google/gemma-4-e2b-it-task`, or `.litertlm` `litert-community/gemma-4-E2B-it-litert-lm`
+   — set `ModelFileType` to match in `FlutterGemmaLlmBackend`), host it at an HTTPS URL, then in
+   `assets/model_manifest/manifest.json` set the Standard→Balanced variant's `url` + real `sha256`
+   (`Get-FileHash -Algorithm SHA256 model.task`), re-sign with the **production** key
+   (`dart run tool/scripts/sign_manifest.dart`), and pin the printed public key in `ManifestVerifier`.
+   *(For a quick spike you can point `url` at the HuggingFace `resolve/main/...` file directly.)*
+4. **On the phone:** unlock the vault → **Settings → On-device AI → Download & enable**. Watch the
+   progress; it should reach **ready** (download + SHA-256 verify + load).
+5. **Test inference:** type a prompt → **Run** → confirm a coherent response; try a few; watch for
+   OOM / latency. If a native lib is missing (`UnsatisfiedLinkError` in `adb logcat`), tell the agent
+   which `.so` — it'll drop that `excludes` entry in `android/app/build.gradle.kts`.
+6. **Report:** APK size, download+verify result, a sample prompt/response, rough latency, and any
+   crash logs. Tick the items in `VERIFICATION.md` → *Tier-4 on-device AI*.
+
+> Secrets stay with you: the production manifest signing key and any model-hosting credentials are
+> never held or committed by the agent.
+
 ## Versioning reference
 
 `pubspec.yaml` → `version: 1.0.0+1`. The part before `+` is `versionName`

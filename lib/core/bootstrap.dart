@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gemma/flutter_gemma.dart' show FlutterGemma;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/gen/app_localizations.dart';
@@ -8,6 +9,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flavors/flavor.dart';
 import 'router.dart';
+import '../features/llm/http_model_source.dart';
+import '../features/llm/llm_providers.dart';
+import '../features/llm/model_store.dart';
 import '../features/input/file_selector_pdf_source.dart';
 import '../features/input/flutter_pdf_text_extractor.dart';
 import '../features/input/input_providers.dart';
@@ -31,6 +35,9 @@ Future<void> bootstrap(Flavor flavor) async {
   final prefs = await SharedPreferences.getInstance();
   final supportDir = await getApplicationSupportDirectory();
   final vaultFile = File('${supportDir.path}/vault.db');
+  // Tier-4 on-device LLM runtime (Phase 10b). Initializes flutter_gemma once;
+  // the model is downloaded + verified on demand (no model bundled).
+  await FlutterGemma.initialize();
   runApp(
     ProviderScope(
       overrides: [
@@ -60,6 +67,11 @@ Future<void> bootstrap(Flavor flavor) async {
         screenSecurityProvider.overrideWithValue(
           const PlatformScreenSecurity(),
         ),
+        // Phase 10b/10c Tier-4: HTTP model transport + app-support model store.
+        // The model is downloaded + SHA-256-verified on demand; the runtime
+        // (flutter_gemma) loads it. Device-verified (VERIFICATION.md).
+        modelSourceProvider.overrideWithValue(const HttpModelSource()),
+        modelStoreProvider.overrideWithValue(ModelStore(supportDir)),
       ],
       child: const DocuMinkApp(),
     ),

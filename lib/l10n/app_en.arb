@@ -435,5 +435,35 @@
   "wizardCreate": "Create Project",
   "@wizardCreate": {"description": "Wizard: create the project."},
   "wizardBuildFromScratch": "Build from scratch (guided)",
-  "@wizardBuildFromScratch": {"description": "Template picker: launch the blank wizard."}
+  "@wizardBuildFromScratch": {"description": "Template picker: launch the blank wizard."},
+
+  "aiTitle": "On-device AI",
+  "@aiTitle": {"description": "AI settings screen title."},
+  "aiSubtitle": "Download and run Gemma on this device. Everything stays local — nothing is sent to a server.",
+  "@aiSubtitle": {"description": "AI settings intro."},
+  "aiSettingsRow": "On-device AI",
+  "@aiSettingsRow": {"description": "Settings row opening the on-device AI screen."},
+  "aiSettingsRowSubtitle": "Download and run the local AI model",
+  "@aiSettingsRowSubtitle": {"description": "Settings row subtitle for on-device AI."},
+  "aiEnable": "Download & enable",
+  "@aiEnable": {"description": "Button to download + load the on-device model."},
+  "aiDownloading": "Downloading model… {percent}%",
+  "@aiDownloading": {
+    "description": "Progress label while the model downloads.",
+    "placeholders": {"percent": {"type": "int"}}
+  },
+  "aiLoading": "Loading model…",
+  "@aiLoading": {"description": "Shown while the model loads into the runtime."},
+  "aiReady": "On-device AI is ready",
+  "@aiReady": {"description": "Shown once the model is loaded."},
+  "aiError": "Could not enable on-device AI",
+  "@aiError": {"description": "Error state for AI enablement."},
+  "aiUnsupported": "This device can't run on-device AI",
+  "@aiUnsupported": {"description": "Shown when no model variant is available."},
+  "aiPromptHint": "Ask something to test the model…",
+  "@aiPromptHint": {"description": "Hint for the test-prompt field."},
+  "aiRun": "Run",
+  "@aiRun": {"description": "Run the test prompt."},
+  "aiResponseTitle": "Response",
+  "@aiResponseTitle": {"description": "Header above the model's response."}
 }

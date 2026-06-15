@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/custom_entities/custom_entity_definition.dart';
 import '../services/vault_providers.dart';
+import '../ui/screens/ai_settings_screen.dart';
 import '../ui/screens/audit_log_screen.dart';
 import '../ui/screens/blank_wizard_screen.dart';
 import '../ui/screens/capture_screen.dart';
@@ -101,6 +102,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.aiSettings,
+        builder: (context, state) => const AiSettingsScreen(),
       ),
       GoRoute(
         path: Routes.auditLog,
