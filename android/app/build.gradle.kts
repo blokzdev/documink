@@ -66,28 +66,54 @@ android {
         create("prod") {
             dimension = "environment"
             resValue("string", "app_name", "DocuMink")
-            // Tier-4 (Phase 10b): the LiteRT/flutter_gemma runtime (.litertlm /
-            // FFI / vision) is arm64-only, so prod ships a single ABI. This keeps
-            // the on-device-AI build under Play's ~200 MB base limit without a
-            // dynamic feature module (Flutter can't defer a plugin's native libs
-            // — see docs/reference/flutter_deferred_components.md + DECISIONS.md).
-            // dev/staging keep all ABIs for emulator work.
-            ndk { abiFilters += "arm64-v8a" }
+            // Tier-4 (Phase 10b): the LiteRT/flutter_gemma runtime ships arm64-only
+            // native libs. We do NOT set ndk.abiFilters here — when --split-per-abi
+            // is NOT passed the Flutter Gradle plugin clears+overrides buildType
+            // abiFilters with all default ABIs (FlutterPlugin.kt), so a flavor-level
+            // filter is unioned away. The realistic per-device ABI is enforced at
+            // build time instead: CI / sideload build with
+            // `--target-platform android-arm64 --split-per-abi` (one arm64 APK);
+            // the Play AAB keeps all ABIs and Play does per-ABI delivery (non-arm64
+            // devices simply get no Tier-4 libs — graceful, isAvailable()==false).
+            // See docs/reference/flutter_gemma.md (APK size) + DECISIONS.md.
         }
     }
 
-    // Drop flutter_gemma/LiteRT native libs we don't use, to shrink the APK:
-    // the qdrant_edge RAG vector store, and the WebGPU accelerator + constraint
-    // provider (we use CPU/GPU(OpenCL) inference, not WebGPU or grammar
-    // constraints). If a real device throws UnsatisfiedLinkError for one of
-    // these, remove its exclude (tracked in VERIFICATION.md).
+    // Trim flutter_gemma/LiteRT native libs we don't use (~97 MB of the 146 MB
+    // android_arm64 native-asset payload — measured, see docs/reference/
+    // flutter_gemma.md). These .so are delivered via Flutter Native Assets
+    // (hook/build.dart) but still land in jniLibs, so AGP packaging excludes
+    // apply at the final merge. Kept: libLiteRtLm + StreamProxy + the Android
+    // GPU/OpenCL accelerators + OpenCL TopK sampler (CPU/GPU inference path).
+    // Dropped below: the qdrant_edge RAG store (we use our own memory layer),
+    // the WebGPU accelerator + its TopK sampler (Linux/Windows GPU — dead weight
+    // on Android), the grammar/structured-output constraint provider (we do plain
+    // text generation), and the entire Qualcomm QNN NPU runtime stack (NPU is an
+    // optional accelerator; the model still runs on CPU/GPU). If a real device
+    // throws UnsatisfiedLinkError for one of these, drop its exclude (tracked in
+    // VERIFICATION.md).
     packaging {
         jniLibs {
             excludes += listOf(
+                // qdrant-edge RAG vector store (18.3 MB) — unused.
                 "**/libqdrant_edge_ffi.so",
+                // WebGPU GPU backend + sampler (9.0 MB) — desktop-only, dead on Android.
                 "**/libLiteRtWebGpuAccelerator.so",
                 "**/libLiteRtTopKWebGpuSampler.so",
+                // Grammar/structured-output constraints (19.2 MB) — unused.
                 "**/libGemmaModelConstraintProvider.so",
+                // Qualcomm QNN NPU runtime stack (~50.7 MB) — optional accelerator.
+                "**/libLiteRtDispatch_Qualcomm.so",
+                "**/libQnnHtp.so",
+                "**/libQnnSystem.so",
+                "**/libQnnHtpV73Stub.so",
+                "**/libQnnHtpV73Skel.so",
+                "**/libQnnHtpV75Stub.so",
+                "**/libQnnHtpV75Skel.so",
+                "**/libQnnHtpV79Stub.so",
+                "**/libQnnHtpV79Skel.so",
+                "**/libQnnHtpV81Stub.so",
+                "**/libQnnHtpV81Skel.so",
             )
         }
     }
