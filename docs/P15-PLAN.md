@@ -38,11 +38,17 @@ projects, and — added in P14d — personal templates).
 
 ## 3. Plan — slices
 
-### 15b-1 — Filterable, paginated, localized viewer
+### 15b-1 — Filterable, paginated, localized viewer ✅ (this PR)
 - **Filter bar**: an event-type filter (multi-select chips or a bottom-sheet of grouped types) + a
   time-range selector (All / 24h / 7d / 30d, mapping to `sinceEpochMs`). Drive a new
   family/`StateProvider`-backed `auditEntriesProvider` that passes `eventTypes` + `sinceEpochMs` to
   `AuditLogRepository.query`.
+  - **Shipped:** `AuditViewNotifier`/`auditViewProvider` (range + selected types + `limit`); the
+    `auditEntriesProvider` is now a function of it. Range = a row of `ChoiceChip`s; types = a grouped
+    multi-select bottom sheet (a `filter_list` button with a count badge). `auditRangeSince` maps the
+    window. Pagination is a "Load more" footer growing `limit` by `auditPageSize` (50). Event labels
+    come from a pure, unit-tested `prettifyAuditEvent` (event types are canonical data, shown the way
+    raw PII labels already are). The whole screen is localized (`audit*` ARB keys).
 - **Pagination**: replace the flat `limit: 200` with incremental paging (`limit`/`offset`) — a
   "Load more" footer or scroll-to-end trigger; keeps memory bounded for long histories.
 - **Human-readable labels + grouping**: map each `AuditEventType` to a localized label + icon

@@ -1210,6 +1210,108 @@ abstract class AppLocalizations {
   /// **'Saved to your templates'**
   String get projectPersonalTemplateSaved;
 
+  /// Audit log screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get auditLogTitle;
+
+  /// Audit log error state title.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the log'**
+  String get auditLogLoadError;
+
+  /// Audit log empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet'**
+  String get auditLogEmptyTitle;
+
+  /// Audit log empty state message.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy-relevant actions (saves, reveals, deletes, …) are recorded here.'**
+  String get auditLogEmptyMessage;
+
+  /// Audit time-range filter: no limit.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get auditRangeAll;
+
+  /// Audit time-range filter: last 24 hours.
+  ///
+  /// In en, this message translates to:
+  /// **'24h'**
+  String get auditRangeDay;
+
+  /// Audit time-range filter: last 7 days.
+  ///
+  /// In en, this message translates to:
+  /// **'7d'**
+  String get auditRangeWeek;
+
+  /// Audit time-range filter: last 30 days.
+  ///
+  /// In en, this message translates to:
+  /// **'30d'**
+  String get auditRangeMonth;
+
+  /// Tooltip for the audit event-type filter button.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by type'**
+  String get auditFilterTooltip;
+
+  /// Title of the event-type filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by event type'**
+  String get auditFilterTitle;
+
+  /// Clears the selected event-type filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get auditFilterClear;
+
+  /// Loads the next page of audit entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get auditLoadMore;
+
+  /// Audit event-type group: documents.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get auditGroupDocuments;
+
+  /// Audit event-type group: security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get auditGroupSecurity;
+
+  /// Audit event-type group: on-device AI.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get auditGroupAi;
+
+  /// Audit event-type group: projects & templates.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get auditGroupProjects;
+
+  /// Audit event-type group: sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get auditGroupSync;
+
   /// AI settings screen title.
   ///
   /// In en, this message translates to:
