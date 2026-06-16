@@ -634,6 +634,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectPersonalTemplateSaved => 'Saved to your templates';
 
   @override
+  String get auditLogTitle => 'Audit log';
+
+  @override
+  String get auditLogLoadError => 'Could not load the log';
+
+  @override
+  String get auditLogEmptyTitle => 'No activity yet';
+
+  @override
+  String get auditLogEmptyMessage =>
+      'Privacy-relevant actions (saves, reveals, deletes, …) are recorded here.';
+
+  @override
+  String get auditRangeAll => 'All';
+
+  @override
+  String get auditRangeDay => '24h';
+
+  @override
+  String get auditRangeWeek => '7d';
+
+  @override
+  String get auditRangeMonth => '30d';
+
+  @override
+  String get auditFilterTooltip => 'Filter by type';
+
+  @override
+  String get auditFilterTitle => 'Filter by event type';
+
+  @override
+  String get auditFilterClear => 'Clear';
+
+  @override
+  String get auditLoadMore => 'Load more';
+
+  @override
+  String get auditGroupDocuments => 'Documents';
+
+  @override
+  String get auditGroupSecurity => 'Security';
+
+  @override
+  String get auditGroupAi => 'AI';
+
+  @override
+  String get auditGroupProjects => 'Projects';
+
+  @override
+  String get auditGroupSync => 'Sync';
+
+  @override
   String get aiTitle => 'On-device AI';
 
   @override
