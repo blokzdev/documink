@@ -408,12 +408,14 @@ Plan of record: **`docs/P13-PLAN.md`** (sub-PRs 13a–13d). Two-layer engine —
 
 ### Phase 14 — Projects & templates
 
-Plan of record: **`docs/P14-PLAN.md`**. **Status:** 14a–14c shipped (PRs #60–#65); **14d** (AI-scaffolded
-upload path + personal templates) and the remote signed-template refresh remain.
+Plan of record: **`docs/P14-PLAN.md`**. **Status:** **14a–14d shipped** (PRs #60–#65, #84 + the 14d-2
+UI PR). Deferred: richer scaffold generation (suggested entities/persona), remote signed-template
+refresh, CRDT personal-template sync.
 
 - **Sub-PRs:** 14a Projects core (repo CRUD + versioning + isolation + audit) · 14b signed Verified
-  templates + picker (Path A) · 14c list/detail/settings + Blank Wizard (Path C) · 14d upload→
-  `DomainInferenceService` (Path B) + "AI-scaffolded" badge + personal-template save (behind seams).
+  templates + picker (Path A) · 14c list/detail/settings + Blank Wizard (Path C) · 14d-1 AI-scaffold
+  orchestrator + personal-template store (headless) · 14d-2 upload→scaffold UI (Path B) + "AI-scaffolded"
+  badge + "Yours" personal templates + active-project document scoping.
 
 - **Project schema** per Blueprint §3 and §6.
 - **`ProjectService`** — CRUD with manifest versioning, isolation enforcement (`workspace_id` / `project_id` filtering in every query).
@@ -426,7 +428,10 @@ upload path + personal templates) and the remote signed-template refresh remain.
   - Blank Wizard with 4–5 questions.
   - Upload flow with `DomainInferenceService`:
     - On Light+ tier: reads first 1–2 pages of uploaded docs via LlmBackend, emits structured suggestion.
-    - Strong/weak/no-match branches per Blueprint §6.2.
+    - Strong/weak/no-match branches per Blueprint §6.2. *(Shipped 14d. The no-match manifest is a
+      conservative editable scaffold seeded with the inferred domain; fully generating
+      `suggested_custom_entities[]` / `suggested_persona` is **deferred** — see `docs/DECISIONS.md`
+      2026-06-16.)*
     - "AI-scaffolded" badge on generated templates.
     - Offer to save as personal template.
     - On Ultra-light/Minimum: gracefully falls back to template picker with explanation.

@@ -133,4 +133,56 @@ void main() {
     final m = await manifestOf(id);
     expect(m['mink_persona'], 'new_persona');
   });
+
+  testWidgets('shows the AI-scaffolded badge for an ai_scaffolded project', (
+    tester,
+  ) async {
+    final id = await container
+        .read(projectRepositoryProvider)
+        .create(
+          name: 'Scaffolded',
+          templateId: 'ai_scaffolded',
+          manifestJson: jsonEncode({
+            'manifest_schema_version': 1,
+            'template_id': 'ai_scaffolded',
+            'name': 'Scaffolded',
+            'permissions': {'read_documents': true},
+            'default_policy': <String, dynamic>{},
+            'custom_entity_types': <dynamic>[],
+          }),
+        );
+    await pump(tester, id);
+    expect(find.byKey(const Key('ai-scaffolded-badge')), findsOneWidget);
+  });
+
+  testWidgets('does not badge a Verified-template project', (tester) async {
+    final id = await makeProject();
+    await pump(tester, id);
+    expect(find.byKey(const Key('ai-scaffolded-badge')), findsNothing);
+  });
+
+  testWidgets('save-as-personal-template persists the manifest', (
+    tester,
+  ) async {
+    final id = await makeProject();
+    await pump(tester, id);
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.drag(
+      find.byKey(const Key('project-settings-list')),
+      const Offset(0, -1600),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('save-as-personal-template')));
+    await tester.pumpAndSettle();
+
+    final saved = await container
+        .read(personalTemplateRepositoryProvider)
+        .list();
+    expect(saved, hasLength(1));
+    expect(saved.single.name, 'P');
+    expect(saved.single.origin.name, 'customized');
+  });
 }

@@ -1,4 +1,5 @@
 import 'package:documink/features/projects/active_project_provider.dart';
+import 'package:documink/features/projects/personal_template.dart';
 import 'package:documink/features/projects/project_providers.dart';
 import 'package:documink/features/projects/template_manifest.dart';
 import 'package:documink/l10n/gen/app_localizations.dart';
@@ -86,5 +87,51 @@ void main() {
     expect(projects.single.name, 'My Records');
     expect(projects.single.templateId, 'medical');
     expect(container.read(activeProjectProvider), projects.single.id);
+  });
+
+  testWidgets('offers the "Create from a document" entry (Path B)', (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(find.byKey(const Key('create-from-document')), findsOneWidget);
+  });
+
+  testWidgets(
+    'hides the "Yours" section when there are no personal templates',
+    (tester) async {
+      await pump(tester);
+      expect(find.text('YOURS'), findsNothing);
+    },
+  );
+
+  testWidgets('lists saved personal templates and creates from one', (
+    tester,
+  ) async {
+    await container
+        .read(personalTemplateRepositoryProvider)
+        .save(
+          const PersonalTemplate(
+            id: 'pt_1',
+            name: 'My Vet Intake',
+            manifestJson:
+                '{"manifest_schema_version":1,"template_id":"ai_scaffolded",'
+                '"name":"My Vet Intake","permissions":{"read_documents":true}}',
+            createdAtEpochMs: 1000,
+            origin: PersonalTemplateOrigin.aiScaffolded,
+          ),
+        );
+    await pump(tester);
+
+    expect(find.text('YOURS'), findsOneWidget);
+    expect(find.byKey(const Key('personal-template-pt_1')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('personal-template-pt_1')));
+    await tester.pumpAndSettle();
+
+    final projects = await container
+        .read(projectRepositoryProvider)
+        .listActive();
+    expect(projects.single.name, 'My Vet Intake');
+    expect(projects.single.templateId, 'ai_scaffolded');
   });
 }

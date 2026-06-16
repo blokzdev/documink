@@ -538,6 +538,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wizardBuildFromScratch => 'Build from scratch (guided)';
 
   @override
+  String get templateCreateFromDocument => 'Create from a document';
+
+  @override
+  String get templateYoursSection => 'Yours';
+
+  @override
+  String get templateYoursBadge => 'Your saved template';
+
+  @override
+  String get uploadScaffoldTitle => 'Create from a document';
+
+  @override
+  String get uploadScaffoldIntro =>
+      'Pick a document and Mink will suggest a project setup on-device. Nothing leaves your device.';
+
+  @override
+  String get uploadScaffoldChoose => 'Choose document';
+
+  @override
+  String get uploadScaffoldAnalyzing => 'Analyzing on-device…';
+
+  @override
+  String get uploadScaffoldError => 'Could not analyze that document';
+
+  @override
+  String get uploadScaffoldStrongTitle => 'Recommended template';
+
+  @override
+  String get uploadScaffoldWeakTitle => 'A few templates might fit';
+
+  @override
+  String get uploadScaffoldWeakBody =>
+      'Pick the closest Verified template for your document.';
+
+  @override
+  String get uploadScaffoldScaffoldTitle => 'AI-scaffolded — please review';
+
+  @override
+  String uploadScaffoldScaffoldBody(String domain) {
+    return 'No Verified template matched, so Mink scaffolded a conservative setup for the $domain domain. Review it, then create.';
+  }
+
+  @override
+  String get uploadScaffoldScaffoldBodyNoDomain =>
+      'No Verified template matched, so Mink scaffolded a conservative setup. Review it, then create.';
+
+  @override
+  String get uploadScaffoldScaffoldDefaults => 'Conservative defaults';
+
+  @override
+  String get uploadScaffoldScaffoldDefaultsBody =>
+      'Export is off, revealing originals needs biometrics, and detected PII is redacted. Change anything in project settings.';
+
+  @override
+  String get uploadScaffoldUnavailableTitle => 'On-device AI isn\'t available';
+
+  @override
+  String get uploadScaffoldUnavailableBody =>
+      'Set up a project from a Verified template, or build one from scratch.';
+
+  @override
+  String get uploadScaffoldUnavailablePicker => 'Choose a template';
+
+  @override
+  String get uploadScaffoldSavePersonalTitle => 'Save as personal template?';
+
+  @override
+  String get uploadScaffoldSavePersonalBody =>
+      'Reuse this setup when creating new projects. It stays on this device.';
+
+  @override
+  String get uploadScaffoldSavePersonalConfirm => 'Save';
+
+  @override
+  String get uploadScaffoldSavePersonalDismiss => 'Not now';
+
+  @override
+  String get uploadScaffoldSavePersonalDone => 'Saved to your templates';
+
+  @override
+  String get aiScaffoldedBadge => 'AI-scaffolded';
+
+  @override
+  String get projectSectionTemplate => 'Template';
+
+  @override
+  String get projectSaveAsPersonalTemplate => 'Save as personal template';
+
+  @override
+  String get projectSaveAsPersonalTemplateSubtitle =>
+      'Reuse this setup when creating new projects';
+
+  @override
+  String get projectPersonalTemplateSaved => 'Saved to your templates';
+
+  @override
   String get aiTitle => 'On-device AI';
 
   @override

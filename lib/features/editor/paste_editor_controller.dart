@@ -15,6 +15,7 @@ import '../documents/document_repository.dart';
 import '../documents/keep_original_setting.dart';
 import '../documents/originals_repository.dart';
 import '../documents/pending_original.dart';
+import '../projects/active_project_provider.dart';
 
 /// Operators offered in the paste editor. Irreversible transforms plus the
 /// vault-backed reversible ones (Token-Random, Encrypt) — available because the
@@ -165,6 +166,10 @@ class PasteEditorController extends Notifier<PasteEditorState> {
           detection: detection,
           operators: state.operators,
           outcome: outcome,
+          // Scope the save to the active Project (§6.7 isolation) so documents
+          // captured/imported while a Project is active land in it — including
+          // the upload→scaffold import (Path B). Null = workspace-global.
+          projectId: ref.read(activeProjectProvider),
         );
     await _maybeRetainOriginal(documentId);
     return documentId;

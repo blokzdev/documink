@@ -1347,3 +1347,33 @@ Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the mem
 - **Deletes go through `MemoryRepository.forget*` directly** (the same path the `forget` tool uses).
   No new audit event for user-initiated deletes in 12f; the dedicated `mink_memory_delete` event
   (memory.md §8) is folded into the broader memory-audit follow-up noted in the 12d entry.
+
+## 2026-06-16 — V1 P14d: AI-scaffolded creation path (Path B) + personal templates
+
+- **Conservative editable scaffold, not full generation (deviation from §6.2 — logged).** §6.2's
+  no-match branch also lists `suggested_custom_entities[]` / `suggested_persona`, but the shipped
+  `DomainInferenceService` (Phase 10a) emits only `{domain, confidence, candidateTemplateIds}`.
+  `composeScaffoldedManifest` therefore produces a **conservative, deny-by-default** `ai_scaffolded`
+  manifest seeded with the inferred `domain` (export off, decode biometric-gated, common PII → redact)
+  that the user **reviews/edits before use** — never a silent permission grant (§15 #18). Fully
+  generating entities/persona needs prompt+eval work + a loaded model; **deferred to a future phase**
+  (tracked in roadmap + VERIFICATION). No invariant weakened: the scaffold is stricter than any
+  Verified template and badged AI-scaffolded (§15 #22), never Verified.
+- **`ai_scaffolded` is the no-match branch only.** Strong/weak matches create projects with the
+  **verified** `template_id` (AI merely pre-selects); the original P14-PLAN line implying everything
+  becomes `ai_scaffolded` was over-broad and is corrected in P14-PLAN §3.
+- **Import the uploaded document via the existing redaction editor (reuse, not a new save path).**
+  DocuMink stores documents **redacted after a user review step** — there is no headless raw-text
+  save (`DocumentRepository.saveAnonymizedText` needs a `DetectionResult`/`AnonymizationOutcome`). So
+  Path-B "import" creates + activates the Project, then hands the uploaded text to the existing
+  `PasteEditorScreen` (same pattern as `CaptureScreen`), keeping un-reviewed PII out of storage.
+- **Document scoping wired into the editor save.** `PasteEditorController.save` now passes
+  `projectId: ref.read(activeProjectProvider)` to `saveAnonymizedText`. Previously every save was
+  workspace-global, so the project Documents tab (and any project import) could never populate; this
+  is the §6.7-correct behavior and is what lands the Path-B import in the new Project. Null active
+  project keeps the prior workspace-global behavior (no regression).
+- **Personal templates stored per-key in `vault_meta`.** One row per template
+  (`personal_templates:<id>`), mirroring `ProfilerRepository`'s vault-meta convention — no drift
+  table, no `schemaVersion` bump (§6.5). Save/delete are audited (`personal_template_saved` /
+  `personal_template_deleted`) with **id + origin only** (no manifest body or PII), slightly more
+  conservative than the plan's "name + id". CRDT sync of these stays deferred (V3 transport).
