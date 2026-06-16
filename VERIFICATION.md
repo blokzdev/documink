@@ -310,6 +310,28 @@ Widget-tested headless; these need a real device for the first-run flow + a11y.
 - ☐ **Recovery** — "Re-check my device" after freeing RAM/storage re-qualifies and re-enables the
   Mink surfaces.
 
+## Projects & templates — AI-scaffolded creation (Path B, Phase 14d)
+
+Headless here: the orchestrator branching, scaffold manifest, personal-template store, and the
+screen structure are unit/widget-tested with fakes. These need a device with a loaded Tier-4 model
+and the real file picker:
+
+- ☐ **Real upload** — `Create from a document` → the native file picker opens; pick a PDF; text is
+  extracted (text layer + OCR fallback for scanned pages) — *what:* `InputIngestionService.importPdf`,
+  *where:* upload→scaffold screen, *device:* Android with a file + camera/ML Kit for OCR.
+- ☐ **On-device classification + branching** — with a loaded model, a clearly-medical/legal/etc.
+  document yields a **strong** match (correct Verified template pre-selected); an ambiguous one yields
+  **weak** candidates; an out-of-catalog domain yields the **AI-scaffolded** review; below-floor / no
+  model yields the **fallback** to picker/wizard. (Inference *quality* is only observable on-device.)
+- ☐ **AI-scaffolded create + badge** — creating from the no-match branch produces an `ai_scaffolded`
+  project that is **badged** in project detail and never shown as Verified (§15 #22).
+- ☐ **Document import lands in the project** — after create, the uploaded text opens in the redaction
+  editor; on save the document appears under the **new project's Documents tab** (active-project
+  scoping), not the global workspace.
+- ☐ **Personal templates** — `Save as personal template` (from the scaffold prompt or project
+  settings) makes the template appear under **"Yours"** in the picker; creating from it reproduces the
+  setup. (Round-trips through the encrypted vault — exercise on a real SQLCipher build.)
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.

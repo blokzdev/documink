@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/routes.dart';
 import '../../features/projects/active_project_provider.dart';
+import '../../features/projects/personal_template.dart';
 import '../../features/projects/project_providers.dart';
 import '../../features/projects/template_manifest.dart';
 import '../../l10n/gen/app_localizations.dart';
@@ -53,16 +54,101 @@ class TemplatePickerScreen extends ConsumerWidget {
                   ],
                   const SizedBox(height: AppTokens.spacingSm),
                   OutlinedButton.icon(
+                    key: const Key('create-from-document'),
+                    onPressed: () => context.push(Routes.newProjectAiScaffold),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: Text(l10n.templateCreateFromDocument),
+                  ),
+                  const SizedBox(height: AppTokens.spacingSm),
+                  OutlinedButton.icon(
                     key: const Key('build-from-scratch'),
                     onPressed: () => context.push(Routes.newProjectWizard),
                     icon: const Icon(Icons.tune),
                     label: Text(l10n.wizardBuildFromScratch),
                   ),
+                  const _YoursSection(),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The user's saved personal templates ("Yours" — blueprint §6.5). Hidden when
+/// there are none; each creates a Project from its stored manifest, badged so it
+/// is never mistaken for a Verified template.
+class _YoursSection extends ConsumerWidget {
+  const _YoursSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final yoursAsync = ref.watch(personalTemplatesProvider);
+    final yours = yoursAsync.valueOrNull ?? const [];
+    if (yours.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(l10n.templateYoursSection),
+        for (final t in yours) ...[
+          _PersonalTemplateCard(t),
+          const SizedBox(height: AppTokens.spacingSm),
+        ],
+      ],
+    );
+  }
+}
+
+class _PersonalTemplateCard extends ConsumerStatefulWidget {
+  const _PersonalTemplateCard(this.template);
+
+  final PersonalTemplate template;
+
+  @override
+  ConsumerState<_PersonalTemplateCard> createState() =>
+      _PersonalTemplateCardState();
+}
+
+class _PersonalTemplateCardState extends ConsumerState<_PersonalTemplateCard> {
+  bool _creating = false;
+
+  Future<void> _create() async {
+    if (_creating) return;
+    setState(() => _creating = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
+    final t = widget.template;
+
+    final id = await ref
+        .read(projectRepositoryProvider)
+        .create(name: t.name, manifestJson: t.manifestJson);
+    ref.read(activeProjectProvider.notifier).set(id);
+    ref.invalidate(projectsListProvider);
+
+    if (!mounted) return;
+    navigator.maybePop();
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.templateProjectCreated)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = widget.template;
+    return Card(
+      child: ListTile(
+        key: Key('personal-template-${t.id}'),
+        leading: const Icon(Icons.folder_outlined),
+        title: Text(t.name),
+        subtitle: Text(l10n.templateYoursBadge),
+        trailing: const Icon(Icons.chevron_right),
+        enabled: !_creating,
+        onTap: _creating ? null : _create,
       ),
     );
   }

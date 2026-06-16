@@ -1036,6 +1036,180 @@ abstract class AppLocalizations {
   /// **'Build from scratch (guided)'**
   String get wizardBuildFromScratch;
 
+  /// Template picker: launch the AI upload→scaffold path (Path B).
+  ///
+  /// In en, this message translates to:
+  /// **'Create from a document'**
+  String get templateCreateFromDocument;
+
+  /// Template picker section header for the user's saved personal templates.
+  ///
+  /// In en, this message translates to:
+  /// **'Yours'**
+  String get templateYoursSection;
+
+  /// Subtitle/badge marking a personal template (never a Verified one).
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved template'**
+  String get templateYoursBadge;
+
+  /// Upload→scaffold screen app-bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create from a document'**
+  String get uploadScaffoldTitle;
+
+  /// Upload→scaffold idle intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a document and Mink will suggest a project setup on-device. Nothing leaves your device.'**
+  String get uploadScaffoldIntro;
+
+  /// Button: pick a document to analyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose document'**
+  String get uploadScaffoldChoose;
+
+  /// Shown while the document is classified by the local model.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing on-device…'**
+  String get uploadScaffoldAnalyzing;
+
+  /// Snackbar when ingestion/inference fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not analyze that document'**
+  String get uploadScaffoldError;
+
+  /// Heading for a confident single template match.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended template'**
+  String get uploadScaffoldStrongTitle;
+
+  /// Heading for an ambiguous multi-candidate match.
+  ///
+  /// In en, this message translates to:
+  /// **'A few templates might fit'**
+  String get uploadScaffoldWeakTitle;
+
+  /// Body for the weak-match branch.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the closest Verified template for your document.'**
+  String get uploadScaffoldWeakBody;
+
+  /// Heading for the no-match AI-scaffolded branch.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-scaffolded — please review'**
+  String get uploadScaffoldScaffoldTitle;
+
+  /// Body for the AI-scaffolded branch when a domain was inferred.
+  ///
+  /// In en, this message translates to:
+  /// **'No Verified template matched, so Mink scaffolded a conservative setup for the {domain} domain. Review it, then create.'**
+  String uploadScaffoldScaffoldBody(String domain);
+
+  /// Body for the AI-scaffolded branch when no domain was inferred.
+  ///
+  /// In en, this message translates to:
+  /// **'No Verified template matched, so Mink scaffolded a conservative setup. Review it, then create.'**
+  String get uploadScaffoldScaffoldBodyNoDomain;
+
+  /// Section header for the scaffolded defaults summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Conservative defaults'**
+  String get uploadScaffoldScaffoldDefaults;
+
+  /// Explains the conservative scaffolded permissions/policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Export is off, revealing originals needs biometrics, and detected PII is redacted. Change anything in project settings.'**
+  String get uploadScaffoldScaffoldDefaultsBody;
+
+  /// Heading when the model is unavailable / below floor.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device AI isn\'t available'**
+  String get uploadScaffoldUnavailableTitle;
+
+  /// Body for the AI-unavailable fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a project from a Verified template, or build one from scratch.'**
+  String get uploadScaffoldUnavailableBody;
+
+  /// Fallback button: go to the template picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a template'**
+  String get uploadScaffoldUnavailablePicker;
+
+  /// Dialog title offering to save the scaffolded setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as personal template?'**
+  String get uploadScaffoldSavePersonalTitle;
+
+  /// Dialog body for saving a personal template.
+  ///
+  /// In en, this message translates to:
+  /// **'Reuse this setup when creating new projects. It stays on this device.'**
+  String get uploadScaffoldSavePersonalBody;
+
+  /// Dialog confirm: save the personal template.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get uploadScaffoldSavePersonalConfirm;
+
+  /// Dialog dismiss: don't save.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get uploadScaffoldSavePersonalDismiss;
+
+  /// Snackbar confirming the personal template was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your templates'**
+  String get uploadScaffoldSavePersonalDone;
+
+  /// Badge marking an AI-scaffolded project/template (never Verified).
+  ///
+  /// In en, this message translates to:
+  /// **'AI-scaffolded'**
+  String get aiScaffoldedBadge;
+
+  /// Project settings section: template actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get projectSectionTemplate;
+
+  /// Action: save this project's setup as a reusable personal template.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as personal template'**
+  String get projectSaveAsPersonalTemplate;
+
+  /// Subtitle for the save-as-personal-template action.
+  ///
+  /// In en, this message translates to:
+  /// **'Reuse this setup when creating new projects'**
+  String get projectSaveAsPersonalTemplateSubtitle;
+
+  /// Snackbar confirming a personal template was saved from a project.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your templates'**
+  String get projectPersonalTemplateSaved;
+
   /// AI settings screen title.
   ///
   /// In en, this message translates to:

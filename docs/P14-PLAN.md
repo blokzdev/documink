@@ -26,21 +26,44 @@ a blank wizard, or upload-and-let-Mink-scaffold).
 `DomainInferenceService` (**creation Path B** logic, behind the `LlmBackend` seam) shipped in Phase
 10a (#66) but is **not wired to any UI**.
 
-## 3. Remaining work
+## 3. Remaining work — **14d shipped** (#84 + UI PR)
 
-### 14d — AI-scaffolded creation path (Path B) + personal-template save *(build behind seams)*
-- **Orchestrator (pure Dart, headless-testable):** pick a file (`file_selector`, wired) → extract the
-  first 1–2 pages of text (reuse `InputIngestionService`/`PdfTextExtractor`, wired) → `DomainInferenceService.infer`
-  (exists) → branch on `DomainSuggestion` strength (strong/weak/none, blueprint §6.2) → scaffold a
-  `ProjectManifest` (`template_id: 'ai_scaffolded'`) → `ProjectRepository.create`. **Below Light/floor
-  or LLM unavailable → graceful fallback to the template picker** with an explanation.
-- **UI:** the upload entry + suggestion review (strong/weak/none), the **"AI-scaffolded" badge**
-  (§15 #22 — never shown as Verified), and **"save as personal template."**
-- **Personal templates (local):** a `vault_meta`-backed store (mirror `ProfilerRepository`) so saved
-  scaffolded/customized manifests surface as **"Yours"** in the picker. **CRDT sync deferred.**
-- Likely split 14d-1 (orchestrator + personal-template store, headless) / 14d-2 (UI) if the diff is large.
+### 14d-1 — headless core (merged #84)
+- **`AiScaffoldOrchestrator`** (pure Dart, seam-injected): `analyzeUpload()` picks + ingests a PDF
+  (via `InputIngestionService.importPdf`) and classifies a capped snippet through
+  `DomainInferenceService.infer`, mapping the §6.2 branching to a sealed `UploadOutcome`:
+  `StrongMatch(templateId)` / `WeakMatch([templateIds])` / `ScaffoldSuggested(domain?)` /
+  `InferenceUnavailable`. `infer()==null` → unavailable (graceful fallback); a low-confidence
+  suggestion (`SuggestionStrength.none`) → scaffold.
+- **`composeScaffoldedManifest`**: conservative deny-by-default §6.1 manifest (`template_id:
+  'ai_scaffolded'`; export off, decode biometric-gated, common PII → redact) for the no-match branch.
+- **`PersonalTemplate` + `PersonalTemplateRepository`**: `vault_meta`-backed local store, one key per
+  template (`personal_templates:<id>`, mirrors `ProfilerRepository`), audited
+  (`personal_template_saved`/`_deleted`, id-only metadata). No drift schema change.
+
+### 14d-2 — UI + personal-template surfaces (this PR)
+- **`UploadScaffoldScreen`** (route `Routes.newProjectAiScaffold`): idle → analyzing → branch view.
+  Strong confirms the matched Verified template; weak offers candidate cards; scaffold shows the
+  **"AI-scaffolded — please review"** editable summary + badge and a **save-as-personal-template**
+  prompt; unavailable links to the picker/wizard. After create it hands the uploaded text to the
+  **redaction editor** (`context.go(Routes.paste)`), scoped to the now-active Project.
+- **Template picker**: a **"Create from a document"** entry + a **"Yours"** section listing personal
+  templates (create-from on tap).
+- **Project detail**: an **AI-scaffolded badge** (`templateId == 'ai_scaffolded'`) + a
+  **"Save as personal template"** settings action.
+- **Document scoping fix**: `PasteEditorController.save` now passes `projectId:
+  ref.read(activeProjectProvider)` so captured/imported documents land in the active Project (§6.7) —
+  which is what makes the Path-B import (and the project Documents tab) actually populate.
+
+### Correction to the original §6.2 reading
+`ai_scaffolded` applies **only** to the no-match branch. Strong/weak keep the **verified** `template_id`
+(AI merely pre-selects). The shipped `DomainInferenceService` emits `{domain, confidence,
+candidateTemplateIds}` only, so the scaffold manifest is a **conservative editable** starting point —
+fully generating `suggested_custom_entities[]` / `suggested_persona` per §6.2 is deferred (see below).
 
 ### Deferred & tracked (not built now — logged in DECISIONS + VERIFICATION + roadmap)
+- **Richer scaffold generation** — extend `DomainInferenceService` to emit suggested custom entities
+  + persona and fully populate the no-match manifest (§6.2). Needs prompt+eval work + a loaded model.
 - **Remote signed-template refresh** (`documink.ai/templates/manifest.json`, weekly, Ed25519, offline
   last-known-good) — blocked on hosting that doesn't exist; the bundled signed asset is the fallback.
 - **CRDT personal-template sync** (V3 sync transport).

@@ -7,15 +7,19 @@ import 'package:go_router/go_router.dart';
 import '../../core/datetime_format.dart';
 import '../../core/routes.dart';
 import '../../data/app_database.dart';
+import '../../data/id_generator.dart';
 import '../../features/anonymization/operator.dart';
 import '../../features/detection/pii_span.dart';
 import '../../features/projects/active_project_provider.dart';
+import '../../features/projects/personal_template.dart';
 import '../../features/projects/project_providers.dart';
+import '../../features/projects/scaffolded_manifest.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/tokens.dart';
 import '../widgets/app_empty_state.dart';
 import '../widgets/app_error_state.dart';
 import '../widgets/section_header.dart';
+import 'upload_scaffold_screen.dart' show AiScaffoldedBadge;
 
 /// The ordered permission keys shown as editable rows (blueprint §6.1/§6.4).
 /// `decode` is tri-state (off / on / biometric); the rest are on/off.
@@ -68,6 +72,13 @@ class ProjectDetailScreen extends ConsumerWidget {
           child: Scaffold(
             appBar: AppBar(
               title: Text(project.name),
+              actions: [
+                if (project.templateId == aiScaffoldedTemplateId)
+                  const Padding(
+                    padding: EdgeInsets.only(right: AppTokens.spacingSm),
+                    child: Center(child: AiScaffoldedBadge()),
+                  ),
+              ],
               bottom: TabBar(
                 tabs: [
                   Tab(text: l10n.projectDetailDocumentsTab),
@@ -271,9 +282,45 @@ class _SettingsTab extends ConsumerWidget {
                 }),
               ),
             ),
+
+            SectionHeader(l10n.projectSectionTemplate),
+            ListTile(
+              key: const Key('save-as-personal-template'),
+              leading: const Icon(Icons.bookmark_add_outlined),
+              title: Text(l10n.projectSaveAsPersonalTemplate),
+              subtitle: Text(l10n.projectSaveAsPersonalTemplateSubtitle),
+              onTap: () => _saveAsPersonalTemplate(ref, context),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Saves the current manifest as a reusable personal template ("Yours" in the
+  /// picker — blueprint §6.5).
+  Future<void> _saveAsPersonalTemplate(
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    await ref
+        .read(personalTemplateRepositoryProvider)
+        .save(
+          PersonalTemplate(
+            id: defaultIdGenerator(),
+            name: project.name,
+            manifestJson: project.manifestJson,
+            createdAtEpochMs: DateTime.now().millisecondsSinceEpoch,
+            origin: project.templateId == aiScaffoldedTemplateId
+                ? PersonalTemplateOrigin.aiScaffolded
+                : PersonalTemplateOrigin.customized,
+          ),
+        );
+    ref.invalidate(personalTemplatesProvider);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.projectPersonalTemplateSaved)),
     );
   }
 

@@ -22,6 +22,7 @@ import '../ui/screens/project_detail_screen.dart';
 import '../ui/screens/projects_list_screen.dart';
 import '../ui/screens/settings_screen.dart';
 import '../ui/screens/template_picker_screen.dart';
+import '../ui/screens/upload_scaffold_screen.dart';
 import '../ui/screens/vault_browser_screen.dart';
 import '../ui/screens/vault_unlock_screen.dart';
 import 'routes.dart';
@@ -87,6 +88,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.newProjectWizard,
         builder: (context, state) => const BlankWizardScreen(),
+      ),
+      GoRoute(
+        path: Routes.newProjectAiScaffold,
+        builder: (context, state) => const UploadScaffoldScreen(),
       ),
       GoRoute(
         path: Routes.projects,

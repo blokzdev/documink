@@ -12,6 +12,9 @@ class Routes {
   static const import = '/import';
   static const newProject = '/projects/new';
   static const newProjectWizard = '/projects/new/wizard';
+
+  /// Creation Path B — upload a document for AI-scaffolded setup (blueprint §6.2).
+  static const newProjectAiScaffold = '/projects/new/ai-scaffold';
   static const projects = '/projects';
 
   /// Project detail, e.g. `/projects/<id>`.
