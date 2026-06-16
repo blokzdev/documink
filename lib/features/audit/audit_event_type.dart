@@ -26,4 +26,9 @@ class AuditEventType {
   static const String projectCreated = 'project_created';
   static const String projectModified = 'project_modified';
   static const String projectArchived = 'project_archived';
+
+  /// A personal Project template saved/removed locally (blueprint §6.5). Metadata
+  /// carries the template id only — never the manifest body or any PII.
+  static const String personalTemplateSaved = 'personal_template_saved';
+  static const String personalTemplateDeleted = 'personal_template_deleted';
 }
