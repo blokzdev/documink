@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/datetime_format.dart';
@@ -29,6 +30,13 @@ class AuditLogScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.auditLogTitle),
         actions: [
+          if (ref.watch(auditCsvExportEnabledProvider))
+            IconButton(
+              key: const Key('audit-export-button'),
+              tooltip: l10n.auditExportTooltip,
+              icon: const Icon(Icons.ios_share_outlined),
+              onPressed: () => _exportCsv(context, ref),
+            ),
           IconButton(
             key: const Key('audit-filter-button'),
             tooltip: l10n.auditFilterTooltip,
@@ -102,6 +110,47 @@ class AuditLogScreen extends ConsumerWidget {
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => const _TypeFilterSheet(),
+    );
+  }
+
+  /// Builds CSV over the **current filter** and shows it for copy/share. Reuses
+  /// `AuditLogRepository.exportCsv`; local-only (clipboard) — consistent with the
+  /// Mink-memory export precedent. Native file share is a device follow-up
+  /// (VERIFICATION.md). The CSV carries the same IDs/metadata as the rows — no PII.
+  Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final entries = await ref.read(auditEntriesProvider.future);
+    final csv = AuditLogRepository.exportCsv(entries);
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.auditExportTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: SelectableText(key: const Key('audit-export-csv'), csv),
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: const Key('audit-export-copy'),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: csv));
+              Navigator.pop(ctx);
+              messenger.showSnackBar(
+                SnackBar(content: Text(l10n.auditExportCopied)),
+              );
+            },
+            child: Text(l10n.auditExportCopy),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.auditExportClose),
+          ),
+        ],
+      ),
     );
   }
 }

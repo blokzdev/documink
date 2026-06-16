@@ -122,4 +122,46 @@ void main() {
     // All entries now fit → no more Load-more button.
     expect(find.byKey(const Key('audit-load-more')), findsNothing);
   });
+
+  testWidgets('CSV export shows the log as CSV over the current filter', (
+    tester,
+  ) async {
+    await rec('document_saved');
+    await pump(tester);
+
+    await tester.tap(find.byKey(const Key('audit-export-button')));
+    await tester.pumpAndSettle();
+
+    final csv = find.byKey(const Key('audit-export-csv'));
+    expect(csv, findsOneWidget);
+    final text = tester.widget<SelectableText>(csv).data!;
+    expect(text, contains('event_type')); // RFC-4180 header row
+    expect(text, contains('document_saved'));
+
+    // Copy + close.
+    await tester.tap(find.byKey(const Key('audit-export-copy')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('audit-export-csv')), findsNothing);
+  });
+
+  testWidgets('CSV export action is hidden when the Pro-gate flag is off', (
+    tester,
+  ) async {
+    // Own vault + container (each container disposes its vault service, so the
+    // flag override needs its own isolated one).
+    final vault2 = await TestVault.unlocked();
+    addTearDown(vault2.dispose);
+    container = ProviderContainer(
+      overrides: [
+        vault2.override,
+        auditCsvExportEnabledProvider.overrideWithValue(false),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(documentRepositoryProvider).ensureDefaultWorkspace();
+    await rec('document_saved');
+    await pump(tester);
+
+    expect(find.byKey(const Key('audit-export-button')), findsNothing);
+  });
 }

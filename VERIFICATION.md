@@ -332,6 +332,15 @@ and the real file picker:
   settings) makes the template appear under **"Yours"** in the picker; creating from it reproduces the
   setup. (Round-trips through the encrypted vault — exercise on a real SQLCipher build.)
 
+## Audit log transparency (Phase 15b)
+
+Headless here: filters, pagination, label mapping, and the CSV-export action (over the active filter,
+flag-gated) are widget/unit-tested. This needs a device:
+
+- ☐ **Native CSV file share** — the export dialog currently copies CSV to the clipboard (no Phase-7
+  share stack yet). When the share stack lands, route export through it and confirm a real file share
+  on-device — *where:* Settings → Audit log → Export, *device:* Android share sheet.
+
 ## UI / accessibility (Phases 5, 16)
 
 - ☐ **Screens render** correctly on device (home/editor/preview/vault/settings); dark mode.

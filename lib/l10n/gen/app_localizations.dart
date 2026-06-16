@@ -1312,6 +1312,36 @@ abstract class AppLocalizations {
   /// **'Sync'**
   String get auditGroupSync;
 
+  /// Tooltip for the audit CSV export button.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get auditExportTooltip;
+
+  /// Title of the CSV export dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log (CSV)'**
+  String get auditExportTitle;
+
+  /// Copies the CSV to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get auditExportCopy;
+
+  /// Closes the CSV export dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get auditExportClose;
+
+  /// Snackbar after copying the CSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get auditExportCopied;
+
   /// AI settings screen title.
   ///
   /// In en, this message translates to:

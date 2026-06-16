@@ -686,6 +686,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditGroupSync => 'Sync';
 
   @override
+  String get auditExportTooltip => 'Export CSV';
+
+  @override
+  String get auditExportTitle => 'Audit log (CSV)';
+
+  @override
+  String get auditExportCopy => 'Copy';
+
+  @override
+  String get auditExportClose => 'Close';
+
+  @override
+  String get auditExportCopied => 'Copied to clipboard';
+
+  @override
   String get aiTitle => 'On-device AI';
 
   @override
