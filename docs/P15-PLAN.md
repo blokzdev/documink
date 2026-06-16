@@ -59,11 +59,18 @@ projects, and — added in P14d — personal templates).
 - Tests: widget tests for filter application (type + range narrow the list), pagination ("load more"
   appends), empty/error states; a unit test for the label mapper.
 
-### 15b-2 — CSV export action (V1 ships it; internal Pro-gate flag)
+### 15b-2 — CSV export action (V1 ships it; internal Pro-gate flag) ✅ (this PR)
 - An **Export CSV** app-bar action that runs `AuditLogRepository.exportCsv(entries)` over the
   **current filter** and hands the text to the existing share/save path (reuse the Phase-7 share
   stack seam if available; otherwise copy-to-clipboard + a `VERIFICATION.md` item for the native
   file share, consistent with the Mink-memory export precedent).
+  - **Shipped:** an `ios_share` app-bar action → a dialog with the CSV in a `SelectableText` + a
+    **Copy** button (clipboard), built over the **active filter's** entries. No Phase-7 share stack
+    exists yet, so the local clipboard path mirrors the Mink-memory export; the native **file share**
+    is a `VERIFICATION.md` device item. Gated behind **`auditCsvExportEnabledProvider`** (a `Provider<bool>`
+    defaulting **true** for V1; V1.1 flips it to a Pro check in one place). No self-audit event for
+    exporting the log (a local read; an event referencing the log would be circular). Widget-tested
+    (CSV content over the filter; action hidden when the flag is off).
 - **Internal Pro-gate flag**: gate the action behind a single feature flag (default **on** for V1 per
   roadmap §15 "shipped in V1 with internal flag for Pro-gate activation in V1.1") — a `const` /
   settings-backed bool, logged in `docs/DECISIONS.md` so V1.1 can flip it to Pro-only without a

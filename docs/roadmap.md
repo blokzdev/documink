@@ -445,9 +445,10 @@ refresh, CRDT personal-template sync.
 
 ### Phase 15 — Audit log & transparency
 
-Plan of record: **`docs/P15-PLAN.md`**. **Status:** core shipped (15a `AuditLogRepository`
-record/query/CSV + 5k read-only viewer); **15b** finishes the transparency UI (filters + pagination +
-localization + CSV-export action behind an internal Pro-gate flag).
+Plan of record: **`docs/P15-PLAN.md`**. **Status:** **complete.** 15a (`AuditLogRepository`
+record/query/CSV) + 5k (read-only viewer) + **15b** (filters + pagination + localization + CSV-export
+action behind the internal `auditCsvExportEnabledProvider` Pro-gate flag — 15b-1 #87, 15b-2 this PR).
+Deferred: native file-share for the CSV (no Phase-7 share stack yet); Pro-gate enforcement (V1.1).
 
 - Record every decode, export, sync push/pull, vault unlock, failed biometric, Mink tool call (including denials), proactive suggestion offered/dismissed/actioned, tier change, variant switch, model install/uninstall, manifest version update, project created/modified/archived.
 - UI: Settings → Audit Log (paginated, filterable by event type and time range).

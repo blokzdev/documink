@@ -1377,3 +1377,23 @@ Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the mem
   table, no `schemaVersion` bump (§6.5). Save/delete are audited (`personal_template_saved` /
   `personal_template_deleted`) with **id + origin only** (no manifest body or PII), slightly more
   conservative than the plan's "name + id". CRDT sync of these stays deferred (V3 transport).
+
+## 2026-06-16 — V1 P15b: audit-log transparency UI (filters/pagination/export)
+
+- **Event types shown as prettified data, not localized enums.** `prettifyAuditEvent` renders raw
+  `audit_log.event_type` values (`document_saved` → "Document saved") deterministically. Event types
+  are canonical data identifiers, not UI chrome — the app already shows raw PII labels / operator
+  names the same way (e.g. project detail). The screen *chrome* (title, filters, actions, empty/error)
+  IS fully localized (`audit*` ARB keys), closing the prior hardcoded-English gap in the viewer.
+- **Pagination = grow-the-limit re-query, not append-state.** "Load more" increases `AuditView.limit`
+  by `auditPageSize` (50) and re-queries from offset 0; any filter change resets the limit. Simple and
+  deterministic for an audit log; avoids accumulating list state. "May have more" = `entries.length >=
+  limit`.
+- **CSV export is local (clipboard), behind an internal Pro-gate flag.** Roadmap §15 ships CSV export
+  in V1 with "an internal flag for Pro-gate activation in V1.1". Implemented as
+  `auditCsvExportEnabledProvider` (`Provider<bool>` defaulting **true**) so V1.1 flips the gate to a
+  Pro-tier check in one place. The action builds CSV over the **active filter** via
+  `AuditLogRepository.exportCsv` and shows it in a copy-to-clipboard dialog (mirrors the Mink-memory
+  export — no Phase-7 share stack exists yet; native file share is a VERIFICATION device item).
+- **No self-audit event for exporting the log.** Exporting is a local read; recording an event that
+  references the audit log would be circular and add noise. Decision logged explicitly.

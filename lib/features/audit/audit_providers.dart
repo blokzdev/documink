@@ -9,6 +9,13 @@ final auditLogRepositoryProvider = Provider<AuditLogRepository>(
   (ref) => AuditLogRepository(ref.watch(appDatabaseProvider)),
 );
 
+/// Whether the audit-log **CSV export** action is available (roadmap §15: "CSV
+/// export shipped in V1 with an internal flag for Pro-gate activation in V1.1").
+/// **V1 ships it on.** Kept as an overridable provider so V1.1 flips the gate to
+/// a Pro-tier check in one place — not a code-archaeology hunt (logged in
+/// DECISIONS).
+final auditCsvExportEnabledProvider = Provider<bool>((ref) => true);
+
 /// Time window for the audit-log viewer (roadmap §15 "filterable by … time
 /// range"). [all] is unbounded; the rest map to a `since` cutoff.
 enum AuditRange { all, day, week, month }
