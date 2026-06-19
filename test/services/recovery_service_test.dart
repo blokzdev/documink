@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:documink/services/key_service.dart';
 import 'package:documink/services/recovery_service.dart';
-import 'package:documink/services/secure_key_store.dart';
+import 'package:documink/services/salt_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// BIP-39 recovery-phrase codec tests for V1 Phase 1d (blueprint §8.4).
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('decoded key re-derives identical subkeys', () async {
-      final keyService = KeyService(_NoopSecureKeyStore());
+      final keyService = KeyService(_NoopSaltStore());
       final mk = Uint8List.fromList(
         List.generate(32, (i) => (i * 13 + 1) & 0xff),
       );
@@ -118,17 +118,14 @@ void main() {
   });
 }
 
-/// deriveSubkeys never touches the store, so a no-op suffices here.
-class _NoopSecureKeyStore implements SecureKeyStore {
+/// deriveSubkeys never touches the salt store, so a no-op suffices here.
+class _NoopSaltStore implements SaltStore {
   @override
-  Future<bool> containsKey(String key) async => false;
-
+  Future<Uint8List?> read() async => null;
   @override
-  Future<void> delete(String key) async {}
-
+  Future<void> write(Uint8List salt) async {}
   @override
-  Future<String?> read(String key) async => null;
-
+  Future<bool> exists() async => false;
   @override
-  Future<void> write(String key, String value) async {}
+  Future<void> delete() async {}
 }

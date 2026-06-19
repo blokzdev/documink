@@ -2,25 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:documink/services/key_service.dart';
-import 'package:documink/services/secure_key_store.dart';
+import 'package:documink/services/salt_store.dart';
 import 'package:documink/services/vault_providers.dart';
 import 'package:documink/services/vault_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-/// In-memory [SecureKeyStore] for headless tests (no platform channels).
-class FakeSecureKeyStore implements SecureKeyStore {
-  final _values = <String, String>{};
-
-  @override
-  Future<String?> read(String key) async => _values[key];
-  @override
-  Future<void> write(String key, String value) async => _values[key] = value;
-  @override
-  Future<void> delete(String key) async => _values.remove(key);
-  @override
-  Future<bool> containsKey(String key) async => _values.containsKey(key);
-}
 
 /// No-op timer so the vault's auto-lock countdown leaves no pending real timer.
 class _FakeTimer implements Timer {
@@ -48,7 +34,7 @@ class TestVault {
   }) async {
     final dir = Directory.systemTemp.createTempSync('dm_test_vault');
     final service = VaultService(
-      keyService: KeyService(FakeSecureKeyStore()),
+      keyService: KeyService(FileSaltStore(File('${dir.path}/vault.salt'))),
       vaultFile: File('${dir.path}/vault.db'),
       openExecutor: (file, _) => NativeDatabase(file),
       timerFactory: (_, __) => _FakeTimer(),

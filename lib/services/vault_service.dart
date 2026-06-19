@@ -91,8 +91,17 @@ class VaultService extends StateNotifier<VaultState> {
   static Timer _realTimer(Duration d, void Function() onFire) =>
       Timer(d, onFire);
 
-  /// Whether a vault has been initialized (a salt exists).
-  Future<bool> vaultExists() => _keyService.vaultExists();
+  /// Whether a usable vault exists — **both** the salt and a non-empty database
+  /// file must be present. If exactly one is present the vault is half-created
+  /// (e.g. onboarding failed mid-way); the stray artifact is wiped so the next
+  /// launch starts a clean *create* instead of a permanently failing *unlock*.
+  Future<bool> vaultExists() async {
+    final hasSalt = await _keyService.hasSalt();
+    final hasDb = _vaultFile.existsSync() && _vaultFile.lengthSync() > 0;
+    if (hasSalt && hasDb) return true;
+    if (hasSalt || hasDb) await _wipeVaultArtifacts();
+    return false;
+  }
 
   /// The unlocked database. Throws [StateError] when the vault is locked.
   AppDatabase get database {
@@ -116,7 +125,7 @@ class VaultService extends StateNotifier<VaultState> {
   /// First-run setup: generate the salt + DEK, key the new database, and
   /// persist the wrapped DEK. Throws [StateError] if a vault already exists.
   Future<void> initialize(String passphrase) async {
-    if (await _keyService.vaultExists()) {
+    if (await vaultExists()) {
       throw StateError('Vault already initialized; call unlock()');
     }
     state = const VaultState(VaultStatus.unlocking);
@@ -144,7 +153,11 @@ class VaultService extends StateNotifier<VaultState> {
           );
       _adopt(db: db, keys: keys, dek: dek);
     } catch (error) {
+      // Create must be atomic: roll back every artifact written so far (salt +
+      // the half-written DB file) so a failed onboarding leaves a clean
+      // "no vault" state rather than a permanently-failing unlock.
       await _discard(db: db, keys: keys, dek: dek);
+      await _wipeVaultArtifacts();
       state = const VaultState(
         VaultStatus.error,
         message: 'Vault initialization failed',
@@ -198,6 +211,35 @@ class VaultService extends StateNotifier<VaultState> {
   /// locked.
   void touch() {
     if (state.isUnlocked) _armAutoLock();
+  }
+
+  /// Destroys the vault entirely — deletes the database and the salt — and
+  /// returns to the uninitialized state so onboarding can start fresh.
+  ///
+  /// **Destructive:** all local data is lost. Backs the "reset & start over"
+  /// recovery path (e.g. when a device's secure storage was wiped and the vault
+  /// can no longer be opened) and the failed-create rollback.
+  Future<void> reset() async {
+    await _discard(db: _db, keys: _keys, dek: _dek);
+    _db = null;
+    _keys = null;
+    _dek = null;
+    await _wipeVaultArtifacts();
+    if (mounted) state = const VaultState.locked();
+  }
+
+  /// Deletes the salt and the database file (+ its WAL/SHM/journal sidecars).
+  /// Best-effort: missing files are ignored.
+  Future<void> _wipeVaultArtifacts() async {
+    await _keyService.deleteSalt();
+    for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+      final file = File('${_vaultFile.path}$suffix');
+      try {
+        if (file.existsSync()) file.deleteSync();
+      } catch (_) {
+        // Best-effort cleanup; a locked/absent sidecar must not throw.
+      }
+    }
   }
 
   Future<DerivedKeys> _deriveSubkeys(String passphrase, Uint8List salt) async {

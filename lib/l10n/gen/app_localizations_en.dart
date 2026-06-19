@@ -686,6 +686,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditGroupSync => 'Sync';
 
   @override
+  String get vaultCreateTitle => 'Create your vault';
+
+  @override
+  String get vaultUnlockTitle => 'Unlock DocuMink';
+
+  @override
+  String get vaultCreateSubtitle =>
+      'Choose a passphrase. It encrypts everything on this device and cannot be recovered if forgotten.';
+
+  @override
+  String get vaultUnlockSubtitle =>
+      'Enter your passphrase to unlock your encrypted vault.';
+
+  @override
+  String get vaultPassphraseLabel => 'Passphrase';
+
+  @override
+  String get vaultConfirmLabel => 'Confirm passphrase';
+
+  @override
+  String get vaultCreateButton => 'Create vault';
+
+  @override
+  String get vaultUnlockButton => 'Unlock';
+
+  @override
+  String vaultErrTooShort(int count) {
+    return 'Use at least $count characters.';
+  }
+
+  @override
+  String get vaultErrMismatch => 'Passphrases do not match.';
+
+  @override
+  String get vaultErrEmpty => 'Enter your passphrase.';
+
+  @override
+  String get vaultErrCreate => 'Could not create the vault.';
+
+  @override
+  String get vaultErrUnlock => 'Incorrect passphrase.';
+
+  @override
+  String get vaultStateReadError => 'Could not read vault state.';
+
+  @override
+  String get vaultResetButton => 'Reset & start over';
+
+  @override
+  String get vaultResetTitle => 'Reset the vault?';
+
+  @override
+  String get vaultResetBody =>
+      'This permanently erases the vault and all documents on this device. You\'ll set a new passphrase. This can\'t be undone.';
+
+  @override
+  String get vaultResetConfirm => 'Erase & reset';
+
+  @override
+  String get vaultResetCancel => 'Cancel';
+
+  @override
   String get auditExportTooltip => 'Export CSV';
 
   @override

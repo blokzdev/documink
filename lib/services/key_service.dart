@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:argon2/argon2.dart';
 import 'package:cryptography/cryptography.dart';
 
+import 'salt_store.dart';
 import 'secure_key_store.dart';
 
 /// The four subkeys derived from the Master Key (blueprint §8.1).
@@ -61,11 +62,20 @@ class DerivedKeys {
 /// **Scope (V1 P1b):** passphrase-only. The biometric fast-path (KEK wrapped by
 /// a Keystore biometric-gated key, blueprint §8.3) is deferred to Phase 5; in
 /// passphrase mode the KEK is re-derived from the Master Key on every unlock, so
-/// nothing key-secret is persisted to the secure store — only the salt.
+/// nothing key-secret is persisted at all — only the (non-secret) salt.
+///
+/// The salt lives in a plaintext [SaltStore] (a file), **not** the platform
+/// Keystore: it is not secret, and a vanished Keystore key must never be able to
+/// brick the vault (see [SaltStore] / `docs/DECISIONS.md`). An optional
+/// [SecureKeyStore] is accepted only as a one-way **read-fallback**, to migrate
+/// the salt out of `flutter_secure_storage` for installs created before this
+/// change; all legacy reads are best-effort and tolerate a broken Keystore.
 class KeyService {
-  KeyService(this._store);
+  KeyService(this._saltStore, {SecureKeyStore? legacyStore})
+    : _legacy = legacyStore;
 
-  final SecureKeyStore _store;
+  final SaltStore _saltStore;
+  final SecureKeyStore? _legacy;
 
   // --- Argon2id parameters (blueprint §8.1: 64 MiB, t=3, p=4) -------------
   /// Memory cost in KiB. 65536 KiB = 64 MiB.
@@ -89,7 +99,8 @@ class KeyService {
   static const String _infoFpHmac = 'documink:fp-hmac:v1';
   static const String _infoSync = 'documink:sync:v1';
 
-  /// Secure-store key under which the Argon2id salt is persisted.
+  /// Legacy `flutter_secure_storage` key under which older builds persisted the
+  /// salt (base64). Retained only for the one-way migration read.
   static const String saltStorageKey = 'documink.vault.argon2_salt';
 
   // AES-GCM wrap geometry (cryptography defaults: 96-bit nonce, 128-bit tag).
@@ -100,14 +111,30 @@ class KeyService {
 
   // --- Salt management ---------------------------------------------------
 
-  /// Whether a vault has been initialized (i.e. a salt exists).
-  Future<bool> vaultExists() => _store.containsKey(saltStorageKey);
+  /// Whether a salt has been persisted (one half of "a vault exists" — the
+  /// other half, the DB file, is checked by `VaultService`).
+  Future<bool> hasSalt() async {
+    if (await _saltStore.exists()) return true;
+    return await _readLegacySalt() != null;
+  }
 
-  /// Reads the persisted Argon2id salt, or `null` if no vault exists yet.
+  /// Reads the persisted Argon2id salt, or `null` if none exists yet. If only a
+  /// legacy `flutter_secure_storage` salt is present (pre-migration install), it
+  /// is read and migrated into the [SaltStore] so future reads never touch the
+  /// Keystore again.
   Future<Uint8List?> readSalt() async {
-    final encoded = await _store.read(saltStorageKey);
-    if (encoded == null) return null;
-    return Uint8List.fromList(base64Decode(encoded));
+    final fromFile = await _saltStore.read();
+    if (fromFile != null) return fromFile;
+    final legacy = await _readLegacySalt();
+    if (legacy != null) {
+      try {
+        await _saltStore.write(legacy); // one-way migration off the Keystore
+      } catch (_) {
+        // If the file write fails we still return the salt; migration retries.
+      }
+      return legacy;
+    }
+    return null;
   }
 
   /// Returns the existing salt, or generates and persists a fresh random one on
@@ -117,8 +144,37 @@ class KeyService {
     final existing = await readSalt();
     if (existing != null) return existing;
     final salt = _randomBytes(saltLength);
-    await _store.write(saltStorageKey, base64Encode(salt));
+    await _saltStore.write(salt);
     return salt;
+  }
+
+  /// Removes the persisted salt (file + best-effort legacy Keystore entry). Used
+  /// by the vault reset / failed-create rollback.
+  Future<void> deleteSalt() async {
+    await _saltStore.delete();
+    final legacy = _legacy;
+    if (legacy != null) {
+      try {
+        await legacy.delete(saltStorageKey);
+      } catch (_) {
+        // Best-effort: a broken/absent Keystore entry is fine to ignore.
+      }
+    }
+  }
+
+  /// Best-effort read of the legacy Keystore-stored salt. Tolerates a broken
+  /// Keystore (the exact failure that motivated moving the salt to a file): any
+  /// error is treated as "no legacy salt".
+  Future<Uint8List?> _readLegacySalt() async {
+    final legacy = _legacy;
+    if (legacy == null) return null;
+    try {
+      final encoded = await legacy.read(saltStorageKey);
+      if (encoded == null) return null;
+      return Uint8List.fromList(base64Decode(encoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   // --- Master Key (Argon2id) ---------------------------------------------

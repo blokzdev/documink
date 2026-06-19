@@ -30,14 +30,22 @@ an item here in the same PR.
   `group('SQLCipher integration (gated)')` is `markTestSkipped` headless; runs green
   where the encrypted native build is linked (Android device / Windows). Confirms
   `PRAGMA key`/cipher open + DEK unwrap on a real encrypted DB.
-- ☐ **Secure storage adapters** — `flutter_secure_storage` reads/writes the Argon2id
-  salt + wrapped KEK via Android Keystore (and Windows DPAPI on V2). Unit tests use
-  an in-memory fake. *(lib/services/secure_key_store.dart)*
+- ☐ **Secure storage adapters** — `flutter_secure_storage` is now reserved for the Phase-5 biometric
+  wrapped KEK (Android Keystore / Windows DPAPI); the Argon2id **salt moved to a plaintext file**
+  (`vault.salt`, ADR-023). Unit tests use an in-memory fake. *(lib/services/secure_key_store.dart)*
 - ☐ **Best-effort key zeroization** behaves as documented on a real run (managed-Dart caveat).
 - ☐ **Vault unlock UX on device** (Phase 5e) — first-run create (passphrase + confirm) →
   `initialize` against the real **encrypted** DB; relaunch → unlock; wrong passphrase rejected;
   auto-lock after timeout returns to the unlock screen; router gate blocks all screens while locked.
   Headless tests use the plain executor; this confirms the SQLCipher-backed path end-to-end.
+- ☐ **Salt-on-file brick fix (ADR-023)** — the case from the bug report: install the fixed APK →
+  onboarding **create succeeds** → force-quit → relaunch → **unlock with the same passphrase works**
+  (no "incorrect passcode"). Must hold on the affected Samsung/StrongBox device where the Keystore
+  key was being lost. *Device:* the reporting phone.
+- ☐ **Reset & start over** — on an existing vault, the unlock screen's "Reset & start over" → confirm
+  → vault erased → screen returns to **create**, and a fresh passphrase creates a working vault.
+- ☐ **Legacy salt migration** — an install whose salt is still in `flutter_secure_storage` (pre-ADR-023)
+  unlocks after update and the salt is migrated to `vault.salt` (FSS no longer required thereafter).
 
 ## Detection (Phase 2)
 

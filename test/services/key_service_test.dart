@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:argon2/argon2.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:documink/services/key_service.dart';
+import 'package:documink/services/salt_store.dart';
 import 'package:documink/services/secure_key_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,13 +16,16 @@ import 'package:flutter_test/flutter_test.dart';
 /// (domain-separation strings, subkey set, DEK wrapping) is pinned with
 /// regression vectors and behavioural checks.
 void main() {
-  /// In-memory [SecureKeyStore] standing in for the platform secure store.
-  late _FakeSecureKeyStore store;
+  /// In-memory salt store + legacy secure-store fake (the latter only exercises
+  /// the one-way migration read-fallback).
+  late _InMemorySaltStore saltStore;
+  late _FakeSecureKeyStore legacy;
   late KeyService keyService;
 
   setUp(() {
-    store = _FakeSecureKeyStore();
-    keyService = KeyService(store);
+    saltStore = _InMemorySaltStore();
+    legacy = _FakeSecureKeyStore();
+    keyService = KeyService(saltStore, legacyStore: legacy);
   });
 
   Uint8List bytes(int length, int fill) =>
@@ -179,13 +184,13 @@ void main() {
     );
   });
 
-  group('Argon2id salt persistence (pre-unlock secure store)', () {
+  group('Argon2id salt persistence (plaintext salt store)', () {
     test('loadOrCreateSalt generates, persists, and is stable', () async {
-      expect(await keyService.vaultExists(), isFalse);
+      expect(await keyService.hasSalt(), isFalse);
 
       final salt = await keyService.loadOrCreateSalt();
       expect(salt.length, KeyService.saltLength);
-      expect(await keyService.vaultExists(), isTrue);
+      expect(await keyService.hasSalt(), isTrue);
 
       final again = await keyService.loadOrCreateSalt();
       expect(again, salt, reason: 'the salt must survive across unlocks');
@@ -195,7 +200,62 @@ void main() {
     test('readSalt is null before the vault is initialized', () async {
       expect(await keyService.readSalt(), isNull);
     });
+
+    test('deleteSalt clears the salt', () async {
+      await keyService.loadOrCreateSalt();
+      await keyService.deleteSalt();
+      expect(await keyService.hasSalt(), isFalse);
+      expect(await keyService.readSalt(), isNull);
+    });
+
+    test(
+      'migrates a legacy flutter_secure_storage salt into the file',
+      () async {
+        // Older install: salt only in the legacy secure store, none in the file.
+        final legacySalt = Uint8List.fromList(List.generate(16, (i) => i));
+        await legacy.write(KeyService.saltStorageKey, base64Encode(legacySalt));
+        expect(await saltStore.exists(), isFalse);
+
+        // readSalt returns it AND migrates it into the file store.
+        expect(await keyService.readSalt(), legacySalt);
+        expect(await saltStore.read(), legacySalt);
+        expect(await keyService.hasSalt(), isTrue);
+      },
+    );
+
+    test('a broken legacy store is treated as no salt (no throw)', () async {
+      keyService = KeyService(
+        saltStore,
+        legacyStore: _ThrowingSecureKeyStore(),
+      );
+      expect(await keyService.hasSalt(), isFalse);
+      expect(await keyService.readSalt(), isNull);
+    });
   });
+}
+
+class _InMemorySaltStore implements SaltStore {
+  Uint8List? _salt;
+  @override
+  Future<Uint8List?> read() async => _salt;
+  @override
+  Future<void> write(Uint8List salt) async => _salt = Uint8List.fromList(salt);
+  @override
+  Future<bool> exists() async => _salt != null;
+  @override
+  Future<void> delete() async => _salt = null;
+}
+
+class _ThrowingSecureKeyStore implements SecureKeyStore {
+  @override
+  Future<bool> containsKey(String key) async => throw Exception('keystore');
+  @override
+  Future<void> delete(String key) async => throw Exception('keystore');
+  @override
+  Future<String?> read(String key) async => throw Exception('keystore');
+  @override
+  Future<void> write(String key, String value) async =>
+      throw Exception('keystore');
 }
 
 class _FakeSecureKeyStore implements SecureKeyStore {

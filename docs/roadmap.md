@@ -111,6 +111,11 @@ Commit ADRs under `docs/adr/`:
 
 ### Phase 1 — Core data layer & vault
 
+> **Hardening (2026-06-19, ADR-023):** the non-secret Argon2id salt moved out of
+> `flutter_secure_storage` into a plaintext file after a real-device Keystore-key-loss bricked the
+> vault; added atomic create-or-rollback + a "reset & start over" recovery path. See ADR-023 /
+> `docs/DECISIONS.md`.
+
 - Implement drift schema per Blueprint §3 (including Mink and Projects tables).
 - Implement `KeyService`:
   - Argon2id derivation.

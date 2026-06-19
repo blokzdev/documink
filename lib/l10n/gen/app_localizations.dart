@@ -1312,6 +1312,120 @@ abstract class AppLocalizations {
   /// **'Sync'**
   String get auditGroupSync;
 
+  /// Vault gate title in first-run create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your vault'**
+  String get vaultCreateTitle;
+
+  /// Vault gate title in unlock mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock DocuMink'**
+  String get vaultUnlockTitle;
+
+  /// Vault gate subtitle in create mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a passphrase. It encrypts everything on this device and cannot be recovered if forgotten.'**
+  String get vaultCreateSubtitle;
+
+  /// Vault gate subtitle in unlock mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to unlock your encrypted vault.'**
+  String get vaultUnlockSubtitle;
+
+  /// Passphrase field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get vaultPassphraseLabel;
+
+  /// Confirm-passphrase field label (create mode).
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm passphrase'**
+  String get vaultConfirmLabel;
+
+  /// Button: create the vault.
+  ///
+  /// In en, this message translates to:
+  /// **'Create vault'**
+  String get vaultCreateButton;
+
+  /// Button: unlock the vault.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get vaultUnlockButton;
+
+  /// Validation: passphrase too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {count} characters.'**
+  String vaultErrTooShort(int count);
+
+  /// Validation: create passphrases differ.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrases do not match.'**
+  String get vaultErrMismatch;
+
+  /// Validation: empty passphrase on unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase.'**
+  String get vaultErrEmpty;
+
+  /// Error when vault creation fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the vault.'**
+  String get vaultErrCreate;
+
+  /// Error when unlock fails (wrong passphrase or unreadable vault).
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect passphrase.'**
+  String get vaultErrUnlock;
+
+  /// Error when the vault-exists check fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read vault state.'**
+  String get vaultStateReadError;
+
+  /// Button: erase the vault and start fresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset & start over'**
+  String get vaultResetButton;
+
+  /// Reset confirmation dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the vault?'**
+  String get vaultResetTitle;
+
+  /// Reset confirmation dialog body.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently erases the vault and all documents on this device. You\'ll set a new passphrase. This can\'t be undone.'**
+  String get vaultResetBody;
+
+  /// Reset dialog confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase & reset'**
+  String get vaultResetConfirm;
+
+  /// Reset dialog cancel button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get vaultResetCancel;
+
   /// Tooltip for the audit CSV export button.
   ///
   /// In en, this message translates to:
