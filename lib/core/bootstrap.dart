@@ -27,6 +27,7 @@ import '../services/authenticator.dart';
 import '../services/local_auth_authenticator.dart';
 import '../services/settings_store.dart';
 import '../services/shared_preferences_settings_store.dart';
+import '../services/key_service_providers.dart';
 import '../services/vault_providers.dart';
 import 'routes.dart';
 import '../ui/theme/app_theme.dart';
@@ -37,6 +38,10 @@ Future<void> bootstrap(Flavor flavor) async {
   final prefs = await SharedPreferences.getInstance();
   final supportDir = await getApplicationSupportDirectory();
   final vaultFile = File('${supportDir.path}/vault.db');
+  // The (non-secret) Argon2id salt lives in a plaintext sibling file, off the
+  // platform Keystore, so a vanished Keystore key can't brick the vault (see
+  // SaltStore / docs/DECISIONS.md).
+  final saltFile = File('${supportDir.path}/vault.salt');
   // Tier-4 on-device LLM runtime (Phase 10b). Initializes flutter_gemma once;
   // the model is downloaded + verified on demand (no model bundled).
   await FlutterGemma.initialize();
@@ -48,6 +53,7 @@ Future<void> bootstrap(Flavor flavor) async {
           SharedPreferencesSettingsStore(prefs),
         ),
         vaultFileProvider.overrideWithValue(vaultFile),
+        saltFileProvider.overrideWithValue(saltFile),
         authenticatorProvider.overrideWithValue(LocalAuthAuthenticator()),
         // Phase 4 input: real on-device OCR + camera/picker adapters. Behind
         // seams so headless tests use fakes; device-verified (VERIFICATION.md).

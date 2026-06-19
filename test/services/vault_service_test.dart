@@ -6,7 +6,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:documink/data/app_database.dart';
 import 'package:documink/data/tokens_dao.dart';
 import 'package:documink/services/key_service.dart';
-import 'package:documink/services/secure_key_store.dart';
+import 'package:documink/services/salt_store.dart';
 import 'package:documink/services/vault_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   late Directory tempDir;
   late File vaultFile;
-  late _FakeSecureKeyStore store;
+  late File saltFile;
   late KeyService keyService;
   late _FakeScheduler scheduler;
   final List<VaultService> services = [];
@@ -27,8 +27,8 @@ void main() {
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('documink_vault_test');
     vaultFile = File('${tempDir.path}/vault.db');
-    store = _FakeSecureKeyStore();
-    keyService = KeyService(store);
+    saltFile = File('${tempDir.path}/vault.salt');
+    keyService = KeyService(FileSaltStore(saltFile));
     scheduler = _FakeScheduler();
   });
 
@@ -152,6 +152,63 @@ void main() {
       expect(() => vault.database, throwsStateError);
     });
 
+    test('failed initialize rolls back salt + db (atomic create)', () async {
+      // A service whose executor throws when opening the DB: salt is written
+      // first, then the open fails — the rollback must wipe both.
+      final service = VaultService(
+        keyService: keyService,
+        vaultFile: vaultFile,
+        openExecutor: (_, __) => throw const FileSystemException('boom'),
+        timerFactory: scheduler.arm,
+      );
+      services.add(service);
+
+      await expectLater(service.initialize('correct horse'), throwsA(anything));
+
+      expect(await keyService.hasSalt(), isFalse, reason: 'salt rolled back');
+      expect(saltFile.existsSync(), isFalse);
+      expect(
+        await service.vaultExists(),
+        isFalse,
+        reason: 'clean create state',
+      );
+    });
+
+    test('vaultExists self-heals a half-created vault (salt, no db)', () async {
+      // Simulate a crash after the salt was written but before the DB existed.
+      await keyService.loadOrCreateSalt();
+      expect(await keyService.hasSalt(), isTrue);
+      expect(vaultFile.existsSync(), isFalse);
+
+      final vault = buildService();
+      expect(
+        await vault.vaultExists(),
+        isFalse,
+        reason: 'inconsistent ⇒ false',
+      );
+      expect(
+        await keyService.hasSalt(),
+        isFalse,
+        reason: 'stray salt cleaned so next run is a fresh create',
+      );
+    });
+
+    test('reset erases the vault and returns to create mode', () async {
+      final vault = buildService();
+      await vault.initialize('correct horse');
+      expect(await vault.vaultExists(), isTrue);
+
+      await vault.reset();
+
+      expect(vault.state.status, VaultStatus.locked);
+      expect(await vault.vaultExists(), isFalse);
+      expect(await keyService.hasSalt(), isFalse);
+      expect(vaultFile.existsSync(), isFalse);
+      // A fresh create works after reset.
+      await vault.initialize('new passphrase');
+      expect(vault.state.isUnlocked, isTrue);
+    });
+
     test('touch re-arms the auto-lock timer while unlocked', () async {
       final vault = buildService();
       await vault.initialize('correct horse');
@@ -268,22 +325,6 @@ Future<void> _seedFixture(AppDatabase db) async {
           createdAt: 0,
         ),
       );
-}
-
-class _FakeSecureKeyStore implements SecureKeyStore {
-  final Map<String, String> _data = {};
-
-  @override
-  Future<bool> containsKey(String key) async => _data.containsKey(key);
-
-  @override
-  Future<void> delete(String key) async => _data.remove(key);
-
-  @override
-  Future<String?> read(String key) async => _data[key];
-
-  @override
-  Future<void> write(String key, String value) async => _data[key] = value;
 }
 
 /// Captures the auto-lock callback so tests fire it deterministically; returns a

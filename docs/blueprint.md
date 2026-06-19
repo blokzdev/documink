@@ -1034,10 +1034,13 @@ DEK (data encryption key) encrypts tokens.ciphertext
   - Stored wrapped (AES-256-GCM under KEK) in vault_meta
 ```
 
-> **Note (V1 P1b, ADR-020).** The Argon2id **salt lives in `flutter_secure_storage`**, not in
-> `vault_meta`: `vault_meta` is inside the encrypted database, which cannot be read until the
-> DB key is derived — which needs the salt. The salt is not secret, but it must be readable
-> *before* unlock. `vault_meta` holds only post-unlock material (the wrapped DEK, `key_version`).
+> **Note (V1 P1b, ADR-020; salt storage updated by ADR-023).** The Argon2id **salt lives in a
+> plaintext app-private file** (`vault.salt`, sibling of `vault.db`), **not** in `flutter_secure_storage`
+> and **not** in `vault_meta`: `vault_meta` is inside the encrypted database, which cannot be read until
+> the DB key is derived — which needs the salt; and the platform Keystore can silently lose its key and
+> brick the vault (observed on a real StrongBox device — ADR-023). The salt is not secret, but it must
+> be readable *before* unlock. `flutter_secure_storage` stays reserved for the Phase-5 biometric wrapped
+> KEK. `vault_meta` holds only post-unlock material (the wrapped DEK, `key_version`).
 > A **dedicated DB-key subkey** opens SQLCipher (HKDF info `documink:sqlcipher:v1`) so the
 > database key and the KEK never share material. In V1's **passphrase-only** scope the KEK is
 > re-derived from MK on every unlock; persisting a Keystore-wrapped KEK is the biometric

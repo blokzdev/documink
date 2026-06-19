@@ -1397,3 +1397,43 @@ Phase 12 = Mink conversational layer **+** typed memory; 12a–c shipped the mem
   export — no Phase-7 share stack exists yet; native file share is a VERIFICATION device item).
 - **No self-audit event for exporting the log.** Exporting is a local read; recording an event that
   references the audit log would be circular and add noise. Decision logged explicitly.
+
+## 2026-06-19 — V1 Phase-1 hardening: vault create/unlock brick (root-cause fix) ⚠️ security-critical
+
+**Incident.** A maintainer's real-device test bricked the vault: onboarding → set+confirm passphrase →
+generic "couldn't create vault"; relaunch showed **unlock** (single entry) and rejected the correct
+passphrase as "incorrect passcode". The attached Android bug report pinned it:
+
+```
+keystore2: ResponseCode(7) (KEY_NOT_FOUND) … ai.documink.app.FlutterSecureStoragePluginKeyOAEP
+keystore2: In generate_key … FlutterSecureStoragePluginKeyOAEP          (FSS regenerates the lost key)
+FlutterSecureStorage: Key mismatch … InvalidKeyException: Failed to unwrap key
+```
+The device's **StrongBox** Keymaster was logged `non-responsive`. The Argon2id **salt** — the *only*
+thing we stored in `flutter_secure_storage` — became undecryptable when FSS's Keystore key vanished, so
+unlock derived the wrong DB key and SQLCipher wouldn't open. Two compounding defects: (a) a **non-secret**
+value behind a fragile hardware key = brick SPOF; (b) **no atomicity/recovery** — `_discard()` deleted
+neither the salt nor `vault.db`, `vaultExists()` was salt-only, so a half-created vault routed to unlock
+forever, and there was no reset path; the unlock screen's bare `catch (_)` hid the real error.
+
+**Decision (maintainer-confirmed via AskUserQuestion).**
+1. **Salt → plaintext app-private file** (`vault.salt`), off the Keystore (new `SaltStore`/`FileSaltStore`).
+   The salt is public KDF input (RFC 9106; blueprint §8.1 already said "not secret"), so this leaks
+   nothing — the SQLCipher DB stays encrypted and its key is never stored. **Supersedes ADR-020 Decision 1;
+   see new ADR-023.** FSS kept only as a one-way migration read-fallback (best-effort, tolerates a broken
+   Keystore) and for the future Phase-5 biometric KEK.
+2. **Full hardening:** atomic create-or-rollback (failed `initialize()` wipes salt + db); self-healing
+   `vaultExists()` (needs salt **and** non-empty db; cleans a half-created state); destructive
+   `VaultService.reset()` behind a localized **"Reset & start over"** unlock-screen affordance (unbricks
+   the maintainer's device without reinstall); real error logging (`dart:developer`, crypto/IO only — no PII).
+
+**Options considered:** (B) keep FSS + file mirror — rejected: create still does a Keystore write that can
+fail on flaky devices. (C) only harden `AndroidOptions` — rejected: still a Keystore SPOF; `resetOnError`
+would silently wipe the salt = brick.
+
+**Security review:** no invariant weakened. Salt confidentiality was never part of the threat model; no PII
+or key material is written in plaintext (only the public salt). Privacy-invariants #1–#7 unaffected.
+
+**Deviation protocol:** this reverses ADR-020 and a blueprint §8.1 statement — surfaced, not silently
+reconciled. Specs updated in the same change (ADR-023 added, ADR-020/§8.1 amended). Device re-test tracked
+in `VERIFICATION.md` (the Keystore/StrongBox path is only exercisable on the device).
